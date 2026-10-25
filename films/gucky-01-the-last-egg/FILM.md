@@ -10,7 +10,7 @@ the line), and the boot cliffhanger approved. The hard frame is approved (Mom of
 hatch (7.5–13.5 s) is built and scored; the user approved its second version
 (`out/g01-hatch-v2.mp4`: "it sounds way better!!"), the dry room and the small orchestra. The
 hook and egg beat (0–7.5 s) are built and scored, waiting for the user's review of
-`out/g01-0-13.5.mp4`; the rest (13.5–30 s) is not built yet.
+`out/g01-0-13.5-v2.mp4`; the rest (13.5–30 s) is not built yet.
 
 ## Form
 
@@ -72,11 +72,12 @@ strip of `SPOT.sky` pond appears at the top in the last beat. Boil at 8 per seco
 
 | Time | Picture | Sound |
 |---|---|---|
-| 0–0.3 | four eggs in the nest; Pip's (left) already cracking round and shivering | card cracks and a pizzicato note in the first 0.05 s |
-| 0.3 | Pip bursts out: unfolds in a high jump, top spinning off, lands at 300 chest out, wings up (ta-da) | card pop, flick, pizzicato chord D–A–D–F♯, glockenspiel spark, a bright "ta-da" peep, a soft landing |
-| 1.1 | Dot rises gently out of hers, the top lifting away; lands soft and smiles (eyes closed) | softer cracks, a pizzicato dyad, a high glockenspiel note, a content peep |
-| 1.5–1.9 | Bean's egg wobbles and tips; Bean flops out yawning | marimba tocks on the wobble, a low pizzicato plop, a yawn |
-| 2.3–3.0 | three heads turn to the speckled egg and hold | the fourth beat never comes: silence |
+| 0–0.25 | four eggs; Pip's (left) already cracking and shivering, then squeezing down | card cracks from the first frame; four pizzicato notes climbing over the squeeze |
+| 0.25–0.95 | Pip's top launches high, spinning twice; he comes out in a clean somersault, unfolding, sticks the landing at 300 (ta-da, wings up, a shine burst), then shakes himself dry in a spray of drops | a card pop and a whoosh; a quick harp run over the flip; a pizzicato D major chord and a bright peep on the landing; a marimba trill and a brush for the shake, water drops |
+| 1.0–1.4 | Dot's lid flips open on its hinge; a small Dot peeks out, looks at Pip, turns to look the other way, blinks twice | soft cracks, a creak and a light tock as the lid lands; two curious pizzicato notes; a glockenspiel plink on each blink |
+| 1.4–2.0 | she hops out light, lands soft, shimmies dry with sparkles and a smile | a gentle harp run, a soft landing, high glockenspiel sparkles, a content peep |
+| 1.45–2.5 | Bean's egg wobbles, falls over with a thunk; Bean slides out still asleep (z's), lands, then dries off in one huge yawn and stretch | marimba tocks on the wobble, a low thunk and pizzicato note, a slide, a plop, the yawn |
+| 2.55–3.05 | three heads turn to the speckled egg and hold | nothing comes: silence |
 | 3.4 | still nothing; Pip blinks | a tiny glockenspiel plink |
 | 3.75–4.55 | Pip marches up to the egg, chest out | a pizzicato note per footfall, up the scale |
 | 4.85, 5.1 | he leans in and knocks twice with his bill | two wood knocks |
@@ -87,16 +88,24 @@ strip of `SPOT.sky` pond appears at the top in the last beat. Boil at 8 per seco
 | 6.55–7.15 | Pip sits up, sees the crack, gets up | two pizzicato notes, up |
 | 3.6–4.6 | meanwhile Bean nods off again (z's) | |
 
-Decisions: each sibling hatches its own way (Pip bursts, Dot rises, Bean tips out), on a 0.8 s
-beat whose fourth beat is the stare; all three unfold from their small eggs the way Gucky does.
+Decisions: the user found the first sibling hatches "bland compared to gucky". Now each hatches
+in character and comes out wet like Gucky, drying off its own way: Pip the show-off (a launched
+top, a somersault, a stuck landing, a shake), Dot the watcher (she peeks out and looks around
+before she comes out), Bean the sleeper (born asleep, dries in a yawn). Gucky keeps what is only
+his: the tumble, the cap that stays on, staying wet. All four unfold from eggs smaller than they
+are. Bean's egg now lies on its side behind Bean, hidden by Gucky in the hard frame.
+
+The user also saw "inconsistency with frames around 7 sec": for 0.15 s after getting up (7.15–7.3)
+Pip was drawn back at the end of his march (x 468), then snapped to 330. Fixed: he stays at 330.
 Pip knocks with his bill from x 468, bending his head more than his body: leaning further tipped
 his feet off the ground and pushed his bill into the shell. He lies on his back about x 372 and
 stands up where the hatch starts him (330), in the hatch's opening pose.
 
-Measured: the whole score is now −17.2 LUFS (1.2 LU under target, held by the approved pop's true
-peak at 10.72 s; every approved hatch mark measures the same loudness as before). The muxed AAC
-peak of the 0–13.5 s render is −0.8 dBFS: fix at the final master (onset ramps on the pop). Looked
-at: 0–7.5 every 0.25 s, the hook hatches and the knock and shove frame by frame, the 7.5 s join.
+Measured: the whole score is −16.7 LUFS, true peak −1.0 dBTP at the approved pop (10.72 s); the
+0–13.5 s render muxes to −16.6 LUFS, −1.1 dBFS. The hook sits about −14 LUFS momentary, under the
+pop's −12. Looked at: the hook every other frame (0–3.2), 0–7.5 every 0.25 s, the knock and shove
+frame by frame, every frame of 6.7–7.7 (the join), and the 11.5 s hard frame against the approved
+one (unchanged).
 `verify.mjs --engine chromium` passes; `review.mjs` finds no held stretch. Not heard here.
 
 ## The hatch as built (7.5–13.5 s)
