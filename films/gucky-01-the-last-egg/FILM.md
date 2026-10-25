@@ -7,8 +7,9 @@ boot stamps down in front of him. A series pilot; read `series/gucky/SERIES.md` 
 
 Status: beats approved by the user in chat (hook, the egg, the hatch, the first steps, joining
 the line), and the boot cliffhanger approved. The hard frame is approved (Mom off screen). The
-hatch (7.5–13.5 s) is built and scored, waiting for the user's review of
-`out/g01-hatch.mp4`; the rest is not built yet and holds the 7.5 s or 13.5 s state.
+hatch (7.5–13.5 s) is built and scored; the user approved its second version
+(`out/g01-hatch-v2.mp4`: "it sounds way better!!"), the dry room and the small orchestra. The
+rest is being built.
 
 ## Form
 

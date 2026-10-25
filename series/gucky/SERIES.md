@@ -81,7 +81,8 @@ bottom half now keeps the whole egg's specks (it used to redraw them elsewhere a
 - The orchestra: pizzicato (`pizz`), a string section (`strings`, tremolo for tension), marimba
   (`mallet`), glockenspiel (`glock`) and harp runs (bright `pizz`), mickey-mousing the action, in
   D major. Foley on every contact. Outdoors the room is nearly dry (`ROOM`, see episode 1): the
-  user heard the kit's default room as echoes. Synth pads, drones and slide whistles were rejected.
+  user heard the kit's default room as echoes. Synth pads, drones and slide whistles were rejected;
+  this palette was approved on episode 1's hatch.
 - Gucky's motif (`motif(s, at, 'ask' | 'answer')`): plucked, D major. 'ask' (four notes) leaves
   the question open; 'answer' (five) resolves on the octave. State it incomplete when he is
   trying, complete when he gets there. Keep the notes; change instrument and mode with mood.
