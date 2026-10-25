@@ -10,10 +10,13 @@ the line), and the boot cliffhanger approved. Not built yet.
 
 ## Form
 
-One continuous take at duckling eye level, vertical 1080×1920 design rendered at 1440×2560,
-30 s. The nest sits in the lower-middle band (above the bottom overlay); Mom's feet enter at the
-top; the line of ducklings walks up and out of frame toward the pond, so the height of the frame
-is the journey. The camera holds still, then tilts up with the line in the last beats.
+One continuous take, vertical 1080×1920 design rendered at 1440×2560, 30 s. The camera sits a
+little above the ducklings, looking down the field to the pond along the top of the frame
+(horizon y 430, shore y 540). The nest is a low straw ring in the lower middle (centre x 540,
+base y 1480, 960 wide); ducklings in it stand about 290 px tall. Walking away means walking up
+the frame toward the pond. Mom stays off screen: heard calling, and the siblings waddle out of
+frame toward her. Gucky never sees her, which is why he takes the boot for her (the cliffhanger
+into episode 2, whose payoff is the first look at Mom).
 
 Palette: down yellow, bills and feet orange, shells pale blue-green with speckles, nest sand; a
 strip of `SPOT.sky` pond appears at the top in the last beat. Boil at 8 per second throughout.
@@ -25,7 +28,7 @@ strip of `SPOT.sky` pond appears at the top in the last beat. Boil at 8 per seco
 | 0–3 s, hook | Frame 0: four eggs in the nest, the first already cracking. Pop (0.3 s), pop (1.1 s), pop (1.9 s): Pip, Dot and Bean burst out, each differently. The speckled egg does nothing. Three heads turn to stare at it. | comic surprise, then a question | three shell cracks with a rising peep each, on the beat; silence on the stare |
 | 3–8 s | Nothing. Pip leans in and taps it; the egg rocks and knocks him over. A crack zigzags across the shell. | comic tension | a ticking pulse that stretches; a wobble "tock" on each rock; a thud and an indignant peep for Pip; a dry crack sweep |
 | 8–13 s | A pip punches through, the zigzag runs round, and the cap pops: Gucky tumbles out, wet and spiky, the top of the shell on his head. He blinks. | release, wonder | silence just before the pop; the pop on its frame; a soft pad swell; Gucky's first peep, small |
-| 13–21 s | His siblings are already waddling after Mom, whose white belly and big orange feet cross the top of frame. Gucky tries to stand: legs splay, bill plants in the straw, the cap slides over his eyes, he pushes it up, stands, wobbles. | underdog comedy | mickey-moused: each failed try has its own sound (splay boing, bill thunk, cap slide); Mom's footsteps far and steady |
+| 13–21 s | His siblings are already waddling off toward Mom's call, out of the nest and up the field. Gucky tries to stand: legs splay, bill plants in the straw, the cap slides over his eyes, he pushes it up, stands, wobbles. | underdog comedy | mickey-moused: each failed try has its own sound (splay boing, bill thunk, cap slide); Mom's footsteps far and steady |
 | 21–25.5 s | Three wobbly steps (motif 'ask'), then a run up the frame after the line, his down drying fluffy as he goes. | determination | the motif incomplete on the steps, quickening; peeps rising |
 | 25.5–27.5 s, payoff | He reaches the end of the line and falls into step, last, cap bobbing. | warm triumph, a smile | the motif resolved ('answer') |
 | 27.5–30 s, cliffhanger | A huge rubber boot stamps down between Gucky and the line, which walks on out of frame. Gucky stops. His eyes go up, then his head, all the way up the boot. Hold on his face. | wonder, uh-oh | a deep thud on the stamp; silence; the motif 'ask', unresolved |
@@ -42,13 +45,24 @@ strip of `SPOT.sky` pond appears at the top in the last beat. Boil at 8 per seco
 ## Risks and fallbacks
 
 - The stare at 2–3 s might not read at phone size: hold it 0.6 s and turn all three heads together.
-- Mom's feet crossing the top of frame may sit under the top overlay: keep them below y ≈ 300.
 - Wet-to-dry needs to read as a change, not a flicker: blend `wet` over 3 s while he runs.
 
 ## Assumptions made without asking
 
 - Nest outdoors in grass at the pond's edge; morning light; no other animals.
 - The siblings hatch in the order Pip, Dot, Bean.
+
+## Decisions while proving the hard frame
+
+- Mom off screen. A real duck is about five ducklings tall; behind the nest she would be fully in
+  frame and needs her own design. Keeping her off screen also sets up the boot (he has never seen
+  her) and makes her reveal episode 2's payoff.
+- Camera above the ducklings with the pond along the top, not at their eye level: everyone reads
+  at about 290 px, and leaving means climbing the frame.
+- The nest is a low mound of loose straw with a raised ring (kit `nest`, `depth: .3, rim: .13`),
+  after a flat tray, a deep tub and a basket-like drum each read wrong.
+- Hard frame at 11.5 s: Pip nose to nose with wet Gucky ("who are you?"), Bean peeking from
+  behind, Dot watching, Gucky's shell behind him.
 
 ## Remaining work
 

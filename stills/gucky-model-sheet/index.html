@@ -948,8 +948,9 @@ return {camera,plane,pathByLength,travel,hermite,ballistic};
    feet, x forward (toward the bill in side view), y down. `s` scales a unit to
    UNIT px (s = 1 is a 320 px duckling; .4 a wide shot, 2+ a close-up).
 
-   Top-level names: UNIT, GUCKY, DUCKLINGS, duckling, walkPhase, egg, nest,
-   momFeet, peep, peepRun, motif.
+   Top-level names: UNIT, GUCKY, DUCKLINGS, rotAbout, fluffy, knock, dot, duckling,
+   walkPhase, tuft, eye, brow, shellCap, egg, nest, momFeet, boot, peep, peepRun,
+   motif.
    ───────────────────────────────────────────────────────────────────────── */
 
 const UNIT = 320;
@@ -1174,7 +1175,8 @@ function shellCap(g, H, at, cap, key, t, kw) {
 /**
  * A duck egg, standing on its blunt end at (x, y).
  *   rock     radians it tips about its base            crack  0..1 how far the zigzag has run round it
- *   pip      0..1 a hole punched where the bill comes   top    { dx, dy, tilt } the cap lifted off, or null
+ *   pip      0..1 a hole punched where the bill comes   top    { dx, dy, tilt } the cap lifted off (gone: true
+ *            when it has left, as on a hatchling's head), or null
  *   speckled Gucky's egg                                 s, t, key
  */
 function egg(g, x, y, o = {}) {
@@ -1192,8 +1194,11 @@ function egg(g, x, y, o = {}) {
   } else {
     // The bottom stays with the zigzag as its rim; the cap lifts away with the other side of it.
     shell(W2([...arc(ca, Math.PI - ca), ...zig]), 'shell');
-    const top = o.top, cap = rotAbout([...arc(Math.PI - ca, TAU + ca), ...zig.slice().reverse()], 0, crackY, top.tilt || 0).map(([a, b]) => [a + (top.dx || 0), b + (top.dy || 0)]);
-    shell(W2(cap), 'top');
+    const top = o.top;
+    if (!top.gone) {
+      const cap = rotAbout([...arc(Math.PI - ca, TAU + ca), ...zig.slice().reverse()], 0, crackY, top.tilt || 0).map(([a, b]) => [a + (top.dx || 0), b + (top.dy || 0)]);
+      shell(W2(cap), 'top');
+    }
   }
   if (o.speckled) {
     const r = rngFor(key + ':speck');
@@ -1217,36 +1222,41 @@ function egg(g, x, y, o = {}) {
 }
 
 /**
- * A nest of dry grass seen from low and in front: a shallow bowl whose straws follow the rim.
- * Draw part 'back' (bowl and far rim) before what sits in it, 'front' (near rim) after; omit
- * part for both at once.
+ * A nest of dry grass seen from a little above: a raised ring of loose straw round a shallow bowl.
+ * Draw part 'back' (bowl, loose straw inside, far side of the ring) before what sits in it,
+ * 'front' (near side of the ring) after; omit part for both at once. depth (.26) is the bowl's
+ * height over its width; rim (.1) how tall the ring stands, as a fraction of that height.
  */
 function nest(g, x, y, w, o = {}) {
-  const key = o.key || 'nest', t = o.t, h = w * .26, cy = y - h * .45, part = o.part;
-  const rim = (a0, a1, n, k) => {
+  const key = o.key || 'nest', t = o.t, h = w * (o.depth ?? .26), cy = y - h * .45, part = o.part, T = h * (o.rim ?? .1) * 2.2;
+  // The ring is the bowl's outline swept up by T: outer edge at the lip, inner edge T higher.
+  // Sloped like a mound: the base flares out past the lip, the top of the ring tucks in.
+  const band = (a0, a1, rx, ry, dy) => [...ellipse(x, cy, rx * 1.03, ry * 1.04, { a0, a1, n: 40 }), ...ellipse(x, cy - dy, rx * .9, ry * .78, { a0: a1, a1: a0, n: 40 })];
+  const straws = (a0, a1, n, k, wgt) => {
     const r = rngFor(`${key}:${k}`);
     for (let i = 0; i < n; i++) {
-      const a = a0 + (a1 - a0) * (i + r() * .6) / n, rr = .9 + r() * .14, len = .22 + r() * .18;
-      const pts = ellipse(x, cy + (r() - .5) * h * .12, w * .5 * rr, h * .5 * rr, { a0: a, a1: a + len * (r() < .5 ? 1 : -1), n: 10 });
-      ink(g, pts, { key: `${key}:${k}${i}`, t, w: 1.8 + r() * 1.2, taper: [8, 12], wobble: .7 });
+      const a = a0 + (a1 - a0) * (i + r() * .7) / n, lift = r() * T, rr = (1.02 - .1 * lift / T) + (r() - .5) * .04, len = .1 + r() * .2;
+      const tilt = (r() - .5) * T * .6, pts = ellipse(x, cy - lift, w * .5 * rr, h * .5 * rr * (1 - lift / T * .22), { a0: a, a1: a + len * (r() < .5 ? 1 : -1), n: 8 }).map(([px, py], j) => [px, py + tilt * (j / 8 - .5)]);
+      ink(g, pts, { key: `${key}:${k}${i}`, t, w: (1.6 + r() * 1.4) * wgt, taper: [7, 10], wobble: .8 });
     }
   };
   if (part !== 'front') {
-    const bowl = ellipse(x, cy, w * .5, h * .5);
-    tint(g, bowl, SPOT.sand, { key: `${key}:bowl`, t, alpha: .7 });
-    hatch(g, ellipse(x, cy - h * .05, w * .4, h * .3), { key: `${key}:shade`, t, gap: 12, ang: -.15, w: 1.5, fade: (u) => 1 - u * .6 });
-    rim(Math.PI, TAU, 16, 'back');
+    tint(g, ellipse(x, cy - T * .5, w * .45, h * .4), SPOT.sand, { key: `${key}:bowl`, t, alpha: .4, marker: false });
+    const r = rngFor(`${key}:inside`);
+    for (let i = 0; i < 10; i++) {
+      const px = x + (r() - .5) * w * .55, py = cy - T * .5 + (r() - .5) * h * .35, a = (r() - .5) * .8, l = 24 + r() * 30;
+      ink(g, [[px, py], [px + Math.cos(a) * l, py + Math.sin(a) * l * .4]], { key: `${key}:in${i}`, t, w: 1.5, taper: [6, 6], wobble: .5, alpha: .7 });
+    }
+    const back = band(Math.PI, TAU, w * .5, h * .5, T);
+    knock(g, back); tint(g, back, SPOT.sand, { key: `${key}:backband`, t, alpha: .85, marker: false });
+    straws(Math.PI + .05, TAU - .05, 26, 'back', .9);
   }
   if (part !== 'back') {
-    // The near rim stands up: a crescent between the outer lip and a higher inner edge hides what
-    // sits in the bowl below about cy + .2h.
-    const r = rngFor(`${key}:base`), outer = ellipse(x, cy, w * .5, h * .5, { a0: 0, a1: Math.PI, n: 40 });
-    const band = [...outer, ...ellipse(x, cy - h * .1, w * .46, h * .3, { a0: Math.PI - .02, a1: .02, n: 40 })];
-    knock(g, band); tint(g, band, SPOT.sand, { key: `${key}:band`, t, alpha: .85 });
-    ink(g, outer, { key: `${key}:lip`, t, w: 3.2, taper: [20, 20] });
-    ink(g, ellipse(x, cy - h * .1, w * .46, h * .3, { a0: .15, a1: Math.PI - .15, n: 40 }), { key: `${key}:inner`, t, w: 2.6, taper: [16, 16] });
-    rim(.1, Math.PI - .1, 18, 'front');
-    for (let i = 0; i < 5; i++) { const px = x - w * .38 + i * w * .19 + (r() - .5) * 20; ink(g, [[px, y - h * .02], [px + 14 + r() * 12, y - h * .12]], { key: `${key}:tuft${i}`, t, w: 1.8, taper: [2, 8] }); }
+    const front = band(0, Math.PI, w * .5, h * .5, T);
+    knock(g, front); tint(g, front, SPOT.sand, { key: `${key}:band`, t, alpha: .85, marker: false });
+    straws(.04, Math.PI - .04, 40, 'front', 1.1);
+    ink(g, ellipse(x, cy, w * .5, h * .5, { a0: 0, a1: Math.PI, n: 40 }), { key: `${key}:lip`, t, w: 3, taper: [24, 24], skip: .25 });
+    ink(g, ellipse(x, cy - T, w * .5 * .93, h * .5 * .8, { a0: .2, a1: Math.PI - .2, n: 40 }), { key: `${key}:top`, t, w: 2.2, taper: [20, 20], skip: .35 });
   }
 }
 
@@ -1271,6 +1281,40 @@ function momFeet(g, x, y, s, o = {}) {
     outline(g, pad, { key: `${key}:foot${kk}`, t, w: wD, join: 2 });
     for (const tx of [.06, .11]) ink(g, X([[ax + tx * k, ay - .012 * k], [ax + (tx + .02) * k, ay + .004 * k]]), { key: `${key}:toe${kk}${tx}`, t, w: wD * .55, taper: [2, 3] });
   }
+}
+
+/**
+ * A rubber boot, as a duckling meets one: a sole at ground level and a shaft that goes up and up.
+ * Built like everything else here: one smooth outline, a marker fill that misses it, a line for
+ * the sole, ink dots for mud. (x, y) is the ground point under the middle of the sole.
+ *   s        scale in duckling units (a boot is about 4.6 tall and 3 long)
+ *   facing   -1 toe left, 1 toe right            lift  units above the ground (a stamp comes down)
+ *   tip      radians the toe rises while it lifts  color  marker colour (SPOT.green)
+ *   leg      false for an empty boot; legColor the trouser leg (SPOT.blue)
+ */
+function boot(g, x, y, s, o = {}) {
+  const key = o.key || 'boot', t = o.t, S = UNIT * s, kw = clamp(Math.sqrt(s), .75, 1.6), f = o.facing ?? -1;
+  const wS = 5 * kw, wD = 2.8 * kw, lift = o.lift || 0;
+  const X = (pts) => xf(rotAbout(pts, 1.35, 0, -(o.tip || 0)).map(([a, b]) => [a, b - lift]), x, y, 0, -f * S, S);
+  // Worn: a trouser leg comes out of the top and goes up out of frame.
+  if (o.leg !== false) {
+    const leg = X([[.22, -3.9], [.2, -7.5], [1.34, -7.5], [1.3, -3.9]]);
+    knock(g, leg); tint(g, leg, o.legColor || SPOT.blue, { key: `${key}:legfill`, t, miss: 3 * kw });
+    ink(g, X([[.22, -3.9], [.2, -7.5]]), { key: `${key}:legL`, t, w: wS, taper: [2, 2] });
+    ink(g, X([[1.3, -3.9], [1.34, -7.5]]), { key: `${key}:legR`, t, w: wS, taper: [2, 2] });
+    for (const [a, b] of [[[.4, -4.3], [.8, -4.6]], [[.9, -4.15], [1.15, -4.45]]]) ink(g, X(curve([a, [(a[0] + b[0]) / 2, a[1] - .12], b], { per: .03 })), { key: `${key}:fold${a[0]}`, t, w: wD * .8, taper: [6, 6] });
+  }
+  const body = curve([[1.35, 0], [0, .01], [-1.3, 0], [-1.55, -.2], [-1.25, -.52], [-.35, -.74], [.08, -1.25], [.12, -4.0], [1.4, -4.0], [1.4, -1.1], [1.47, -.3]], { closed: true, per: .03 });
+  const B = X(body);
+  knock(g, B); tint(g, B, o.color || SPOT.green, { key: `${key}:fill`, t, miss: 3 * kw });
+  outline(g, B, { key: `${key}:line`, t, w: wS });
+  ink(g, X(curve([[1.43, -.16], [0, -.15], [-1.34, -.15], [-1.5, -.22]], { per: .03 })), { key: `${key}:sole`, t, w: wD, taper: [8, 8] });
+  for (const tx of [-1, -.5, 0, .5, 1]) ink(g, X([[tx, -.02], [tx + .08, -.13]]), { key: `${key}:tread${tx}`, t, w: wD * .6, taper: [2, 2] });
+  ink(g, X(curve([[.55, -1.4], [.62, -2.6], [.6, -3.6]], { per: .03 })), { key: `${key}:seam`, t, w: wD * .7, taper: [10, 10] });
+  // The rim: a band across the top of the shaft.
+  ink(g, X(curve([[.13, -3.82], [.75, -3.86], [1.4, -3.82]], { per: .03 })), { key: `${key}:rim`, t, w: wD, taper: [6, 6] });
+  const r = rngFor(key + ':mud');
+  for (let i = 0; i < 9; i++) { const q = X([[-1.2 + r() * 2.5, -.2 - r() * .45]])[0]; dot(g, q[0], q[1], (1.6 + r() * 2.4) * kw); }
 }
 
 /* ── voices and motif ─────────────────────────────────────────────────────── */
