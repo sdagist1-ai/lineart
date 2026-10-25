@@ -77,6 +77,10 @@ hearts, a question mark or "zzz" are drawn as paths with `ink()`, never with fon
 
 - `new-film.mjs` makes 1080×1920 shown at 405×720; `--format square` makes 1080×1080 at 720. The
   `<meta name="frame">` line tells every tool the size.
+- `--res 1440` (or 2160) renders the same design larger: draw in 1080×1920 design pixels and the
+  canvas holds `K` output pixels per design pixel, with widths, wobble and gaps scaled, so the look
+  holds. Instagram shows 1080×1920 and downsizes larger uploads: 1440 buys cleaner edges after
+  that and a master for other platforms, at about twice the render time.
 - Reels cover roughly the top 250 px and bottom 420 px with captions and buttons, and the right
   120 px with the action column. Keep eyes, faces and the key action in the middle band (y about
   250–1500) and off the right edge. These are approximate; check one upload.

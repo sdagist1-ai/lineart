@@ -16,7 +16,7 @@ was not watched or heard.
 
 ```
 node new-film.mjs --kind film --duration 30 --out ../films/<name>/index.html
-node new-film.mjs --kind film --duration 30 --series gucky --out ../films/<name>/index.html
+node new-film.mjs --kind film --duration 30 --series gucky --res 1440 --out ../films/<name>/index.html
 node shoot.mjs ../films/<name>/index.html --range 6.6:6.9:0.0333333333 --sheet
 node review.mjs ../films/<name>/index.html [--mp4 ../out/<name>.mp4]
 node verify.mjs ../films/<name>/index.html [--engine chromium]
@@ -41,7 +41,7 @@ Firefox is the primary engine; `verify --engine` checks one while iterating, del
   A hook flags `Math.random()`, a lost `__film` and syntax errors as soon as an edit lands.
 - The score is pure too: seeded, exactly `duration` long, scaled once to −16 LUFS under −1 dBTP.
 - Fills (`tint`) go under lines (`ink`). Black is line only; shadow is hatching; colour is spot.
-- Draw at frame size; never scale a drawn bitmap. Keep eyes and key action out of the Reels
+- Draw in design pixels (1080 wide); `--res` sets the output size. Never scale a drawn bitmap. Keep eyes and key action out of the Reels
   overlays (roughly top 250, bottom 420 and right 120 px of 1080×1920).
 - Changing an element's key or a `Score({ key })` redraws or reseeds it; freeze keys once approved.
 

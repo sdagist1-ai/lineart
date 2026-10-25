@@ -6,12 +6,14 @@
    of animation drawn on paper. Nothing reads a clock or Math.random, so seek(t)
    stays exact.
 
-   Coordinates are frame pixels, W x H; points are [x, y]. Every drawing call
+   Coordinates are design pixels, W x H; a work may render them larger (K output
+   pixels per design pixel) and every width, wobble and gap scales with it, so
+   the look holds at any resolution. Points are [x, y]. Every drawing call
    takes the context first and options with a `key` last. Reuse a key and the
    line repeats exactly; pass `t` too and it boils.
 
    Top-level names: PAPER, INK, SPOT, BOIL, TAU, mulberry32, hash, rngFor,
-   clamp, lerp, smooth, local, ease, onTwos, boilKey, h01, noise1, cv, bakePaper,
+   clamp, lerp, smooth, local, ease, onTwos, boilKey, h01, noise1, cv, bakePaper, scaleOf,
    ellipse, curve, bez, resample, xf, ink, outline, tint, spans, unrotate,
    hatch, scribble, speed, burst, puff.
    ───────────────────────────────────────────────────────────────────────── */
@@ -75,11 +77,13 @@ function cv(w, h) {
 }
 
 /* ── paper ────────────────────────────────────────────────────────────────────
-   Warm white with a faint tooth, baked once. Kept quiet: video compression
-   smears fine texture, and the line is the subject.                         */
+   Warm white with a faint tooth, baked once at the output resolution (k output
+   pixels per design pixel). Kept quiet: video compression smears fine texture,
+   and the line is the subject.                                               */
 
-function bakePaper() {
-  const c = cv(W, H), x = c.getContext('2d'), r = rngFor('paper');
+function bakePaper(k = 1) {
+  const c = cv(Math.round(W * k), Math.round(H * k)), x = c.getContext('2d'), r = rngFor('paper');
+  x.setTransform(k, 0, 0, k, 0, 0);
   x.fillStyle = PAPER; x.fillRect(0, 0, W, H);
   for (const [res, a] of [[24, .035], [70, .025]]) {
     const n = cv(res, Math.round(res * H / W)), nx = n.getContext('2d'), img = nx.createImageData(n.width, n.height);
@@ -189,28 +193,32 @@ function xf(pts, x = 0, y = 0, rot = 0, sx = 1, sy = sx) {
  *   skip     0..1 chance per 80 px of a dry break in the line (0)
  *   color, alpha
  */
+/** Output pixels per design pixel on this context, so sampling stays fine at any resolution. */
+const scaleOf = (g) => { const m = g.getTransform(); return Math.hypot(m.a, m.b) || 1; };
+
 function ink(g, pts, o = {}) {
   if (!pts || pts.length < 2) return;
+  const st = 2 / Math.max(1, scaleOf(g));
   const key = boilKey(o.key || 'ink', o.t, o.boil ?? BOIL), r = rngFor(key);
   const seedW = hash(key + ':w'), seedP = hash(key + ':p'), w = o.w ?? 4, wob = o.wobble ?? 1.6;
   let line;
   if (o.closed) {
-    const loop = resample(pts, 2, true), L = loop.length, s0 = r() * L;
+    const loop = resample(pts, st, true), L = loop.length, s0 = r() * L;
     const join = o.join ?? (r() < .6 ? 4 + r() * 10 : -(3 + r() * 7));
-    const span = L + join, n = Math.max(2, Math.ceil(span / 2)), P = [];
+    const span = L + join, n = Math.max(2, Math.ceil(span / st)), P = [];
     for (let i = 0; i <= n; i++) {
       const d = ((s0 + span * i / n) % L + L) % L, k = d / L * loop.pts.length;
       const a = loop.pts[Math.floor(k) % loop.pts.length], b = loop.pts[(Math.floor(k) + 1) % loop.pts.length], u = k - Math.floor(k);
       P.push([lerp(a[0], b[0], u), lerp(a[1], b[1], u)]);
     }
-    line = resample(P, 2);
+    line = resample(P, st);
   } else {
     let P = pts;
     if (o.over) {
       const ext = (a, b, d) => { const l = Math.hypot(a[0] - b[0], a[1] - b[1]) || 1; return [a[0] + (a[0] - b[0]) / l * d, a[1] + (a[1] - b[1]) / l * d]; };
       P = [ext(pts[0], pts[1], o.over * (.5 + r())), ...pts, ext(pts.at(-1), pts.at(-2), o.over * (.5 + r()))];
     }
-    line = resample(P, 2);
+    line = resample(P, st);
   }
   const { pts: C, s, length: L } = line;
   if (L < 1.5) { g.save(); g.globalAlpha = o.alpha ?? 1; g.fillStyle = o.color || INK; g.beginPath(); g.arc(C[0][0], C[0][1], w / 2, 0, TAU); g.fill(); g.restore(); return; }
@@ -277,7 +285,7 @@ const outline = (g, pts, o = {}) => ink(g, pts, { ...o, closed: true });
 function tint(g, pts, color, o = {}) {
   const key = boilKey((o.key || 'tint') + ':fill', o.t, o.boil ?? BOIL), r = rngFor(key);
   const seed = hash(key), miss = o.miss ?? 3, ang = r() * TAU, dx = Math.cos(ang) * miss, dy = Math.sin(ang) * miss;
-  const { pts: C, s } = resample(pts, 5, true), grow = o.grow ?? -1.5, wob = o.wobble ?? 2;
+  const { pts: C, s } = resample(pts, 5 / Math.max(1, scaleOf(g)), true), grow = o.grow ?? -1.5, wob = o.wobble ?? 2;
   // Edge normals point out of the shape whichever way it winds.
   let area = 0; for (let i = 0; i < C.length; i++) { const a = C[i], b = C[(i + 1) % C.length]; area += a[0] * b[1] - b[0] * a[1]; }
   const sign = area > 0 ? -1 : 1, edge = new Path2D();

@@ -63,18 +63,18 @@ const bytes=fs.readFileSync(png);assert.equal(bytes.readUInt32BE(16),320);assert
 // Scaffolds: a vertical film, a square film and a still, each drawing with the kit, read back 1:1.
 const browser=await launch(engine||'firefox');
 try{
-  for(const [kind,format,w,h] of [['film','vertical',1080,1920],['film','square',1080,1080],['still','square',1080,1080]]){
-    const out=path.join(temp,`${kind}-${format}`,'index.html');
-    run('new-film.mjs',['--kind',kind,'--format',format,'--duration','30','--out',out]);
+  for(const [kind,format,w,h,res] of [['film','vertical',1080,1920],['film','vertical',1440,2560,1440],['film','square',1080,1080],['still','square',1080,1080]]){
+    const out=path.join(temp,`${kind}-${format}-${w}`,'index.html'),opts=['--kind',kind,'--format',format,'--duration','30',...(res?['--res',String(res)]:[])];
+    run('new-film.mjs',[...opts,'--out',out]);
     const original=fs.readFileSync(out,'utf8');
-    run('new-film.mjs',['--kind',kind,'--format',format,'--duration','30','--out',out],false);
+    run('new-film.mjs',[...opts,'--out',out],false);
     assert.equal(fs.readFileSync(out,'utf8'),original);
     const art=`function drawArt(t) { const e=ellipse(W/2,H/2,300,200); tint(ctx,e,SPOT.yellow,{key:'e',t}); outline(ctx,e,{key:'e',t,w:6}); hatch(ctx,e,{key:'h',t}); }`;
     const score=`function buildScore(s) { pluck(s, .5, note('E5'), { key: 'p' }); }`;
     fs.writeFileSync(out,original.replace('function drawArt(t) { }',art).replace('function buildScore(s) { }',score));
     const {page,duration,errors}=await openFilm(browser,out);
     assert.equal(duration,kind==='film'?30:1);
-    const px=await page.evaluate(()=>{window.__film.seek(0);const c=document.querySelector('canvas');return {w:c.width,h:c.height,mid:Array.from(c.getContext('2d').getImageData(c.width/2,c.height/2+150,1,1).data)};});
+    const px=await page.evaluate(()=>{window.__film.seek(0);const c=document.querySelector('canvas');return {w:c.width,h:c.height,mid:Array.from(c.getContext('2d').getImageData(c.width/2,c.height/2+150*c.width/1080,1,1).data)};});
     assert.deepEqual([px.w,px.h],[w,h]);assert.equal(px.mid[3],255);
     await capture(page);assert.equal(captureMode(page),'canvas',`${kind} ${format} should read back 1:1`);
     if(kind==='film')assert.ok((await page.evaluate(()=>window.__film.renderAudio())).length>1000,'the score renders');
@@ -84,4 +84,4 @@ try{
     await page.close();
   }
 }finally{await browser.close();}
-console.log(`PASS: late-film failure diagnosed, order-dependent cache caught and traced, network request blocked, held stretch located, native PNG dimensions, vertical and square scaffolds draw with the kit, score renders, overwrite refused${engine?` (${engine} only)`:''}.\nEvidence: ${temp}`);
+console.log(`PASS: late-film failure diagnosed, order-dependent cache caught and traced, network request blocked, held stretch located, native PNG dimensions, vertical, 1440 and square scaffolds draw with the kit, score renders, overwrite refused${engine?` (${engine} only)`:''}.\nEvidence: ${temp}`);
