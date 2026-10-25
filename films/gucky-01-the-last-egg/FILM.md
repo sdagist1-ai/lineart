@@ -9,17 +9,17 @@ Status: beats approved by the user in chat (hook, the egg, the hatch, the first 
 the line), and the boot cliffhanger approved. The hard frame is approved (Mom off screen). The
 hatch (7.5–13.5 s) is built and scored; the user approved its second version
 (`out/g01-hatch-v2.mp4`: "it sounds way better!!"), the dry room and the small orchestra. The
-hook and egg beat (0–11.25 s) are built and scored, waiting for the user's review of
-`out/g01-0-17.mp4` (retimed to about 34 s); the rest (16.6–34 s) is not built yet.
+hook and egg beat (0–11.25 s) are built and scored. The second half (16.6–32 s) is built and
+scored: the whole film, 32 s, is waiting for the user's review of `out/g01-full.mp4`.
 
 Length: the user dropped the strict 30 s ("it appears we're rushing to catch up to gucky coming
 out of shell"). The opening now breathes: each sibling gets a beat after hatching, the stare holds
 1.4 s, and the approved hatch, its inner timing unchanged, starts at 11.25 s instead of 7.6 s
-(`HATCH` in the film moves it as a whole). Planned length about 34 s.
+(`HATCH` in the film moves it as a whole). The finished cut runs 32 s.
 
 ## Form
 
-One continuous take, vertical 1080×1920 design rendered at 1440×2560, about 34 s. The camera sits a
+One continuous take, vertical 1080×1920 design rendered at 1440×2560, 32 s. The camera sits a
 little above the ducklings, looking down the field to the pond along the top of the frame
 (horizon y 430, shore y 540). The nest is a low straw ring in the lower middle (centre x 540,
 base y 1480, 960 wide); ducklings in it stand about 290 px tall. Walking away means walking up
@@ -37,10 +37,57 @@ strip of `SPOT.sky` pond appears at the top in the last beat. Boil at 8 per seco
 | 0–5.5 s, hook | Frame 0: four eggs in the nest, the first already cracking. Pip (0.25 s), Dot (2.1 s) and Bean (4.4 s) hatch, each their own way, each with a beat after. The speckled egg does nothing. Three heads turn to stare at it. | comic surprise, then a question | three shell cracks with a rising peep each, on the beat; silence on the stare |
 | 5.5–11.25 s | Nothing (a 1.4 s stare). Pip leans in and taps it; the egg rocks and knocks him over. A crack zigzags across the shell. | comic tension | a ticking pulse that stretches; a wobble "tock" on each rock; a thud and an indignant peep for Pip; a dry crack sweep |
 | 11.25–16.6 s | A pip punches through, the zigzag runs round, and the cap pops: Gucky tumbles out, wet and spiky, the top of the shell on his head. He blinks. | release, wonder | silence just before the pop; the pop on its frame; a soft pad swell; Gucky's first peep, small |
-| 16.6–24.6 s | His siblings are already waddling off toward Mom's call, out of the nest and up the field. Gucky tries to stand: legs splay, bill plants in the straw, the cap slides over his eyes, he pushes it up, stands, wobbles. | underdog comedy | mickey-moused: each failed try has its own sound (splay boing, bill thunk, cap slide); Mom's footsteps far and steady |
-| 24.6–29.2 s | Three wobbly steps (motif 'ask'), then a run up the frame after the line, his down drying fluffy as he goes. | determination | the motif incomplete on the steps, quickening; peeps rising |
-| 29.2–31.2 s, payoff | He reaches the end of the line and falls into step, last, cap bobbing. | warm triumph, a smile | the motif resolved ('answer') |
-| 31.2–34 s, cliffhanger | A huge rubber boot stamps down between Gucky and the line, which walks on out of frame. Gucky stops. His eyes go up, then his head, all the way up the boot. Hold on his face. | wonder, uh-oh | a deep thud on the stamp; silence; the motif 'ask', unresolved |
+| 16.6–22.1 s | His siblings are already waddling off toward Mom's call, out of the nest and up the field. Gucky tries to stand: legs splay, bill plants in the straw, the cap slides over his eyes, he pushes it up, stands, wobbles. | underdog comedy | mickey-moused: each failed try has its own sound (splay boing, bill thunk, cap slide); Mom's footsteps far and steady |
+| 22.1–26.4 s | Three wobbly steps (motif 'ask'), then a run up the frame after the line, his down drying fluffy as he goes. | determination | the motif incomplete on the steps, quickening; peeps rising |
+| 26.4–28.35 s, payoff | He reaches the end of the line and falls into step, last, cap bobbing. | warm triumph, a smile | the motif resolved ('answer') |
+| 28.35–32 s, cliffhanger | A huge rubber boot stamps down between Gucky and the line, which walks on out of frame. Gucky stops. His eyes go up, then his head, all the way up the boot. Hold on his face. | wonder, uh-oh | a deep thud on the stamp; silence; the motif 'ask', unresolved |
+
+## The second half as built (16.6–32 s)
+
+The second half counts from Mom's call (`sx` in the film), so it moves with the hatch.
+
+| Time | Picture | Sound |
+|---|---|---|
+| 16.7–17.7 | Pip dashes across the nest to the front and calls the others; Bean stands up from behind the shell | Mom's far steady steps from the right (to 26 s); a quick run of plucked notes for Pip's dash; Pip's two bossy peeps |
+| 17.15–17.85 | Gucky turns to follow, his legs splay into a split, and he plops back onto his tail (Dot winces) | a pizzicato "wah-wah" down, a slide, a felt plop and low note; Dot's "oh" |
+| 17.85–18.25 | he gets up | two notes up |
+| 18.35–19.0 | he tips forward and plants his bill in the straw, legs kicking; Bean turns and waddles after Pip, half asleep | a run down, a wood thunk in straw, little kicks, a muffled peep; Bean's sleepy peep |
+| 19.0–20.0 | he yanks the bill out; the cap slides over his eyes; he stumbles blind; Dot smiles | a cork pop; a slide and three falling glockenspiel notes; three unsure tiptoe notes |
+| 20.05–21.2 | he pushes the cap up, blinks, wobbles and steadies; Dot leaves, crossing behind him | a flick and two rising notes; a plink; marimba tocks on the wobble, dying |
+| 21.45–21.8 | on the way out Dot turns back and cheers him on; he answers with a determined "hmph" | Dot's two peeps; Gucky's low peep |
+| 22.1–23.1 | three wobbly steps toward the back of the nest | the motif's first three notes, one per step, with soft foot pats |
+| 23.35–24.6 | quicker steps | the motif's fourth note, then notes climbing |
+| 24.6–26.4 | he runs up the field after the line, over the rim, drying fluffy as he goes (3 s), and skips into step behind Dot | a plucked run accelerating up, rising peeps, a breath of air; a glockenspiel skip |
+| 26.6–28.35 | they walk on together, cap bobbing; he smiles | the motif complete ('answer', pizzicato), warm strings under the walk |
+| 28.35–28.7 | a huge green boot comes down out of the sky, speed lines above it | the strings cut; a falling whoosh |
+| 28.7 | it stamps down just beyond him, its shaft right behind him; dust, burst lines; he jolts; "!" over his head | the stamp: a designed, saturated thump (`stomp`), a wood body, a low note, dust |
+| 29.2–32 | his eyes go up, then his head, all the way up the boot to the trouser leg; the line walks on beyond it | silence but for two far peeps; then the motif's question ('ask'), unanswered, and a held frame |
+
+Decisions while building it:
+
+- The way out (`PATH`) runs diagonally up and to the right, toward the reeds: straight up the
+  frame the line stacked into a totem pole; to the left, Gucky and the boot ended at the frame's
+  edge. Everyone joins it at the back of the nest and climbs over the rim (drawn behind it).
+- Distances along it are counted as if walked near the nest, so walkers shrink, slow and keep
+  their feet planted as they go up the field. Gucky joins two stride cycles behind Dot, so his
+  phase eases onto hers: he falls into step literally.
+- After Mom's call everything is drawn sorted by where it stands (`drawLate`).
+- The boot points its toe the way the line went (it is walking that way too: episode 2 has Gucky
+  follow it), lands a step beyond him, and its shaft rises right behind him. It hides the family;
+  the two at the front show again beyond it, walking on.
+- The kit's wet look now dries by degrees (colour and spikes), so the run dries him rather than
+  switching; the motif can play on pizzicato (`motif(..., { voice: pizz })`).
+- The stamp: sub-bass and a marimba hit made the film's loudest peak while sounding small, which
+  pulled the whole mix 4–8 LU under target. A saturated, sample-built thump (`stomp`) keeps it
+  dense under the pop's peak.
+
+Measured: the whole score is −18.5 LUFS, 2.5 LU under target. The true peak is the approved
+pop at 14.37 s (its plucked chord and the three startled peeps); left as approved, to settle at
+the final master (trim those by about 2 dB, or a gentle limiter). The second half sits about −19
+to −22 LUFS momentary, the stamp −22, the closing motif −24.
+Looked at: the second half every 0.25 s, key frames of the tries and the cliffhanger at larger
+size, the last frame at phone size. `verify.mjs --engine chromium` passes; `review.mjs` finds no
+held stretch over the 32 s. Not heard here.
 
 ## Actions to prove first
 
@@ -178,5 +225,5 @@ read as a spin in motion), and whether the slide whistle is too cartoony for war
 
 ## Remaining work
 
-The user's review of the hatch. Then the hook (0–3 s), the egg beat (3–8 s), first steps,
-joining the line and the boot; score them; verify both engines; render on the Mac.
+The user's review of the whole cut. Then the final sound pass (loudness, the AAC peak), Firefox
+verify and the final render on the Mac, and the post caption ("Part 2 →").

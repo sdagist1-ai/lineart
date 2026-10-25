@@ -137,6 +137,7 @@ next.
 | Episode | State at the end | Status |
 |---|---|---|
 | — | Gucky has his shell cap; four hatchlings; Mom seen only from below | design approved |
+| 1 The Last Egg | Gucky, dry now, cap on, last in the line behind Dot, Bean and Pip, walking up the field toward Mom (off screen, right, by the reeds); a huge green rubber boot with a blue trouser leg has stamped down just ahead of him, toe the way the line went; the others walk on beyond it; Gucky stares up it. Nest with four empty shells behind. Bean's egg lies on its side behind the nest's middle | built, in review |
 
 ## References
 

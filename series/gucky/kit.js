@@ -9,7 +9,7 @@
    feet, x forward (toward the bill in side view), y down. `s` scales a unit to
    UNIT px (s = 1 is a 320 px duckling; .4 a wide shot, 2+ a close-up).
 
-   Top-level names: UNIT, GUCKY, DUCKLINGS, rotAbout, fluffy, knock, dot, duckling,
+   Top-level names: UNIT, GUCKY, DUCKLINGS, mixHex, rotAbout, fluffy, knock, dot, duckling,
    walkPhase, tuft, eye, brow, shellCap, egg, nest, momFeet, boot, peep, quack, peepRun,
    motif.
    ───────────────────────────────────────────────────────────────────────── */
@@ -35,6 +35,8 @@ const DUCKLINGS = {
   bean: { scale: .86, tuft: 'none', bodyW: 1.12, bill: .9, voice: 5, rest: { blink: .58, bill: .14, headTilt: .06, squash: .95 } },
 };
 
+/** '#rrggbb' a to b by u: wet down drying to yellow as it goes. */
+const mixHex = (a, b, u) => '#' + [1, 3, 5].map(i => Math.round(lerp(parseInt(a.slice(i, i + 2), 16), parseInt(b.slice(i, i + 2), 16), clamp(u, 0, 1))).toString(16).padStart(2, '0')).join('');
 const rotAbout = (pts, cx, cy, a) => xf(pts.map(([x, y]) => [x - cx, y - cy]), cx, cy, a);
 /** Jagged (wet) or softly scalloped (dry) edge in unit space, keyed so it holds still. */
 function fluffy(pts, key, amp, period) {
@@ -78,7 +80,8 @@ function duckling(g, pose) {
   const rot = (view === 'side' ? (p.lean || 0) * f : 0) + (p.waddle || 0);
   // Unit space -> frame: squash about the ground, bob, lean/waddle about the feet, then place.
   const W2 = (pts) => xf(pts.map(([x, y]) => [x * stretch, (y + bob) * squash]), p.x, p.y, rot, f * S, S);
-  const down = wet > .5 ? GUCKY.wet : GUCKY.down;
+  // Wet down is darker and spiky; it dries by degrees (colour and spikes), the outline's rhythm at the halfway mark.
+  const down = wet <= 0 ? GUCKY.down : wet >= 1 ? GUCKY.wet : mixHex(GUCKY.down, GUCKY.wet, wet);
   const look = p.look || [0, 0], blink = clamp(p.blink || 0, 0, 1), bw = who.bodyW;
 
   // Feet: stance slides back under the body at walking speed; swing arcs forward.
@@ -108,7 +111,7 @@ function duckling(g, pose) {
     drawFoot(near.fx, near.lift, .02, 'n', false);
     // Body: an upturned bean with the tail tuft in its outline.
     let body = curve([[.22 * bw, -.42], [.21 * bw, -.25], [.05, -.13], [-.17 * bw, -.15], [-.30 * bw, -.27], [-.41 * bw, -.45], [-.25 * bw, -.49], [-.02, -.57], [.15, -.55]], { closed: true, per: .02 });
-    body = fluffy(body, key + ':bodyfluff', wet ? .03 * wet : .006, wet ? .045 : .03);
+    body = fluffy(body, key + ':bodyfluff', lerp(.006, .03, wet), wet > .5 ? .045 : .03);
     const B = W2(body);
     knock(g, B); tint(g, B, down, { key: `${key}:body`, t, miss: 3 * kw }); outline(g, B, { key: `${key}:body`, t, w: wS });
     for (const [i, c] of [[[.15, -.33], [.11, -.30]], [[.12, -.24], [.08, -.22]]].entries())
@@ -120,7 +123,7 @@ function duckling(g, pose) {
     const hc = [.13, -.79], hr = .23, tilt = (p.headTilt || 0) + look[1] * .08;
     const H = (pts) => W2(rotAbout(pts, .08, -.58, tilt));
     let head = ellipse(hc[0], hc[1], hr * 1.02, hr, { n: 64 });
-    head = fluffy(head, key + ':headfluff', wet ? .03 * wet : .005, wet ? .05 : .035);
+    head = fluffy(head, key + ':headfluff', lerp(.005, .03, wet), wet > .5 ? .05 : .035);
     const Hd = H(head);
     knock(g, Hd); tint(g, Hd, down, { key: `${key}:head`, t, miss: 3 * kw }); outline(g, Hd, { key: `${key}:head`, t, w: wS });
     if (who.spot) { const sp = H(ellipse(.05, -.92, .05, .035)); tint(g, sp, SPOT.sand, { key: `${key}:spot`, t, marker: false }); }
@@ -152,7 +155,7 @@ function duckling(g, pose) {
     outline(g, pad, { key: `${key}:foot${k}`, t, w: wD, join: 2 });
   }
   let body = ellipse(0, -.34, .28 * bw, .24, { n: 64 });
-  body = fluffy(body, key + ':bodyfluffF', wet ? .03 * wet : .006, wet ? .045 : .03);
+  body = fluffy(body, key + ':bodyfluffF', lerp(.006, .03, wet), wet > .5 ? .045 : .03);
   const B = W2(body);
   knock(g, B); tint(g, B, down, { key: `${key}:bodyF`, t, miss: 3 * kw }); outline(g, B, { key: `${key}:bodyF`, t, w: wS });
   for (const side of [-1, 1]) {
@@ -166,7 +169,7 @@ function duckling(g, pose) {
   }
   const tilt = (p.headTilt || 0) + look[0] * .06, H = (pts) => W2(rotAbout(pts, 0, -.56, tilt));
   let head = ellipse(0, -.79, .235, .225, { n: 64 });
-  head = fluffy(head, key + ':headfluffF', wet ? .03 * wet : .005, wet ? .05 : .035);
+  head = fluffy(head, key + ':headfluffF', lerp(.005, .03, wet), wet > .5 ? .05 : .035);
   const Hd = H(head);
   knock(g, Hd); tint(g, Hd, down, { key: `${key}:headF`, t, miss: 3 * kw }); outline(g, Hd, { key: `${key}:headF`, t, w: wS });
   if (who.spot) { const sp = H(ellipse(-.06, -.95, .05, .035)); tint(g, sp, SPOT.sand, { key: `${key}:spotF`, t, marker: false }); }
@@ -194,7 +197,7 @@ function tuft(g, H, kind, key, t, w, wet) {
     pair: [[[.05, -1.0], [.03, -1.07], [.07, -1.09]], [[.1, -1.0], [.12, -1.07], [.16, -1.07]]],
     none: [],
   }[kind] || [];
-  strokes.forEach((st, i) => ink(g, H(wet ? st.map(([x, y], j) => [x + (j % 2 ? .01 : -.01), y]) : (st.length > 2 ? curve(st, { per: .01 }) : st)),
+  strokes.forEach((st, i) => ink(g, H(wet > .5 ? st.map(([x, y], j) => [x + (j % 2 ? .01 : -.01), y]) : (st.length > 2 ? curve(st, { per: .01 }) : st)),
     { key: `${key}:tuft${i}`, t, w: w * .85, taper: [2, 7], wobble: .6 }));
 }
 
@@ -427,9 +430,9 @@ function peepRun(s, at, n, gap = .16, o = {}) {
   const r = rngFor(`${s.key}:${o.key || 'run'}:${at.toFixed(3)}`);
   for (let i = 0; i < n; i++) peep(s, at + i * gap + (r() - .5) * gap * .25, { ...o, key: `${o.key || 'run'}${i}`, bright: (o.bright ?? .5) + (r() - .5) * .3 });
 }
-/** Gucky's motif: 'ask' (incomplete) or 'answer' (resolved), from `at`, one note per beat. */
+/** Gucky's motif: 'ask' (incomplete) or 'answer' (resolved), from `at`, one note per beat; o.voice plays it (pluck, or pizz with the orchestra). */
 function motif(s, at, which = 'answer', beat = .32, o = {}) {
-  const m = GUCKY.motif;
-  m[which].forEach((d, i) => pluck(s, at + i * beat, degree(m.root + (o.octave || 0) * 12, m.mode, d), { level: o.level ?? .1, key: `motif:${which}:${at.toFixed(2)}:${i}`, x: o.x ?? null }));
+  const m = GUCKY.motif, play = o.voice || pluck;
+  m[which].forEach((d, i) => play(s, at + i * beat, degree(m.root + (o.octave || 0) * 12, m.mode, d), { level: o.level ?? .1, key: `motif:${which}:${at.toFixed(2)}:${i}`, x: o.x ?? null }));
 }
 /* ── end gucky kit ── */
