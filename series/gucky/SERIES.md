@@ -62,15 +62,22 @@ overrides it, so all four can still act. Posture reads at sizes where faces don'
 
 `duckling(g, pose)` draws any of the four: view `side | front | back`, `facing`, `step` (walk
 phase from `walkPhase`), `lean`, `waddle`, `squash`, `look`, `blink`, `happy`, `brow`, `bill`,
-`wing`, `wet`, `cap`, `headTilt`. `egg`, `nest` (`part: 'back'` before what sits in it,
-`'front'` after), `momFeet` and the voices are in the same kit. `stills/gucky-cast-sheet` shows
-them.
+`wing`, `wet`, `cap`, `headTilt`, `tap` (lifts the near foot: impatience). `egg` (`crack`, `pip`,
+`peek` for the bill tip in the pip, `rock`, `squash`, `top`, and `part: 'top'` for a cap in
+flight), `nest` (`part: 'back'` before what sits in it, `'front'` after), `momFeet` and the voices
+are in the same kit. `stills/gucky-cast-sheet` shows them.
+
+Kit changes since the approval, each re-checked against the model sheet hash (unchanged): Film 1
+added `tap`, `egg` `peek`/`squash`/`part`, specks on a lifted cap, and the `quack` voice; an egg's
+bottom half now keeps the whole egg's specks (it used to redraw them elsewhere at the opening).
 
 ## Voices and motif
 
 - `peep(s, at, { who })`: each duckling has its own pitch; Gucky sits in the middle. `peepRun`
   strings them. Peeps are the dialogue: a question rises, alarm is bright and fast, content is
   soft and low.
+- Mom's call (`quack(s, at, { far })`): a nasal waak; `far: 1` while she is up the field. Keep it
+  well under the foreground: measured alone, a quack at the same level as a peep is far louder.
 - Gucky's motif (`motif(s, at, 'ask' | 'answer')`): plucked, D major. 'ask' (four notes) leaves
   the question open; 'answer' (five) resolves on the octave. State it incomplete when he is
   trying, complete when he gets there. Keep the notes; change instrument and mode with mood.

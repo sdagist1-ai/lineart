@@ -10,7 +10,7 @@
    UNIT px (s = 1 is a 320 px duckling; .4 a wide shot, 2+ a close-up).
 
    Top-level names: UNIT, GUCKY, DUCKLINGS, rotAbout, fluffy, knock, dot, duckling,
-   walkPhase, tuft, eye, brow, shellCap, egg, nest, momFeet, boot, peep, peepRun,
+   walkPhase, tuft, eye, brow, shellCap, egg, nest, momFeet, boot, peep, quack, peepRun,
    motif.
    ───────────────────────────────────────────────────────────────────────── */
 
@@ -64,7 +64,8 @@ const walkPhase = (dist, s, stride = .08) => dist / (4 * stride * UNIT * s);
  *   happy    eyes closed as smiling arcs when shut        brow  -1 worried .. 1 determined (0 none)
  *   bill     0 shut .. 1 wide open                        wing  0 folded .. 1 raised
  *   wet      0 dry .. 1 just hatched                      cap   { tilt, dx, dy } shell cap on the head, or null
- *   headTilt radians                                       t, key  boil and imperfection
+ *   headTilt radians                                       tap  0..1 lifts the near foot (side view): impatience
+ *   t, key   boil and imperfection
  * Anything left out falls back to the duckling's resting look (DUCKLINGS[who].rest).
  */
 function duckling(g, pose) {
@@ -102,6 +103,7 @@ function duckling(g, pose) {
 
   if (view === 'side') {
     const near = foot(step, 1), far = foot(step === undefined ? undefined : step + .5, -1);
+    if (p.tap) near.lift += p.tap * .05;
     drawFoot(far.fx - .03, far.lift, -.06, 'f', false);
     drawFoot(near.fx, near.lift, .02, 'n', false);
     // Body: an upturned bean with the tail tuft in its outline.
@@ -237,47 +239,57 @@ function shellCap(g, H, at, cap, key, t, kw) {
  * A duck egg, standing on its blunt end at (x, y).
  *   rock     radians it tips about its base            crack  0..1 how far the zigzag has run round it
  *   pip      0..1 a hole punched where the bill comes   top    { dx, dy, tilt } the cap lifted off (gone: true
- *            when it has left, as on a hatchling's head), or null
+ *   peek     0..1 the bill tip showing in the pip               when it has left, as on a hatchling's head), or null
+ *   squash   1 normal, <1 pressed down (tensing), >1 stretched
+ *   part     'top' draws only the lifted cap (a cap in flight: place it with x, y and top.tilt)
  *   speckled Gucky's egg                                 s, t, key
  */
 function egg(g, x, y, o = {}) {
   const s = o.s ?? 1, S = UNIT * s, key = o.key || 'egg', t = o.t, kw = clamp(Math.sqrt(s), .75, 1.6);
-  const W2 = (pts) => xf(pts, x, y, o.rock || 0, S, S);
+  const sq = o.squash ?? 1, st = 1 / Math.sqrt(sq), top = o.top, onlyTop = o.part === 'top';
+  const W2 = (pts) => xf(pts.map(([a, b]) => [a * st, b * sq]), x, y, o.rock || 0, S, S);
   // Blunt end down: wider below the middle, narrower toward the top.
   const shape = (a) => { const yy = Math.sin(a); return [Math.cos(a) * .23 * (1 + .12 * yy), -.31 + yy * .31]; };
   const arc = (a0, a1, n = 40) => Array.from({ length: n + 1 }, (_, i) => shape(a0 + (a1 - a0) * i / n));
   const crackY = -.36, ca = Math.asin((crackY + .31) / .31), zig = [];
   for (let i = 0; i <= 12; i++) zig.push([-.22 + .44 * i / 12, crackY + (i % 2 ? .035 : -.02)]);
+  const lifted = (pts) => rotAbout(pts, 0, crackY, top.tilt || 0).map(([a, b]) => [a + (top.dx || 0), b + (top.dy || 0)]);
   const shell = (P, k) => { knock(g, P); tint(g, P, GUCKY.shell, { key: `${key}:${k}`, t, marker: false, miss: 2.5 * kw }); outline(g, P, { key: `${key}:${k}`, t, w: 4.6 * kw }); };
-  if (!o.top) {
+  if (!top) {
     shell(W2(arc(0, TAU, 72).slice(0, -1)), 'shell');
     if (o.crack) { const C = resample(W2(zig), 2); const n = Math.max(2, Math.round(C.pts.length * clamp(o.crack, 0, 1))); ink(g, C.pts.slice(0, n), { key: `${key}:crack`, t, w: 3 * kw, taper: [2, 6], wobble: .3 }); }
   } else {
     // The bottom stays with the zigzag as its rim; the cap lifts away with the other side of it.
-    shell(W2([...arc(ca, Math.PI - ca), ...zig]), 'shell');
-    const top = o.top;
-    if (!top.gone) {
-      const cap = rotAbout([...arc(Math.PI - ca, TAU + ca), ...zig.slice().reverse()], 0, crackY, top.tilt || 0).map(([a, b]) => [a + (top.dx || 0), b + (top.dy || 0)]);
-      shell(W2(cap), 'top');
-    }
+    if (!onlyTop) shell(W2([...arc(ca, Math.PI - ca), ...zig]), 'shell');
+    if (!top.gone) shell(W2(lifted([...arc(Math.PI - ca, TAU + ca), ...zig.slice().reverse()])), 'top');
   }
   if (o.speckled) {
+    // Every speck draws its numbers whether or not it shows, so the halves keep the whole egg's specks.
     const r = rngFor(key + ':speck');
     for (let i = 0; i < 16; i++) {
-      const q = shape(r() * TAU), rr = Math.sqrt(r()) * .8, pt = [q[0] * rr, -.31 + (q[1] + .31) * rr];
-      if (o.top && pt[1] < crackY) continue;
-      const w = W2([pt])[0]; dot(g, w[0], w[1], (1.5 + r() * 2) * kw);
+      const q = shape(r() * TAU), rr = Math.sqrt(r()) * .8, pt = [q[0] * rr, -.31 + (q[1] + .31) * rr], size = (1.5 + r() * 2) * kw;
+      const onTop = top && pt[1] < crackY;
+      if (onTop ? top.gone : onlyTop) continue;
+      const w = W2(onTop ? lifted([pt]) : [pt])[0]; dot(g, w[0], w[1], size);
     }
   }
   // A pip is a small star of cracks round a hole, flakes lifted at the edge (a skimmer egg,
-  // public domain, Commons "Black skimmer chicks pipping in eggs").
-  if (o.pip) {
+  // public domain, Commons "Black skimmer chicks pipping in eggs"). It sits on the zigzag's line,
+  // so it goes when the egg opens.
+  if (o.pip && !top) {
     const h = W2([[.06, -.42]])[0], rad = 11 * s * o.pip, r = rngFor(key + ':pip');
     const P = ellipse(h[0], h[1], rad, rad * .75);
     tint(g, P, INK, { key: `${key}:pip`, t, marker: false, miss: 0, grow: 0, alpha: .85 });
     for (let i = 0; i < 6; i++) {
       const a = i / 6 * TAU + r() * .5, l = rad * (1.4 + r() * 1.3) * Math.min(1, o.pip * 1.5);
       ink(g, [[h[0] + Math.cos(a) * rad * .8, h[1] + Math.sin(a) * rad * .6], [h[0] + Math.cos(a) * (rad + l), h[1] + Math.sin(a) * (rad * .75 + l * .8)]], { key: `${key}:pipcrack${i}`, t, w: 2 * kw, taper: [2, 6], wobble: .3 });
+    }
+    // The bill tip pokes out of the hole toward us: upper and lower bill seen head-on.
+    if (o.peek > 0) {
+      const k = clamp(o.peek, 0, 1), B = ellipse(h[0], h[1] + rad * .1, rad * 1.15 * k, rad * .7 * k, { n: 24 });
+      tint(g, B, GUCKY.bill, { key: `${key}:peek`, t, marker: false, miss: 1.5 * kw, grow: -1 });
+      outline(g, B, { key: `${key}:peek`, t, w: 2.4 * kw, join: 2 });
+      ink(g, [[h[0] - rad * .9 * k, h[1] + rad * .15], [h[0] + rad * .9 * k, h[1] + rad * .2]], { key: `${key}:peekmouth`, t, w: 2 * kw, taper: [3, 3], wobble: .3 });
     }
   }
 }
@@ -390,6 +402,25 @@ function peep(s, at, o = {}) {
   osc.frequency.exponentialRampToValueAtTime(base * .9, at + dur);
   const f = s.ac.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 5200 + bright * 2400;
   osc.connect(f).connect(g); s.place(g, { x, send: .2, bus: 'fx' });
+}
+/**
+ * Mom's call: a nasal "waak", a sawtooth through the formants of a duck's voice with a rasp.
+ * far 0..1 pushes it up the field: duller, quieter in the dry signal, more room.
+ */
+function quack(s, at, o = {}) {
+  const { level = .08, dur = .24, f0 = 460, far = 0, x = null, key = 'quack' } = o;
+  const r = rngFor(`${s.key}:${key}:${at.toFixed(3)}`), base = f0 * (1 + (r() - .5) * .06);
+  const g = s.ac.createGain(), stop = s.env(g.gain, at, { attack: .014, hold: dur * .5, release: dur * .5, peak: level });
+  const osc = s.osc('sawtooth', base * 1.1, at, stop);
+  osc.frequency.setValueAtTime(base * 1.1, at); osc.frequency.linearRampToValueAtTime(base, at + dur * .3); osc.frequency.exponentialRampToValueAtTime(base * .78, at + dur);
+  const rasp = s.ac.createGain(), am = s.ac.createGain(); rasp.gain.value = .7; am.gain.value = .3;
+  s.osc('square', 42 + r() * 8, at, stop).connect(am).connect(rasp.gain);
+  const sum = s.ac.createGain(), dull = s.ac.createBiquadFilter(); dull.type = 'lowpass'; dull.frequency.value = 5200 - far * 3200;
+  for (const [fq, q, a] of [[1050, 4, 1], [1750, 6, .55], [2900, 8, .22]]) {
+    const f = s.ac.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = fq; f.Q.value = q;
+    const v = s.ac.createGain(); v.gain.value = a * 3; osc.connect(f).connect(v).connect(sum);
+  }
+  sum.connect(rasp).connect(dull).connect(g); s.place(g, { x, send: .2 + far * .6, bus: 'fore' });
 }
 /** n peeps from `at`, gap apart, a little uneven. */
 function peepRun(s, at, n, gap = .16, o = {}) {

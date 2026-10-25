@@ -6,7 +6,9 @@ steps while his siblings march off after Mom, and joins the end of the line, unt
 boot stamps down in front of him. A series pilot; read `series/gucky/SERIES.md` first.
 
 Status: beats approved by the user in chat (hook, the egg, the hatch, the first steps, joining
-the line), and the boot cliffhanger approved. Not built yet.
+the line), and the boot cliffhanger approved. The hard frame is approved (Mom off screen). The
+hatch (7.5–13.5 s) is built and scored, waiting for the user's review of
+`out/g01-hatch.mp4`; the rest is not built yet and holds the 7.5 s or 13.5 s state.
 
 ## Form
 
@@ -64,6 +66,55 @@ strip of `SPOT.sky` pond appears at the top in the last beat. Boil at 8 per seco
 - Hard frame at 11.5 s: Pip nose to nose with wet Gucky ("who are you?"), Bean peeking from
   behind, Dot watching, Gucky's shell behind him.
 
+## The hatch as built (7.5–13.5 s)
+
+Every time lives in the film's one timeline, `T`; poses, marks, shots and the score read it.
+
+| Time | Picture | Sound |
+|---|---|---|
+| 7.6, 8.0, 8.5 | Pip taps his near foot, impatient, slowing | a woodblock on each tap, lower and softer each time |
+| 8.7–9.0 | the egg shivers (flips every frame); Bean sleeps (z's) | a dry rattle, growing |
+| 9.0 | the pip: a hole and a star of cracks on the zigzag's line, a burst, three chips fly and land; Pip flinches | a card crack and a flick; each chip ticks where the picture lands it |
+| 9.06–9.36 | the bill tip shows in the hole and goes | (silence) |
+| 9.5, 9.8, 10.1 | three pushes: the crack runs on, the egg rocks and dips, a small burst at the crack's tip; Pip and Dot lean in | a paper tear and a card knock per push, each higher; a low drone under all three |
+| 10.3–10.6 | the egg presses down and trembles | the drone cuts: silence |
+| 10.6 | pop: the cap flies spinning, Gucky comes out unfolding (.38 → .98) in a forward flip; Pip leaps back, Dot hops, Bean wakes with a jump; four chips | a card pop with a soft cork; three startled peeps; a whoosh; a slide whistle that follows the cap's height |
+| 11.04 | he lands, squashes, sways dazed | a felt thud and straw |
+| 11.22 | the cap lands on his head: burst, squash, the cap rocks and settles | a wood bonk and a tiny music-box ding |
+| 11.4–11.5 | Pip leans in, bill open: who are you? (the hard frame at 11.5) | Pip's rising peep |
+| 11.69–12.15 | Gucky blinks slowly, then looks up and around | a soft D major chord under it all, from the landing |
+| 12.25 | his first peep, small, chin up | Gucky's peep, quiet |
+| 12.5 | Pip answers, bossy; Dot's eyes close in a smile | two Pip peeps; Dot's soft coo |
+| 12.95 | Mom calls from up the field: every head turns up | two far quacks (kit `quack`, `far: 1`) |
+
+Measured (Chromium, `audio.mjs --twice`): −16.0 LUFS integrated, true peak −1.44 dBTP at the pop,
+deterministic to 2 LSB (Chromium summation jitter; Firefox is byte-identical by design, not run
+here). Each sound group was also measured alone: the pop is the loudest moment, then the landing
+and bonk, then the peeps, with Mom's call and the chord underneath. An earlier mix had the far
+quack louder than the pop and the chord burying the first peep; both fixed.
+
+Looked at: every frame of 8.9–9.4 and 10.5–11.37 as 1:1 crops, sheets of 8.5–10.6 and 11.4–13.5,
+the 11.5 s frame against the approved hard frame, the fastest frame of the encoded MP4 at 1:1
+(clean at 6.2 Mbps). `verify.mjs --engine chromium` passes. Not done here: watching the clip at
+speed (that is the user's review), Firefox (on the user's Mac).
+
+Decisions while building it:
+
+- The pip sits on the zigzag's line, so it splits with the shell at the pop: the cap on his head
+  stays as approved (no hole), and the flying cap and the head cap read as one object.
+- Gucky is bigger than his egg (as the hard frame has it), so he unfolds from .38 to full size in
+  the first 0.2 s of the flip, the cartoon way.
+- The flying cap shrinks from the egg's size to the head cap's while it flies, and lands tilted,
+  then rocks to the approved tilt.
+- Dot only leans in a little: further, her bill dipped into the egg.
+- Pip waits at x 330 (knocked back there in the 3–8 s beat) and leaps back to the hard frame's
+  165 at the pop.
+- Bean sleeps through the pip and the zip, the comic beat, until the pop.
+
+Risks to judge at speed: the forward flip (frames mid-flip are a tumble of spiky shapes; it should
+read as a spin in motion), and whether the slide whistle is too cartoony for warm comedy.
+
 ## Remaining work
 
-Build (hard frame, hard actions, timeline), score, verify, render, review with the user.
+The user's review of the hatch. Then the hook (0–3 s), the egg beat (3–8 s), first steps,
+joining the line and the boot; score them; verify both engines; render on the Mac.
