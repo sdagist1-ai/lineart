@@ -1441,6 +1441,16 @@ const RING = SET.nestW * SET.depth * SET.rim * 2.2, FLOOR = SET.nestY - SET.nest
 
 /* The one timeline: every pose, mark, shot and sound reads its times from here. */
 const T = {
+  hatch: { pip: .3, dot: 1.1, bean: 1.9 },   // the hook: three hatch on the beat (Pip bursts, Dot rises, Bean tips out)
+  stare: [2.3, 3.0],              // three heads turn to the speckled egg; nothing
+  blinkPip: 3.4,                  // still nothing: Pip blinks
+  walk: [3.75, 4.55],             // Pip marches up to the egg
+  knocks: [4.85, 5.1],            // two taps of his bill on it
+  listen: 5.25,                   // he puts his head to it
+  shove: 5.45, thud: 5.75,        // it rocks into him; he lands on his back
+  crack: [6.05, 6.4],             // a zigzag runs halfway across
+  sitUp: 6.55, stand: [6.8, 7.15],// he sits up, sees the crack, gets up
+  doze: [3.6, 4.6],               // Bean nods off again
   taps: [7.6, 8.0, 8.5],          // Pip's foot, impatient, slowing as he gives up
   tremble: [8.7, 9.0],            // the egg shivers
   pip: 9.0, peek: [9.06, 9.36],   // a hole punched; the bill tip shows and goes
@@ -1486,6 +1496,40 @@ const PIP_AT = 330, PIP_TO = 165, DOT_AT = 915, BEAN_AT = [640, FLOOR - 70];
 const G_AT = [545, FLOOR + 16], G_S = .98;
 const CAP_FROM = [EGG.x, EGG.y + CRACK_Y * EGG_S], CAP_TO = [G_AT[0] - .1 * UNIT * G_S, G_AT[1] - .94 * UNIT * G_S];
 const HOLE = [EGG.x + .06 * EGG_S, EGG.y - .42 * EGG_S];
+const PIP_WALK = [300, 468], LIE = 372;   // Pip lands at 300, walks to 490, lands on his back about 372
+const KNOCK = [EGG.x - 40, EGG.y - .5 * EGG_S];   // where his bill meets the shell
+
+/* The siblings' eggs: where each top comes to rest (the hard frame), how high it flies, its spin. */
+const SIB_EGG = {
+  pip: { x: 250, y: FLOOR - 60, s: .5, rest: { dx: -.3, dy: .03, tilt: -1.2 }, fly: .8, spin: -1, dur: .4 },
+  dot: { x: 860, y: FLOOR - 60, s: .5, rest: { dx: .3, dy: .03, tilt: 1.2 }, fly: .35, spin: 0, dur: .55 },
+  bean: { x: 640, y: FLOOR - 84, s: .5, rest: { dx: .32, dy: .04, tilt: 1.3 }, fly: .05, spin: 0, dur: .3 },
+};
+function sibEgg(g, t, who) {
+  const e = SIB_EGG[who], h = T.hatch[who], key = `shell:${who}`;
+  if (t < h) {
+    // Cracking round before it opens; Pip's is already going in frame 0; Bean's tips over.
+    const crack = keyed(t, [[h - .5, 0], [h - .04, 1]]);
+    const rock = who === 'bean' ? .3 * smooth(local(t, h - .45, h - .05)) + .03 * shiver(t) * local(t, h - .3, h - .05) : .05 * shiver(t) * local(t, h - .4, h - .1);
+    egg(g, e.x, e.y, { s: e.s, key, t, crack, rock });
+    return;
+  }
+  const u = ease.out(local(t, h, h + e.dur));
+  const top = { dx: e.rest.dx * u, dy: e.rest.dy * u - 4 * e.fly * u * (1 - u), tilt: (e.rest.tilt + e.spin * TAU) * u };
+  const rock = who === 'bean' ? .3 * Math.exp(-(t - h) * 6) * Math.cos((t - h) * 14) : .1 * ring(t, h, 5, 18);
+  egg(g, e.x, e.y, { s: e.s, key, t, top, rock });
+}
+/**
+ * Out of an egg: from inside it, unfolding from s0 to s1 in the first 0.2 s, along a toss from the
+ * centre `from` to the centre `to`, h px high, optionally turning `flip` radians. Feet go where
+ * turning about the middle leaves them. `scale` is the duckling's own (DUCKLINGS[who].scale).
+ */
+function emerge(t, at, dur, from, to, s0, s1, h, scale, flip = 0) {
+  const u = local(t, at, at + dur), s = lerp(s0, s1, ease.out(local(t, at, at + Math.min(.2, dur * .6))));
+  const squash = keyed(t, [[at, .7], [at + .07, 1.2], [at + .2, 1]]), c = toss(u, from, to, h);
+  const rot = flip * smooth(local(t, at + .03, at + dur - .05)), hh = .45 * UNIT * s * scale * squash;
+  return { x: c[0] - hh * Math.sin(rot), y: c[1] + hh * Math.cos(rot), s, squash, waddle: rot, centre: c };
+}
 
 /* Shell chips: [vx, vy, floor y, spin, size]. They fall, then lie where they land. */
 const GRAV = 2600;
@@ -1509,9 +1553,13 @@ function chips(g, t, name) {
 /** Gucky's egg: the crack runs, the pip, the pushes, the tensing, then only the bottom, rocking. */
 function eggState(t) {
   const open = t >= T.pop;
-  const crack = .45 + .55 / T.zip.length * T.zip.reduce((n, z) => n + smooth(local(t, z - .03, z + .05)), 0);
+  const crack = .45 * smooth(local(t, T.crack[0], T.crack[1])) + .55 / T.zip.length * T.zip.reduce((n, z) => n + smooth(local(t, z - .03, z + .05)), 0);
+  // Pip's two taps nudge it; then it leans back and swings into him, and wobbles to rest.
+  const S0 = T.shove + .02, shove = t < T.shove - .2 ? 0 : t < S0 ? keyed(t, [[T.shove - .2, 0], [T.shove - .06, .08], [S0, -.32]])
+    : -.32 * Math.exp(-(t - S0) * 3) * Math.cos((t - S0) * 9);
+  const nudge = T.knocks.reduce((r, k) => r + .025 * ring(t, k, 9, 30), 0) + .015 * shiver(t) * (t > T.crack[0] && t < T.crack[1] ? 1 : 0);
   const tremble = (t < T.pip ? .02 * local(t, T.tremble[0], T.tremble[0] + .2) : 0) + (t < T.pop ? .028 * local(t, T.tense[0], T.tense[1]) : 0);
-  let rock = tremble * shiver(t) + .09 * ring(t, T.pip, 7, 30) + T.zip.reduce((r, z, i) => r + .065 * (i % 2 ? -1 : 1) * ring(t, z, 7, 26), 0);
+  let rock = shove + nudge + tremble * shiver(t) + .09 * ring(t, T.pip, 7, 30) + T.zip.reduce((r, z, i) => r + .065 * (i % 2 ? -1 : 1) * ring(t, z, 7, 26), 0);
   let squash = 1 - .05 * T.zip.reduce((n, z) => n + bump(t, z - .04, z, z + .12), 0) - .12 * ease.in(local(t, T.tense[0], T.tense[1] - .02));
   if (open) {
     // Kicked off from: it rocks and settles a little tipped.
@@ -1565,8 +1613,42 @@ function guckyPose(t) {
   };
 }
 
+/**
+ * Pip before the hatch: bursts out first, chest out; stares at the last egg; marches up and knocks
+ * on it, listens; it swings into him and over he goes; he sits up, sees the crack, gets up. Ends
+ * (7.3) in the pose pipPose starts from.
+ */
+function pipEarly(t) {
+  const H = T.hatch.pip, sc = DUCKLINGS.pip.scale, S = UNIT * .9 * sc, base = { who: 'pip', view: 'side', facing: 1, s: .9, key: 'pip', t };
+  if (t < H) return null;
+  if (t < H + .32) return { ...base, ...emerge(t, H, .32, [SIB_EGG.pip.x, SIB_EGG.pip.y - 40], [PIP_WALK[0], FLOOR - .45 * S], .3, .9, 160, sc), wing: .9, bill: .6, lean: -.15, blink: 0, look: [-.3, -.3] };
+  const k = (keys) => keyed(t, keys), KO = T.shove, L = T.thud, sq = keyed(t, [[H + .32, .78], [H + .4, 1.06], [H + .5, 1]]);
+  let x = keyed(t, [[T.walk[0], PIP_WALK[0]], [T.walk[1], PIP_WALK[1]]]), y = FLOOR, rot = 0, step;
+  if (t > T.walk[0] && t < T.walk[1] + .05) step = walkPhase(x - PIP_WALK[0], .9 * sc);
+  if (t >= KO && t < T.stand[1]) {
+    // Over about his middle: knocked onto his back, kicking, then up again.
+    const hh = .45 * S, lie = [LIE, FLOOR - .41 * S];
+    let C, r;
+    if (t < L) { const u = local(t, KO, L); C = toss(u, [PIP_WALK[1], FLOOR - hh], lie, 70); r = -Math.PI / 2 * ease.out(u); }
+    else if (t < T.stand[0]) { C = lie; r = keyed(t, [[L, -Math.PI / 2], [T.sitUp, -Math.PI / 2], [T.sitUp + .15, -1.1], [T.stand[0], -1.0]]) + .07 * ring(t, L, 6, 25); }
+    else { const u = local(t, T.stand[0], T.stand[1]); C = toss(u, lie, [PIP_AT, FLOOR - hh], 40); r = -1.0 * (1 - ease.out(u)); }
+    x = C[0] - hh * Math.sin(r); y = C[1] + hh * Math.cos(r); rot = r;
+    if (t >= L && t < T.sitUp) step = (t - L) * 5;
+  }
+  return { ...base, x, y, waddle: rot, step, squash: sq * keyed(t, [[L, 1], [L + .03, .85], [L + .12, 1]]),
+    lean: k([[H + .32, -.15], [1, -.15], [1.3, -.07], [T.walk[0], -.07], [T.walk[0] + .15, .05], [T.walk[1], .05], [4.72, .26], [T.knocks[0] - .05, .26], [T.knocks[0], .33], [T.knocks[0] + .08, .26], [T.knocks[1] - .05, .26], [T.knocks[1], .33], [T.knocks[1] + .08, .26], [T.listen, .22], [KO, .22], [KO + .06, 0], [T.stand[1], 0], [7.3, .06]]),
+    headTilt: k([[H + .32, -.2], [1.3, -.07], [T.stare[0], -.07], [T.stare[0] + .15, .12], [3.7, .12], [T.walk[0] + .1, -.07], [4.72, .42], [T.knocks[1] + .1, .42], [T.listen, .62], [KO, .62], [KO + .1, -.2], [L, -.2], [T.stand[1], .1], [7.3, -.07]]),
+    look: k([[H + .32, [-.3, -.3]], [1.05, [-.3, -.3]], [1.15, [.6, 0]], [1.85, [.6, 0]], [1.95, [.3, .1]], [T.stare[0], [.3, .1]], [T.stare[0] + .15, [.7, .4]], [3.7, [.7, .4]], [4.72, [.6, .6]], [T.knocks[1] + .1, [.6, .6]], [T.listen, [0, -.6]], [KO, [0, -.6]], [KO + .05, [-.5, -.5]], [T.crack[1], [-.5, -.5]], [T.sitUp + .05, [.7, .3]], [7.3, [.5, .3]]]),
+    brow: k([[H + .32, .45], [T.walk[0], .45], [T.walk[0] + .1, .7], [T.knocks[1] + .1, .7], [T.listen, .2], [KO, .2], [KO + .05, -.8], [L + .1, -.5], [5.95, .8], [T.crack[1], .8], [T.sitUp + .05, .2], [T.stand[1], .6], [7.3, .6]]),
+    wing: k([[H + .32, .9], [1, .8], [1.3, 0], [KO, 0], [KO + .05, .9], [L, .6], [T.sitUp, .3], [T.stand[1], .2], [7.3, 0]]),
+    bill: k([[H + .32, .6], [H + .5, .5], [H + .6, 0], [KO, 0], [KO + .04, .7], [KO + .25, .3], [L, .2], [5.95, 0], [6, .55], [6.15, .1], [6.25, 0]]),
+    blink: k([[T.blinkPip - .04, 0], [T.blinkPip, 1], [T.blinkPip + .08, 0], [L, 0], [L + .03, 1], [L + .12, .5], [5.95, .3], [6, 0]]),
+  };
+}
+
 /** Pip: taps his foot, flinches at the pip, leans in, leaps back at the pop, then asks who this is. */
 function pipPose(t) {
+  if (t < 7.3) return pipEarly(t);
   const k = (keys) => keyed(t, keys), P = T.pop, hop = local(t, P + .02, P + .3);
   return { who: 'pip', view: 'side', facing: 1, s: .9, key: 'pip', t,
     x: lerp(PIP_AT, PIP_TO, hop), y: FLOOR - 4 * 70 * hop * (1 - hop),
@@ -1582,8 +1664,27 @@ function pipPose(t) {
   };
 }
 
+/** Dot before the hatch: rises gently out of her egg, content; stares; winces when Pip goes over; notices the crack first. */
+function dotEarly(t) {
+  const H = T.hatch.dot, sc = DUCKLINGS.dot.scale, S = UNIT * .9 * sc, base = { who: 'dot', view: 'side', facing: -1, s: .9, key: 'dot', t };
+  if (t < H) return null;
+  if (t < H + .5) return { ...base, ...emerge(t, H, .5, [SIB_EGG.dot.x, SIB_EGG.dot.y - 40], [DOT_AT, FLOOR - .45 * S], .3, .9, 60, sc), wing: .3, blink: .18, look: [.2, -.4] };
+  const k = (keys) => keyed(t, keys), KO = T.shove, C0 = T.crack[0];
+  return { ...base, x: DOT_AT, y: FLOOR, squash: k([[H + .5, .85], [H + .6, 1.03], [H + .7, 1]]),
+    headTilt: k([[H + .5, .13], [T.stare[0], .13], [T.stare[0] + .15, .22], [3.6, .22], [3.8, .1], [KO, .1], [KO + .05, -.1], [5.8, .05], [C0, .05], [C0 + .15, .3], [6.6, .3], [7, .13]]),
+    look: k([[H + .5, [.2, -.3]], [H + .7, [.35, .15]], [1.85, [.35, .15]], [1.95, [.6, .1]], [T.stare[0], [.6, .1]], [T.stare[0] + .15, [.6, .35]], [3.7, [.6, .35]], [3.9, [.4, .05]], [KO, [.4, .05]], [KO + .1, [.5, .4]], [C0, [.5, .4]], [C0 + .12, [.6, .3]], [6.6, [.6, .3]], [7, [.35, .15]]]),
+    blink: k([[H + .5, .18], [1.55, .18], [1.6, 1], [2, 1], [2.05, .18], [KO, .18], [KO + .03, 1], [KO + .12, 0], [6.6, 0], [7, .18]]),
+    happy: t > 1.58 && t < 2.02,
+    brow: k([[KO, 0], [KO + .1, -.6], [6, -.6], [6.2, 0]]),
+    lean: k([[KO, 0], [KO + .05, -.12], [5.9, 0]]),
+    wing: k([[H + .5, .3], [H + .8, 0], [KO, 0], [KO + .05, .4], [5.9, 0]]),
+    bill: k([[1.25, 0], [1.3, .25], [1.42, 0], [KO + .02, 0], [KO + .06, .3], [KO + .2, 0]]),
+  };
+}
+
 /** Dot: curious at the pip, a startled hop at the pop, then she watches him; his peep makes her smile. */
 function dotPose(t) {
+  if (t < 7.3) return dotEarly(t);
   const k = (keys) => keyed(t, keys), P = T.pop, hop = local(t, P + .03, P + .26);
   return { who: 'dot', view: 'side', facing: -1, s: .9, key: 'dot', t, x: DOT_AT, y: FLOOR - 4 * 40 * hop * (1 - hop),
     // Curious, but her bill stays clear of the egg.
@@ -1598,8 +1699,24 @@ function dotPose(t) {
   };
 }
 
+/** Bean before the hatch: tips out of the egg yawning, stares a moment, and nods off again. */
+function beanEarly(t) {
+  const H = T.hatch.bean, sc = DUCKLINGS.bean.scale, base = { who: 'bean', view: 'front', s: .7, key: 'bean', t };
+  if (t < H) return null;
+  const k = (keys) => keyed(t, keys), D = local(t, T.doze[0], T.doze[1]);
+  const out = t < H + .35 ? emerge(t, H, .35, [SIB_EGG.bean.x, SIB_EGG.bean.y - 30], [BEAN_AT[0], BEAN_AT[1] - .45 * UNIT * .7 * sc], .3, .7, 15, sc) : { x: BEAN_AT[0], y: BEAN_AT[1] };
+  return { ...base, ...out,
+    bill: k([[H, .9], [H + .45, .9], [H + .6, .14]]),
+    blink: k([[H + .55, 1], [H + .65, .4], [T.doze[0], .4], [T.doze[1], 1]]),
+    look: k([[H + .6, [0, 0]], [T.stare[0], [0, 0]], [T.stare[0] + .15, [.6, .3]], [T.doze[0], [.6, .3]], [T.doze[1], [0, 0]]]),
+    headTilt: lerp(.06, .06 + .08 * Math.sin(t * TAU / 2.6), D),
+    squash: (out.squash ?? 1) * lerp(.95, .95 + .015 * Math.sin(t * TAU / 1.9), D),
+  };
+}
+
 /** Bean: asleep through everything until the pop; then wide awake, peeking from behind the shell. */
 function beanPose(t) {
+  if (t < 7.3) return beanEarly(t);
   const k = (keys) => keyed(t, keys), P = T.pop, asleep = t < P, sway = (u) => .06 + .08 * Math.sin(u * TAU / 2.6);
   return { who: 'bean', view: 'front', s: .7, key: 'bean', t, x: BEAN_AT[0],
     y: BEAN_AT[1] - 45 * Math.sin(Math.PI * local(t, P, P + .26)) + 14 * smooth(local(t, P + .35, P + .55)),
@@ -1612,15 +1729,24 @@ function beanPose(t) {
   };
 }
 /** Two z's drifting up from a sleeper, drawn as paths. */
-function zzz(g, t, x, y) {
+function zzz(g, t, x, y, fade = 1) {
   for (let i = 0; i < 2; i++) {
     const u = (((t + i * .8) / 1.6) % 1 + 1) % 1, sz = 8 + u * 7, px = x + u * 40 + i * 6, py = y - u * 70;
-    ink(g, [[-1, -1], [1, -1], [-1, 1], [1, 1]].map(([a, b]) => [px + a * sz, py + b * sz]), { key: `zzz${i}`, t, w: 2.4, taper: [2, 2], wobble: .4, alpha: Math.sin(u * Math.PI) });
+    ink(g, [[-1, -1], [1, -1], [-1, 1], [1, 1]].map(([a, b]) => [px + a * sz, py + b * sz]), { key: `zzz${i}`, t, w: 2.4, taper: [2, 2], wobble: .4, alpha: Math.sin(u * Math.PI) * fade });
   }
 }
 
 /** Action marks: bursts on the pip, pushes, pop and bonk; speed lines on what flies; a puff on landing. */
 function marks(g, t) {
+  // The siblings pop out; Pip's bill knocks; the egg hits him; he lands.
+  for (const who of ['pip', 'dot', 'bean']) {
+    const e = SIB_EGG[who], h = T.hatch[who];
+    if (t >= h && t < h + .1) burst(g, e.x, e.y + CRACK_Y * UNIT * e.s, { key: `burst:${who}`, t, n: who === 'pip' ? 8 : 5, r0: 50, r1: who === 'pip' ? 105 : 80, a0: Math.PI + .2, span: Math.PI - .4, w: who === 'pip' ? 3 : 2.4 });
+  }
+  T.knocks.forEach((k, i) => { if (t >= k && t < k + .07) burst(g, KNOCK[0], KNOCK[1], { key: `burst:knock${i}`, t, n: 4, r0: 12, r1: 30, w: 2.4 }); });
+  if (t >= T.shove && t < T.shove + .1) burst(g, KNOCK[0] - 20, KNOCK[1] - 30, { key: 'burst:shove', t, n: 7, r0: 30, r1: 70 });
+  if (t >= T.thud && t < T.thud + .5) puff(g, LIE - 40, FLOOR - 8, 26, { key: 'puff:thud', t, u: local(t, T.thud, T.thud + .5) });
+  if (t >= T.shove + .05 && t < T.thud - .03) { const a = pipPose(t), b = pipPose(t - 1 / FPS), dx = b.x - a.x, dy = b.y - a.y, l = Math.hypot(dx, dy); if (l > 8) speed(g, a.x + dx / l * 60, a.y - 120 + dy / l * 60, dx, dy, { key: 'speed:pip', t, n: 3, spread: 50, len: Math.min(70, l * 3) }); }
   if (t >= T.pip && t < T.pip + .1) burst(g, HOLE[0], HOLE[1], { key: 'burst:pip', t, n: 6, r0: 20, r1: 44, w: 2.6 });
   T.zip.forEach((z, i) => {
     if (t < z || t >= z + .07) return;
@@ -1675,17 +1801,23 @@ function drawArt(t) {
   const g = ctx, n = { depth: SET.depth, rim: SET.rim, t };
   background(g, t);
   nest(g, SET.nestX, SET.nestY, SET.nestW, { key: 'nest', part: 'back', ...n });
-  egg(g, 250, FLOOR - 60, { s: .5, key: 'shell:pip', top: { dx: -.3, dy: .03, tilt: -1.2 }, t });
-  egg(g, 860, FLOOR - 60, { s: .5, key: 'shell:dot', top: { dx: .3, dy: .03, tilt: 1.2 }, t });
-  const bean = beanPose(t);
-  duckling(g, bean);
-  if (t < T.pop) zzz(g, t, bean.x + 46, bean.y - 200);
+  // Each sibling leaves its egg from inside it (drawn behind the shell), then stands in front.
+  const pip = pipPose(t), dot = dotPose(t), bean = beanPose(t);
+  const behind = (who, d) => d && t < T.hatch[who] + .1;
+  if (behind('pip', pip)) duckling(g, pip);
+  sibEgg(g, t, 'pip');
+  if (behind('dot', dot)) duckling(g, dot);
+  sibEgg(g, t, 'dot');
+  if (behind('bean', bean)) duckling(g, bean);
+  sibEgg(g, t, 'bean');
+  if (bean && !behind('bean', bean)) duckling(g, bean);
+  if (t > T.doze[1] && t < T.pop) zzz(g, t, BEAN_AT[0] + 46, BEAN_AT[1] - 200, local(t, T.doze[1], T.doze[1] + .4));
   // Gucky leaves the egg from inside it, then flies in front of everyone.
   const gucky = guckyPose(t), inside = gucky && t < T.pop + .1;
   if (inside) duckling(g, gucky);
   drawEgg(g, t);
-  duckling(g, pipPose(t));
-  duckling(g, dotPose(t));
+  if (pip && !behind('pip', pip)) duckling(g, pip);
+  if (dot && !behind('dot', dot)) duckling(g, dot);
   chips(g, t, 'pip'); chips(g, t, 'pop');
   if (gucky && !inside) duckling(g, gucky);
   drawCap(g, t);
@@ -1706,6 +1838,20 @@ function cork(s, at, o = {}) {
   const osc = s.osc('sine', from, at, stop); osc.frequency.setValueAtTime(from, at); osc.frequency.exponentialRampToValueAtTime(to, at + .045);
   osc.connect(g); s.place(g, { x, send: .1, bus: 'fx' });
 }
+/** An egg opening: a card crack, a flick and a pizzicato chord. */
+function hatchPop(s, at, x, chord, level) {
+  contact(s, at, { material: 'card', f0: 900, level: level * 1.2, x, key: `hpop${at}` });
+  paper(s, at, { kind: 'flick', level: level * .6, x, key: `hflick${at}` });
+  chord.forEach((m, i) => pizz(s, at + i * .01, m, { level, x, key: `hchord${at}:${i}` }));
+}
+/** A yawn: a slow sliding sigh in a duckling's voice. */
+function yawn(s, at, o = {}) {
+  const who = DUCKLINGS[o.who || 'bean'], { level = .025, dur = .5, x = null } = o, base = 2900 * Math.pow(2, who.voice / 12) * .7;
+  const g = s.ac.createGain(), stop = s.env(g.gain, at, { attack: .06, hold: dur * .5, release: dur * .45, peak: level });
+  const osc = s.osc('triangle', base, at, stop), f = s.ac.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 2600;
+  osc.frequency.setValueAtTime(base * 1.15, at); osc.frequency.linearRampToValueAtTime(base * .55, at + dur);
+  osc.connect(f).connect(g); s.place(g, { x, send: .1, bus: 'fore' });
+}
 /** A harp run: notes spread evenly from a to b, plucked bright. */
 function harpRun(s, a, b, notes, o = {}) {
   notes.forEach((m, i) => pizz(s, a + (b - a) * i / Math.max(1, notes.length - 1), m, { bright: .55, dur: 1.1, level: o.level ?? .05, x: o.x ?? null, key: `${o.key || 'harp'}${i}` }));
@@ -1713,6 +1859,46 @@ function harpRun(s, a, b, notes, o = {}) {
 
 function buildScore(s) {
   air(s, { level: .01 });
+  // The hook: Pip's egg is already cracking in the first frames; three hatch on a beat, each their own way.
+  [.04, .13, .22].forEach((d, i) => contact(s, d, { material: 'card', f0: 1700 + i * 200, level: .05 + i * .015, x: SIB_EGG.pip.x, key: `pipcrack${i}` }));
+  pizz(s, .04, 57, { level: .08, x: SIB_EGG.pip.x, key: 'hook0' });
+  hatchPop(s, T.hatch.pip, SIB_EGG.pip.x, [50, 57, 62, 66], .065);
+  glock(s, T.hatch.pip + .02, 86, { level: .014, x: SIB_EGG.pip.x });
+  peep(s, T.hatch.pip + .1, { who: 'pip', bright: 1, dur: .14, level: .026, x: PIP_WALK[0], key: 'tada' });
+  contact(s, T.hatch.pip + .32, { material: 'felt', f0: 160, level: .12, x: PIP_WALK[0], key: 'pipland' });
+  [-.3, -.18, -.08].forEach((d, i) => contact(s, T.hatch.dot + d, { material: 'card', f0: 1900 + i * 150, level: .025, x: SIB_EGG.dot.x, key: `dotcrack${i}` }));
+  hatchPop(s, T.hatch.dot, SIB_EGG.dot.x, [66, 69], .06);
+  glock(s, T.hatch.dot + .25, 81, { level: .016, x: DOT_AT });
+  peep(s, T.hatch.dot + .2, { who: 'dot', bright: .2, dur: .14, level: .025, x: DOT_AT, key: 'dothi' });
+  [-.35, -.2, -.08].forEach((d, i) => mallet(s, T.hatch.bean + d, [45, 50, 45][i], { level: .03, decay: .3, x: SIB_EGG.bean.x }));
+  hatchPop(s, T.hatch.bean, SIB_EGG.bean.x, [38, 45], .1);
+  yawn(s, T.hatch.bean + .1, { level: .025, x: BEAN_AT[0] });
+  // The fourth beat never comes: silence on the stare. Still nothing: Pip blinks.
+  glock(s, T.blinkPip, 83, { level: .012, x: PIP_WALK[0] });
+  // Pip marches up to it, a pizzicato note per footfall, up the scale.
+  let last = null, n = 0;
+  for (let t = T.walk[0]; t < T.walk[1] + .05; t += .004) {
+    const st = pipPose(t).step; if (st === undefined) continue;
+    const f = Math.floor(st * 2); if (last !== null && f !== last) pizz(s, t, [62, 64, 66, 67, 69, 71, 73, 74][n++ % 8], { level: .07, x: pipPose(t).x, key: `march${n}` }); last = f;
+  }
+  // Knock, knock. He listens: nothing. Then it swings into him, and over he goes.
+  T.knocks.forEach((at, i) => contact(s, at, { material: 'wood', f0: 760 - i * 40, level: .1, x: KNOCK[0], key: `knock${i}` }));
+  contact(s, T.shove, { material: 'wood', f0: 420, level: .14, x: KNOCK[0], key: 'shove' });
+  peep(s, T.shove + .03, { who: 'pip', bright: 1, dur: .09, level: .032, x: 450, key: 'ouch' });
+  peep(s, T.shove + .06, { who: 'dot', bright: .6, dur: .1, level: .02, x: DOT_AT, key: 'oh' });
+  [86, 81, 78, 74, 69, 66, 62].forEach((m, i) => pizz(s, T.shove + .04 + i * .04, m, { level: .05, bright: .5, dur: .6, x: 420, key: `fall${i}` }));
+  contact(s, T.thud, { material: 'felt', f0: 130, level: .2, x: LIE, key: 'thud' });
+  paper(s, T.thud, { kind: 'slide', dur: .2, level: .03, x: LIE, key: 'thudstraw' });
+  pizz(s, T.thud, 38, { level: .14, dur: .7, x: LIE, key: 'thudnote' });
+  // The egg wobbles to rest, a tock on each swing; Pip: hey!
+  [57, 54, 50].forEach((m, i) => mallet(s, T.shove + .02 + (i + 1) * Math.PI / 9, m, { level: [.05, .03, .018][i], decay: .3, x: EGG.x }));
+  peep(s, 6, { who: 'pip', bright: .8, dur: .14, level: .034, x: LIE, key: 'hey' });
+  // A crack runs halfway across; Dot sees it first. Pip sits up, sees it, gets up.
+  paper(s, T.crack[0], { kind: 'tear', dur: T.crack[1] - T.crack[0], level: .045, x: EGG.x, key: 'crackrun' });
+  for (let i = 0; i < 5; i++) contact(s, T.crack[0] + i * .07, { material: 'card', f0: 1600 + i * 150, level: .03 + i * .006, x: EGG.x - 60 + i * 15, key: `crackbit${i}` });
+  glock(s, T.crack[0] + .15, 78, { level: .014, x: DOT_AT });
+  pizz(s, T.sitUp, 57, { level: .08, x: LIE, key: 'situp' });
+  pizz(s, T.stand[1], 62, { level: .09, x: PIP_AT, key: 'stand' });
   // Waiting: Pip's foot taps a pizzicato bass note, lower and softer each time as he gives up.
   T.taps.forEach((at, i) => {
     pizz(s, at, [50, 47, 45][i], { level: .13 - i * .02, x: PIP_AT, key: `tap${i}` });
@@ -1768,7 +1954,7 @@ function buildScore(s) {
   quack(s, T.call, { far: 1, level: .009, x: 540, key: 'call0' });
   quack(s, T.call + .3, { far: 1, level: .008, dur: .2, x: 540, key: 'call1' });
 }
-const MARKS = [...T.taps, T.pip, ...T.zip, T.pop, T.land, T.bonk, T.who, T.first, T.call]; // read by audio.mjs
+const MARKS = [T.hatch.pip, T.hatch.dot, T.hatch.bean, ...T.knocks, T.shove, T.thud, T.crack[0], ...T.taps, T.pip, ...T.zip, T.pop, T.land, T.bonk, T.who, T.first, T.call]; // read by audio.mjs
 // SCORE END
 
 const canvas=document.getElementById('c'),ctx=canvas.getContext('2d');
