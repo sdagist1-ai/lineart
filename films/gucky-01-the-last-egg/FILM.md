@@ -72,26 +72,40 @@ Every time lives in the film's one timeline, `T`; poses, marks, shots and the sc
 
 | Time | Picture | Sound |
 |---|---|---|
-| 7.6, 8.0, 8.5 | Pip taps his near foot, impatient, slowing | a woodblock on each tap, lower and softer each time |
-| 8.7–9.0 | the egg shivers (flips every frame); Bean sleeps (z's) | a dry rattle, growing |
-| 9.0 | the pip: a hole and a star of cracks on the zigzag's line, a burst, three chips fly and land; Pip flinches | a card crack and a flick; each chip ticks where the picture lands it |
+| 7.6, 8.0, 8.5 | Pip taps his near foot, impatient, slowing | a pizzicato bass note on each tap (D, B, A), lower and softer each time, with a soft foot tap |
+| 8.7–9.0 | the egg shivers (flips every frame); Bean sleeps (z's) | a marimba roll on A, growing |
+| 9.0 | the pip: a hole and a star of cracks on the zigzag's line, a burst, three chips fly and land; Pip flinches | a card crack, a flick and a high pizzicato plink; each chip ticks where the picture lands it |
 | 9.06–9.36 | the bill tip shows in the hole and goes | (silence) |
-| 9.5, 9.8, 10.1 | three pushes: the crack runs on, the egg rocks and dips, a small burst at the crack's tip; Pip and Dot lean in | a paper tear and a card knock per push, each higher; a low drone under all three |
-| 10.3–10.6 | the egg presses down and trembles | the drone cuts: silence |
-| 10.6 | pop: the cap flies spinning, Gucky comes out unfolding (.38 → .98) in a forward flip; Pip leaps back, Dot hops, Bean wakes with a jump; four chips | a card pop with a soft cork; three startled peeps; a whoosh; a slide whistle that follows the cap's height |
-| 11.04 | he lands, squashes, sways dazed | a felt thud and straw |
-| 11.22 | the cap lands on his head: burst, squash, the cap rocks and settles | a wood bonk and a tiny music-box ding |
+| 9.5, 9.8, 10.1 | three pushes: the crack runs on, the egg rocks and dips, a small burst at the crack's tip; Pip and Dot lean in | a paper tear, a card knock and a pizzicato note per push, climbing a semitone each (A, B♭, B); tremolo strings swell under all three |
+| 10.3–10.6 | the egg presses down and trembles | the strings cut: silence |
+| 10.6 | pop: the cap flies spinning, Gucky comes out unfolding (.38 → .98) in a forward flip; Pip leaps back, Dot hops, Bean wakes with a jump; four chips | a card pop and a soft cork, a strummed pizzicato D major chord, a glockenspiel spark; three startled peeps; a harp run up with the cap to its apex and back down as it falls; a soft whoosh |
+| 11.04 | he lands, squashes, sways dazed | a felt thud and straw, a low pizzicato D |
+| 11.22 | the cap lands on his head: burst, squash, the cap rocks and settles | a wood bonk and a high glockenspiel ting |
 | 11.4–11.5 | Pip leans in, bill open: who are you? (the hard frame at 11.5) | Pip's rising peep |
-| 11.69–12.15 | Gucky blinks slowly, then looks up and around | a soft D major chord under it all, from the landing |
+| 11.69–12.15 | Gucky blinks slowly, then looks up and around | warm strings under it all from the landing; a glockenspiel note on the blink and on each look |
 | 12.25 | his first peep, small, chin up | Gucky's peep, quiet |
 | 12.5 | Pip answers, bossy; Dot's eyes close in a smile | two Pip peeps; Dot's soft coo |
 | 12.95 | Mom calls from up the field: every head turns up | two far quacks (kit `quack`, `far: 1`) |
 
-Measured (Chromium, `audio.mjs --twice`): −16.0 LUFS integrated, true peak −1.44 dBTP at the pop,
-deterministic to 2 LSB (Chromium summation jitter; Firefox is byte-identical by design, not run
-here). Each sound group was also measured alone: the pop is the loudest moment, then the landing
-and bonk, then the peeps, with Mom's call and the chord underneath. An earlier mix had the far
-quack louder than the pop and the chord burying the first peep; both fixed.
+The room is nearly dry (`ROOM`: wet .06, a 0.5 s tail): outdoors at a pond, and the user heard
+the kit's default room (a 2.2 s tail with early taps) as echoes on everything.
+
+The user's review of the first version (synth drone, synth chord, woodblock, slide whistle): "a lot
+of echoes", "sound effects don't match", the instrumental "is not it". The second version keeps the
+same cue points and replaces the instruments with a small orchestra from the kit: pizzicato
+(`pizz`), a string section (`strings`, tremolo for tension), marimba (`mallet`), glockenspiel
+(`glock`) and harp runs (`pizz`, bright).
+
+Measured (Chromium, `audio.mjs --twice`): −16.5 LUFS integrated, true peak −1.0 dBTP at the pop
+(muxed: −16.3 LUFS, −1.1 dBFS), deterministic to 2 LSB (Chromium summation jitter; Firefox is
+byte-identical by design, not run here). Each group measured alone: the pizzicato and the pop are
+on top (about −21 LUFS momentary), glockenspiel −23, marimba roll −25.5, strings −25.6, Mom's
+quack −25.8 (far). The build rises from −21 at the taps to −14 at the last push, falls to −33 in
+the silence, and peaks at −12 on the pop. Flagged discontinuities at 9.47 and 9.78 s are the start
+of the paper tears (noise grains by design); 10.60 s is the pop.
+
+Not heard here: whether the synthesised strings and pizzicato sound good enough; that is the
+user's call on `out/g01-hatch-v2.mp4`.
 
 Looked at: every frame of 8.9–9.4 and 10.5–11.37 as 1:1 crops, sheets of 8.5–10.6 and 11.4–13.5,
 the 11.5 s frame against the approved hard frame, the fastest frame of the encoded MP4 at 1:1

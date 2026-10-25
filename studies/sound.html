@@ -69,7 +69,7 @@ const lerp = (a, b, u) => a + (b - a) * u;
    Top-level names the block declares, so a film can spot a collision before
    pasting: RATE, TINY, hz, note, MODES, degree, grid, Score, impulse,
    integratedLufs, truePeakLinear, wavBase64, onset, pad, struck, mallet, glass,
-   bell, musicBox, pluck, fm, organ, sub, tick, breath, wind, rain, drop,
+   bell, glock, musicBox, pluck, pizz, strings, fm, organ, sub, tick, breath, wind, rain, drop,
    MATERIALS, contact, paper, riser, air.
    ───────────────────────────────────────────────────────────────────────── */
 
@@ -286,6 +286,7 @@ function struck(s, at, midi, partials, o = {}) {
 const mallet = (s, at, midi, o = {}) => struck(s, at, midi, [[1, 1, o.decay ?? .9], [3.93, .28, .25], [9.72, .08, .1]], { strike: .5, strikeHz: 2600, ...o });
 const glass = (s, at, midi, o = {}) => struck(s, at, midi, [[1, 1, o.decay ?? 1.7], [2.001, .12, 1.1], [3.98, .03, .6]], { attack: .02, ...o });
 const bell = (s, at, midi, o = {}) => struck(s, at, midi, [[1, 1, o.decay ?? 3], [1.5, .35, 2.2], [2, .5, 2.6], [2.4, .25, 1.8], [3, .3, 1.6], [4.2, .14, 1.1], [5.4, .08, .8]], { attack: .003, strike: .25, strikeHz: 5000, ...o });
+const glock = (s, at, midi, o = {}) => struck(s, at, midi, [[1, 1, o.decay ?? 1.1], [2.76, .3, .3], [5.4, .1, .12], [8.93, .04, .06]], { attack: .0015, strike: .35, strikeHz: 6500, send: .2, ...o });
 const musicBox = (s, at, midi, o = {}) => struck(s, at, midi, [[1, 1, o.decay ?? .6], [2, .2, .3], [3, .12, .2]], { attack: .002, strike: .35, strikeHz: 4200, ...o });
 
 /** Plucked string, Karplus-Strong written straight into a buffer so the recurrence is exact. */
@@ -299,6 +300,60 @@ function pluck(s, at, midi, o = {}) {
   const g = s.ac.createGain(); g.gain.setValueAtTime(TINY, t0); g.gain.linearRampToValueAtTime(level, t0 + .002);
   g.gain.setValueAtTime(level, t0 + dur - .12); g.gain.linearRampToValueAtTime(TINY, t0 + dur);
   s.play(b, t0, t0 + dur).connect(g); s.place(g, { pan: x === null ? pan : null, x, send, bus });
+}
+
+/**
+ * Pizzicato: a string plucked by a finger, dying fast through a small wooden body. Low notes ring
+ * longer (dur defaults by pitch); bright .3 is a soft finger, .6 a harp-like snap.
+ */
+function pizz(s, at, midi, o = {}) {
+  const { level = .14, bright = .3, pan = 0, x = null, send = .15, bus = 'fore', key = 'pizz' } = o;
+  const f0 = hz(midi), dur = o.dur ?? clamp(90 / f0, .25, .9), t0 = onset(at, o, .003), rate = s.rate;
+  const N = Math.max(2, Math.round(rate / f0 - .5)), n = Math.ceil(rate * dur);   // the averaging adds half a sample
+  const b = s.ac.createBuffer(1, n, rate), d = b.getChannelData(0), r = rngFor(`${s.key}:${key}:${midi}:${t0.toFixed(3)}`);
+  // A finger: a rounded pulse with a little noise, without DC, softened by `bright`.
+  let lp = 0, mean = 0;
+  for (let i = 0; i < N; i++) { const w = Math.sin(Math.PI * i / N) * .9 + (r() * 2 - 1) * .3; lp = lp * (1 - bright) + w * bright; d[i] = lp; mean += lp / N; }
+  for (let i = 0; i < N; i++) d[i] -= mean;
+  const damp = Math.pow(10, -50 / 20 / (f0 * dur));                                 // about 50 dB down by dur
+  for (let i = N; i < n; i++) d[i] = damp * .5 * (d[i - N] + d[Math.max(0, i - N - 1)]);
+  const hp = s.ac.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 60;
+  const body = s.ac.createBiquadFilter(); body.type = 'peaking'; body.frequency.value = 290; body.Q.value = 1.4; body.gain.value = 5;
+  const wood = s.ac.createBiquadFilter(); wood.type = 'peaking'; wood.frequency.value = 700; wood.Q.value = 1.2; wood.gain.value = 2.5;
+  const soft = s.ac.createBiquadFilter(); soft.type = 'lowpass'; soft.frequency.value = 3800 + bright * 3000; soft.Q.value = .5;
+  const g = s.ac.createGain(); g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(level, t0 + .003);
+  g.gain.setValueAtTime(level, t0 + dur - .05); g.gain.linearRampToValueAtTime(0, t0 + dur);
+  s.play(b, t0, t0 + dur).connect(hp).connect(body).connect(wood).connect(soft).connect(g);
+  s.place(g, { pan: x === null ? pan : null, x, send, bus });
+}
+
+/**
+ * A string section bowing `notes` from at to end: three detuned saws a note, vibrato, a warm
+ * low-pass. trem (Hz) bows it tremolo; swell grows it from a third of `level` to full by the end
+ * (tension), so a short release there cuts it off.
+ */
+function strings(s, at, end, notes, o = {}) {
+  const { level = .02, attack = .5, release = .6, cutoff = 1600, trem = 0, swell = false, spread = .7, send = .3, bus = 'bed' } = o;
+  const sum = s.ac.createGain(), f = s.ac.createBiquadFilter(), hp = s.ac.createBiquadFilter(), env = s.ac.createGain();
+  f.type = 'lowpass'; f.frequency.value = cutoff; f.Q.value = .6; hp.type = 'highpass'; hp.frequency.value = 90;
+  const top = Math.max(at + attack, end - release);
+  env.gain.setValueAtTime(0, at); env.gain.linearRampToValueAtTime(level * (swell ? .35 : 1), at + attack);
+  env.gain.linearRampToValueAtTime(level, top); env.gain.linearRampToValueAtTime(0, Math.min(end, s.duration));
+  let into = sum;
+  if (trem > 0) {
+    const tg = s.ac.createGain(), depth = s.ac.createGain(); tg.gain.value = .6; depth.gain.value = .4;
+    s.osc('sine', trem, at, end).connect(depth).connect(tg.gain); sum.connect(tg); into = tg;
+  }
+  into.connect(f).connect(hp).connect(env);
+  const vib = s.osc('sine', 5.2, at, end);
+  notes.forEach((m, i) => [-9, 0, 8].forEach(cents => {
+    const osc = s.osc('sawtooth', hz(m), at, end, { detune: cents }), v = s.ac.createGain(), p = s.ac.createStereoPanner();
+    v.gain.value = hz(m) * .004; vib.connect(v).connect(osc.frequency);
+    const lvl = s.ac.createGain(); lvl.gain.value = 1 / 3;
+    p.pan.value = notes.length > 1 ? (i / (notes.length - 1) - .5) * spread : 0;
+    osc.connect(lvl).connect(p).connect(sum);
+  }));
+  s.place(env, { pan: 0, send, bus });
 }
 
 /** Two-operator FM: ratio 1 with a falling index is an electric piano, 3.5-7 is a bell. */

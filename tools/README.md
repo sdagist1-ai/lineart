@@ -61,5 +61,11 @@ per film, viewport and engine, the decoded screenshot matches the canvas pixel f
 fills the viewport 1:1 with nothing over it. Otherwise, as with `--size` other than the canvas's
 own, the tools screenshot. `render.mjs` says when it falls back.
 
+Both browsers draw Canvas 2D in software here (`launch` in `lib/browser.mjs`). On a Mac they draw
+it on the GPU by default, and many workers holding large canvases ran graphics memory out: a 1440
+render with 16 workers came back with 13 black frames and 8 drawn over black with an earlier frame
+showing through. As a second guard, a frame read back with unpainted pixels is drawn again (three
+tries); `render.mjs` reports how many it redrew.
+
 Add `--engine firefox` to check the primary browser. Outputs land in `out/` at the repo root.
 Run `npm test` after changing anything in `tools/lib/`. No tool certifies artistic quality.

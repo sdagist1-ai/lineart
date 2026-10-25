@@ -66,6 +66,7 @@ const SHOTS=[]; // {id,start,end,readAt,action,transition}, derived from the wor
 // ART END
 
 // SCORE BEGIN: place sounds with the sound kit at the same event times the picture uses.
+const ROOM={}; // the room the score plays in: {} is a medium room; outdoors, nearly dry: {wet:.06,seconds:.5,decay:.3}
 function buildScore(s) { }
 const MARKS=[]; // visible event times the score lands on, read by audio.mjs
 // SCORE END
@@ -82,7 +83,7 @@ function render(t){
 /* The score renders once, offline and seeded, and is shared by the player and renderAudio(). */
 let scorePromise=null;
 function score(){
-  if(!scorePromise)scorePromise=(async()=>{const s=Score({duration:DUR,key:TITLE});buildScore(s);const b=await s.render({target:-16,ceiling:-1});window.__scoreStats=s.stats;return b;})();
+  if(!scorePromise)scorePromise=(async()=>{const s=Score({duration:DUR,key:TITLE,room:ROOM});buildScore(s);const b=await s.render({target:-16,ceiling:-1});window.__scoreStats=s.stats;return b;})();
   return scorePromise;
 }
 async function renderAudio(){return wavBase64(await score());}

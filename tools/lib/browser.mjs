@@ -5,11 +5,21 @@ import url from 'node:url';
 
 export const ENGINES = { chromium, firefox };
 
+/**
+ * Canvas 2D drawn in software in both engines. On a Mac both draw it on the GPU, and parallel
+ * workers holding large canvases run graphics memory out: frames come back blank, or with an
+ * earlier frame showing through. Software is also what Linux and every check here draw with.
+ */
+const SOFTWARE = {
+  chromium: { args: ['--disable-gpu', '--disable-accelerated-2d-canvas', '--disable-gpu-compositing'] },
+  firefox: { firefoxUserPrefs: { 'gfx.canvas.accelerated': false, 'layers.acceleration.disabled': true } },
+};
+
 export async function launch(engine = 'chromium') {
   const type = ENGINES[engine];
   if (!type) throw new Error(`unknown engine "${engine}" (use: ${Object.keys(ENGINES).join(', ')})`);
   try {
-    return await type.launch();
+    return await type.launch(SOFTWARE[engine]);
   } catch (e) {
     if (/Executable doesn't exist/.test(e.message)) {
       throw new Error(`${engine} is not installed for playwright-core; run \`npm run setup\` in tools/`);
@@ -77,11 +87,23 @@ export async function openFilm(browser, filmPath, { size, query = '', timeout = 
   return { page, duration, errors };
 }
 
-/** Render one exact frame and return its PNG buffer. */
+/**
+ * Render one exact frame and return its PNG buffer. A frame read back with unpainted pixels (a
+ * browser that dropped the canvas) is drawn again, up to three times in all, and counted.
+ */
 export async function frameAt(page, t) {
-  await page.evaluate(time => window.__film.seek(time), t);
-  return capture(page);
+  for (let tries = 1; ; tries++) {
+    await page.evaluate(time => window.__film.seek(time), t);
+    try { return await capture(page); } catch (e) {
+      if (!(e instanceof BlankFrame)) throw e;
+      if (tries === 3) throw new Error(`t=${t}: the canvas came back with unpainted pixels 3 times: the browser dropped it (try fewer --workers), or the work leaves part of its frame unpainted`);
+      redraws.push(t);
+    }
+  }
 }
+/** Times frameAt drew again because the first read came back blank. */
+export const redraws = [];
+export class BlankFrame extends Error {}
 
 /**
  * PNG of what the viewport shows. Reading the canvas back costs ~80 ms against ~530 ms for a
@@ -96,7 +118,14 @@ export async function capture(page) {
   const key = modeKey(page);
   if (!captureModes.has(key)) captureModes.set(key, await canvasIsScreen(page) ? 'canvas' : 'screenshot');
   if (captureModes.get(key) === 'screenshot') return page.screenshot({ type: 'png' });
-  const png = await page.evaluate(() => document.querySelector('canvas').toDataURL('image/png'));
+  // Read back only an opaque canvas: canvas mode was chosen on one, and every work paints its
+  // paper first, so a transparent pixel means the browser lost the drawing.
+  const png = await page.evaluate(() => {
+    const c = document.querySelector('canvas'), d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data;
+    for (let i = 3; i < d.length; i += 4 * 61) if (d[i] !== 255) return null;
+    return c.toDataURL('image/png');
+  });
+  if (!png) throw new BlankFrame('the canvas came back with unpainted pixels');
   return Buffer.from(png.slice(png.indexOf(',') + 1), 'base64');
 }
 

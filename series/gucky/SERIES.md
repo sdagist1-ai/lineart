@@ -78,6 +78,10 @@ bottom half now keeps the whole egg's specks (it used to redraw them elsewhere a
   soft and low.
 - Mom's call (`quack(s, at, { far })`): a nasal waak; `far: 1` while she is up the field. Keep it
   well under the foreground: measured alone, a quack at the same level as a peep is far louder.
+- The orchestra: pizzicato (`pizz`), a string section (`strings`, tremolo for tension), marimba
+  (`mallet`), glockenspiel (`glock`) and harp runs (bright `pizz`), mickey-mousing the action, in
+  D major. Foley on every contact. Outdoors the room is nearly dry (`ROOM`, see episode 1): the
+  user heard the kit's default room as echoes. Synth pads, drones and slide whistles were rejected.
 - Gucky's motif (`motif(s, at, 'ask' | 'answer')`): plucked, D major. 'ask' (four notes) leaves
   the question open; 'answer' (five) resolves on the octave. State it incomplete when he is
   trying, complete when he gets there. Keep the notes; change instrument and mode with mood.

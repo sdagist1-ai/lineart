@@ -23,7 +23,7 @@ import os from 'node:os';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { spawnSync } from 'node:child_process';
-import { launch, openFilm, frameOf, capture, captureMode, pool, args } from './lib/browser.mjs';
+import { launch, openFilm, frameOf, frameAt, capture, captureMode, redraws, pool, args } from './lib/browser.mjs';
 import { pipeFrames, run, FFMPEG } from './lib/ffmpeg.mjs';
 import { parseWav } from './lib/audio.mjs';
 
@@ -112,7 +112,7 @@ try {
 
   const jobs = Math.max(checks.length, framesOf(todo).length);
   const pages = [first.page, ...(await Promise.all(Array.from({ length: Math.min(workers, jobs) - 1 }, openWorker))).map(o => o.page)];
-  const draw = async (page, f) => { await page.evaluate(t => window.__film.seek(t), timeOf(f)); return capture(page); };
+  const draw = (page, f) => frameAt(page, timeOf(f));
 
   if (checks.length) {
     const changed = [];
@@ -207,6 +207,7 @@ try {
     if (summary) console.log(`  muxed audio: ${summary}`);
   }
 
+  if (redraws.length) console.log(`  redrew ${redraws.length} frame(s) the browser returned blank (t=${redraws.slice(0, 6).map(t => t.toFixed(3)).join(', ')}${redraws.length > 6 ? ', …' : ''})`);
   const errors = [...new Set(errorLists.flat())];
   if (errors.length) console.error(`\n!! ${errors.length} page error(s):\n - ${errors.slice(0, 10).join('\n - ')}`);
   console.log(`done in ${((Date.now() - t0) / 1000).toFixed(0)}s, ${drawn} of ${total} frames drawn by ${pages.length} worker(s) -> ${out}`);

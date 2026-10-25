@@ -20,10 +20,10 @@ picture event, then choose the sound.
 
 | Feeling | Tempo and rhythm | Timbre and register | Harmony | Device |
 |---|---|---|---|---|
-| Curious, tiptoe | slow, sparse, with rests | `pluck`, `musicBox`, high | major or lydian, unresolved | a note per step |
-| Comic tension | a held note or ticking pulse that stretches | `tick`, `mallet`, low `sub` after | suspended | silence just before the gag; the payoff lands on the hit |
+| Curious, tiptoe | slow, sparse, with rests | `pizz`, `musicBox`, `glock`, high | major or lydian, unresolved | a note per step |
+| Comic tension | a held note or ticking pulse that stretches | `pizz` climbing by semitones, `strings` with `trem`, a `mallet` roll | suspended | silence just before the gag; the payoff lands on the hit |
 | Slapstick fall | fast descending run | `mallet` or `pluck`, then `contact` thud | any | sound on the exact contact frame; a beat later, the reaction |
-| Wonder | slow swell | `pad`, `glass`, `bell`, `air` | lydian | `riser` into the reveal |
+| Wonder | slow swell | soft `strings`, `glock`, `glass` | lydian | a `glock` note on each thing seen |
 | Small triumph | quick rising arpeggio to the tonic | `bell`, `pluck` | major, I–IV–V–I | the motif played complete |
 | Lonely, sad | slow, wide gaps | low `pad`, single `glass` notes, more room | minor | leave space; mix quieter |
 | Tender, warm | gentle 6/8 lilt | soft `pluck`, `pad` | major with an added sixth | the motif slowed |
@@ -52,7 +52,8 @@ moment on that time by starting `attack` earlier.
 | `s.place(node, {x, pan, send, bus})` | pan from screen x, reverb send; bass stays centred |
 | `s.render({target: -16, ceiling: -1})` | render, then one static gain to the loudness target under a true-peak ceiling |
 | `pad`, `organ`, `air`, `wind`, `rain` | sustained: chords, drawbars, room tone, weather from `at` to `end` |
-| `mallet`, `glass`, `bell`, `musicBox`, `pluck`, `fm`, `sub`, `tick` | struck, plucked, FM, bass |
+| `mallet`, `glass`, `bell`, `glock`, `musicBox`, `pluck`, `pizz`, `fm`, `sub`, `tick` | struck, plucked, FM, bass; `pizz` is pizzicato (bright .55 and a longer `dur` is a harp) |
+| `strings(s, at, end, notes, {trem, swell})` | a bowed section: detuned saws, vibrato, warm low-pass; `trem` bows tremolo, `swell` builds to a cut |
 | `contact(s, at, {material})` | wood, metal, stone, felt, card: exciter through modal resonators |
 | `paper(s, at, {kind})` | slide, turn, flick, tear |
 | `drop`, `breath`, `riser` | water drop, band-swept whoosh, climb into a `hit` |
@@ -119,7 +120,7 @@ sine ping and as strike noise plus modal partials; only the second reads as cont
 
 - Take the palette from the screen: paper slides and tears, ink rolls, plates thunk, drops, wind,
   rain, a ticking clock. `contact`/`paper` cover print; `drop`/`rain`/`wind`/`breath` weather;
-  `mallet`, `glass`, `bell`, `pluck`, `fm`, `organ`, `pad` music.
+  `mallet`, `glass`, `bell`, `glock`, `pluck`, `pizz`, `strings`, `fm`, `organ`, `pad` music.
 - Heavier is lower and longer, smaller higher and shorter, closer brighter with faster attack,
   farther low-passed, softer and wetter.
 - Felt piano, music box and mallets are the paper world's habitual palette; tape hiss and chimes
@@ -184,6 +185,9 @@ crossfade at the peak; pick long-ringing recordings for long run-ups
 - `bed`, `fore`, `fx` feed the master, each with a post-fader send to one synthesised room
   (pre-delay, a few early taps, a darkening noise tail). The send is high-passed so bass stays dry,
   the return low-passed so a long film doesn't accumulate hiss.
+- Set the room for the place: each work's SCORE block has `const ROOM = {}` (a medium room, 2.2 s
+  tail with early taps). Outdoors it reads as echo on every sound; Gucky 01 uses
+  `{ wet: .06, seconds: .5, decay: .3, early: [[.004, .3], [.009, .2]] }`, nearly dry.
 - Pan foreground by screen `x`; centre sub bass and bed so a phone speaker gets everything. Put
   bed and accents in different registers; where they must overlap, duck the bed with automation.
 - Balance voices relatively; `render` measures integrated loudness, applies one gain to −16 LUFS,

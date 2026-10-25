@@ -1,5 +1,5 @@
 // Render regressions: parallel order, segment resume, --patch (local, growing, refused, score-only)
-// and the score slice under a section; parallel stills; a broken film fails fast. Disposable films
+// and the score slice under a section; blank frames redrawn; parallel stills; a broken film fails fast. Disposable films
 // under out/; Chromium only.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -99,6 +99,15 @@ assert.match(log,/1080x1920/);assert.doesNotMatch(log,/capturing by screenshot/)
 assert.match(spawnSync(FFMPEG,['-hide_banner','-i',tallMp4],{encoding:'utf8'}).stderr,/1080x1920/);
 assert.deepEqual(frames(tallMp4).map(([f])=>f),Array.from({length:30},(_,k)=>30+k));
 
+// A browser that drops the canvas (graphics memory on a Mac) returns blank frames: each is drawn
+// again, so the render still holds every frame, in order, and says how many it redrew.
+const flaky=path.join(temp,'flaky','index.html');fs.mkdirSync(path.dirname(flaky));
+fs.writeFileSync(flaky,fs.readFileSync(film,'utf8').replace('seek(t){const f=Math.round(t*30);',
+  'seek(t){const f=Math.round(t*30);if(f%7===3&&!(window.__seen??=new Set).has(f)){window.__seen.add(f);g.clearRect(0,0,1080,1080);return;}'));
+log=run([flaky,'--workers','2','--no-audio','--out',path.join(temp,'flaky.mp4')]);
+assert.match(log,/redrew 18 frame\(s\) the browser returned blank/);
+assert.deepEqual(frames(path.join(temp,'flaky.mp4')),expect([]));
+
 // Stills from several workers land at their own times.
 const shots=path.join(temp,'shots'),times=[0.1,0.5,0.9,1.3,1.7,2.1,2.5,2.9,3.3,3.7,4.1,4.2];
 assert.match(run([film,'--times',times.join(','),'--workers','3','--out',shots],true,'shoot.mjs'),/12 still\(s\) by 3 worker\(s\)/);
@@ -109,4 +118,4 @@ const broken=path.join(temp,'broken','index.html');fs.mkdirSync(path.dirname(bro
 fs.writeFileSync(broken,fs.readFileSync(film,'utf8').replace('seek(t){','seek(t){{'));
 const t0=Date.now();log=run([broken,'--times','1','--out',path.join(temp,'broken-shots')],false,'shoot.mjs');
 assert.match(log,/film failed to load[\s\S]*SyntaxError/);assert.ok(Date.now()-t0<30000,`took ${Date.now()-t0} ms`);
-console.log(`PASS: parallel order, resume, local patch grown at its edge, non-local patch refused, score-only patch, re-render on change, section score slice, draft, vertical frame, parallel stills, broken film fails fast.\nEvidence: ${temp}`);
+console.log(`PASS: parallel order, resume, local patch grown at its edge, non-local patch refused, score-only patch, re-render on change, section score slice, draft, vertical frame, blank frames redrawn, parallel stills, broken film fails fast.\nEvidence: ${temp}`);
