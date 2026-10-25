@@ -8,4 +8,5 @@ Mom was redrawn in the ducklings' own vocabulary (scalloped edge, stick legs, ro
 after the user pointed out that thick tube legs and spiky toes broke the style. The pip follows a
 public-domain photo of pipping skimmer eggs: a small star of cracks round a hole.
 
-Not yet shown to the user in its final state; not checked in Firefox.
+The user approved the cast and asked for distinct personalities: each sibling now stands in its
+resting look (Pip confident, Dot attentive, Bean sleepy, Gucky neutral). Not checked in Firefox.

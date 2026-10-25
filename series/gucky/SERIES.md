@@ -25,7 +25,9 @@ node new-film.mjs --kind film --duration 30 --series gucky --res 1440 --out ../f
 ## The look (approved)
 
 The user approved Gucky as drawn on `stills/gucky-model-sheet` (rendered PNG sha256
-`0de9504993066cd528da8aab0612c90ef3b391e6243844433711189e9116a021`): a round head on a round
+`b00996ef71fcaa76266e2d91e198c1e30149bd6a364021edf28620b81634abe3`, Chromium; the approval was
+of `0de95049…`, which differed only in a front-view brow bug that drew the worried and determined
+faces swapped): a round head on a round
 body, softly scalloped fluffy outline, an oval wing, a three-stroke curl tuft, stick legs and small
 orange feet, marker-yellow down, an orange bill. A simpler variant (merged head, smooth outline,
 stroke wing, big feet) was tried and rejected in favour of this one.
@@ -47,13 +49,16 @@ stroke wing, big feet) was tried and rejected in favour of this one.
 
 ## Cast
 
-| Who | Look | Character |
-|---|---|---|
-| Gucky | curl tuft, speckled egg, the shell cap he wears like a helmet | last to hatch, curious, stubborn, small but finds a way |
-| Pip | biggest (1.1), spike tuft, longer bill | first at everything, bossy, not mean |
-| Dot | sand spot on the head, two-strand tuft | watches, notices, kind to Gucky |
-| Bean | smallest (.86), roundest, no tuft | hungry, sleepy, the comic beat |
+| Who | Look | Resting face and posture | Character |
+|---|---|---|---|
+| Gucky | curl tuft, speckled egg, the shell cap he wears like a helmet | neutral; his character shows in what he does | last to hatch, curious, stubborn, small but finds a way |
+| Pip | biggest (1.1), spike tuft, longer bill | chin up, leaning back, a slight determined brow | first at everything, bossy, not mean |
+| Dot | sand spot on the head, two-strand tuft | head tilted, soft eyes, looking at something | watches, notices, kind to Gucky |
+| Bean | smallest (.86), roundest, no tuft | half asleep, bill a little open, a round slouch | hungry, sleepy, the comic beat |
 | Mom | a white Pekin duck; in Season 1 a white belly, short orange legs and big webbed feet seen from duckling height | calm, always there, never in close-up |
+
+The resting look is each duckling's default (`DUCKLINGS[who].rest`); anything a scene passes
+overrides it, so all four can still act. Posture reads at sizes where faces don't.
 
 `duckling(g, pose)` draws any of the four: view `side | front | back`, `facing`, `step` (walk
 phase from `walkPhase`), `lean`, `waddle`, `squash`, `look`, `blink`, `happy`, `brow`, `bill`,
@@ -98,7 +103,7 @@ next.
 | 4 Adult | independence | migration, his own territory, a partner, building a nest |
 | 5 Parent and elder | full circle | his own last egg (episode 1 mirrored, the shell cap passed on), teaching first steps |
 
-### Season 1 (proposed, not yet approved)
+### Season 1 (approved)
 
 | # | Title | Premise | Cliffhanger into the next |
 |---|---|---|---|
@@ -119,7 +124,7 @@ next.
 
 | Episode | State at the end | Status |
 |---|---|---|
-| — | Gucky has his shell cap; four hatchlings; Mom seen only from below | design |
+| — | Gucky has his shell cap; four hatchlings; Mom seen only from below | design approved |
 
 ## References
 

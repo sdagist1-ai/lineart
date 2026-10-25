@@ -958,12 +958,19 @@ const GUCKY = {
   // The motif: incomplete it asks, complete it answers. D major, plucked.
   motif: { root: 69 + 5, mode: 'major', ask: [0, 2, 4, 2], answer: [0, 2, 4, 2, 7] },
 };
-/** The four hatchlings. Down colour is shared; silhouettes and tufts tell them apart. */
+/**
+ * The four hatchlings. Down colour is shared; silhouettes, tufts and a resting look tell them
+ * apart. `rest` is each one's face and posture when nothing is happening; any pose value an
+ * episode passes overrides it, so they can all still act. Gucky's is neutral, as approved.
+ */
 const DUCKLINGS = {
-  gucky: { scale: 1, tuft: 'curl', bodyW: 1, bill: 1, voice: 0 },
-  pip: { scale: 1.1, tuft: 'spike', bodyW: 1.04, bill: 1.12, voice: -2 },
-  dot: { scale: .98, tuft: 'pair', bodyW: 1, bill: .95, voice: 3, spot: true },
-  bean: { scale: .86, tuft: 'none', bodyW: 1.12, bill: .9, voice: 5 },
+  gucky: { scale: 1, tuft: 'curl', bodyW: 1, bill: 1, voice: 0, rest: {} },
+  // Chin up, chest out, leaning back: first at everything.
+  pip: { scale: 1.1, tuft: 'spike', bodyW: 1.04, bill: 1.12, voice: -2, rest: { brow: .45, lean: -.07, headTilt: -.07, look: [0, -.25] } },
+  // Head tilted, soft eyes, looking at something: she notices.
+  dot: { scale: .98, tuft: 'pair', bodyW: 1, bill: .95, voice: 3, spot: true, rest: { headTilt: .13, blink: .18, look: [.35, .15] } },
+  // Half asleep, bill a little open, a round slouch: is it snack time.
+  bean: { scale: .86, tuft: 'none', bodyW: 1.12, bill: .9, voice: 5, rest: { blink: .58, bill: .14, headTilt: .06, squash: .95 } },
 };
 
 const rotAbout = (pts, cx, cy, a) => xf(pts.map(([x, y]) => [x - cx, y - cy]), cx, cy, a);
@@ -996,15 +1003,16 @@ const walkPhase = (dist, s, stride = .08) => dist / (4 * stride * UNIT * s);
  *   bill     0 shut .. 1 wide open                        wing  0 folded .. 1 raised
  *   wet      0 dry .. 1 just hatched                      cap   { tilt, dx, dy } shell cap on the head, or null
  *   headTilt radians                                       t, key  boil and imperfection
+ * Anything left out falls back to the duckling's resting look (DUCKLINGS[who].rest).
  */
-function duckling(g, p) {
-  const who = DUCKLINGS[p.who || 'gucky'], key = p.key || p.who || 'gucky', t = p.t;
+function duckling(g, pose) {
+  const who = DUCKLINGS[pose.who || 'gucky'], p = { ...who.rest, ...pose }, key = p.key || p.who || 'gucky', t = p.t;
   const s = (p.s ?? 1) * who.scale, S = UNIT * s, view = p.view || 'side', f = view === 'side' ? (p.facing ?? 1) : 1;
   const kw = clamp(Math.sqrt(s), .75, 1.6), wS = 5 * kw, wD = 2.8 * kw, wet = p.wet || 0;
   const squash = p.squash ?? 1, stretch = 1 / Math.sqrt(squash);
   const step = p.step, A = p.stride ?? .08;
   const bob = step === undefined ? 0 : -.025 * Math.abs(Math.sin(step * TAU));
-  const rot = (p.lean || 0) * f + (p.waddle || 0);
+  const rot = (view === 'side' ? (p.lean || 0) * f : 0) + (p.waddle || 0);
   // Unit space -> frame: squash about the ground, bob, lean/waddle about the feet, then place.
   const W2 = (pts) => xf(pts.map(([x, y]) => [x * stretch, (y + bob) * squash]), p.x, p.y, rot, f * S, S);
   const down = wet > .5 ? GUCKY.wet : GUCKY.down;
@@ -1102,7 +1110,7 @@ function duckling(g, p) {
   if (!front) return;
   for (const side of [-1, 1]) {
     eye(g, H, [side * .085 + look[0] * .02, -.81 + look[1] * .015], blink, p.happy, wD, key + side, t, s, side);
-    if (p.brow) brow(g, H, [side * .085, -.89], p.brow, wD, key + side, t, side);
+    if (p.brow) brow(g, H, [side * .085, -.89], p.brow, wD, key + side, t, -side);
   }
   const bl = who.bill, open = (p.bill || 0);
   const lowerB = H(ellipse(0, -.7 + open * .03, .1 * bl, .035 + open * .05, { n: 32 }));
@@ -1139,7 +1147,11 @@ function eye(g, H, c, blink, happy, w, key, t, s, side = 1) {
   if (open > .4) { const hl = H([[c[0] + .01 * side, c[1] - .014]])[0]; dot(g, hl[0], hl[1], 4.2 * s, PAPER); }
 }
 
-/** A brow stroke above the eye: -1 worried (inner end up), 1 determined (inner end down). */
+/**
+ * A brow stroke above the eye: -1 worried (inner end up), 1 determined (inner end down).
+ * `inner` is the direction toward the face's middle: +1 in side view (toward the bill), and
+ * toward the other eye in front view.
+ */
 function brow(g, H, c, v, w, key, t, side = 1) {
   const d = .028 * v, inner = side;
   ink(g, H([[c[0] - .04 * inner, c[1] - d], [c[0] + .04 * inner, c[1] + d]]), { key: `${key}:brow`, t, w: w * .8, taper: [3, 3], wobble: .3 });
@@ -1292,7 +1304,7 @@ function drawArt(t) {
   const g = ctx, ground = (y, x0 = 60, x1 = 1020, k = 'g') => ink(g, [[x0, y], [x1, y]], { key: 'ground:' + k + y, w: 2.2, wobble: 1.2, skip: .3, alpha: .55 });
   // The four hatchlings, front view: Pip, Dot, Bean, Gucky.
   ground(520, 60, 1020, 'cast');
-  ['pip', 'dot', 'bean', 'gucky'].forEach((who, i) => duckling(g, { who, x: 150 + i * 260, y: 520, s: .7, view: 'front', key: 'cast:' + who, look: [i < 3 ? .5 : -.3, 0] }));
+  ['pip', 'dot', 'bean', 'gucky'].forEach((who, i) => duckling(g, { who, x: 150 + i * 260, y: 520, s: .7, view: 'front', key: 'cast:' + who }));
   // Hatching: the speckled egg, cracked and pipped, cap lifting, Gucky out wet in his cap.
   ground(980, 60, 1020, 'hatch');
   egg(g, 150, 980, { s: .95, speckled: true, rock: -.06, key: 'gucky-egg' });

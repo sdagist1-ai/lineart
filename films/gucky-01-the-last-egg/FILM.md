@@ -6,8 +6,7 @@ steps while his siblings march off after Mom, and joins the end of the line, unt
 boot stamps down in front of him. A series pilot; read `series/gucky/SERIES.md` first.
 
 Status: beats approved by the user in chat (hook, the egg, the hatch, the first steps, joining
-the line). The cliffhanger ending follows the user's later request that every episode end on
-one; the boot is a proposal awaiting their OK. Not built yet.
+the line), and the boot cliffhanger approved. Not built yet.
 
 ## Form
 
