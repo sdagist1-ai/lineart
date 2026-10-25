@@ -10,7 +10,10 @@ the line), and the boot cliffhanger approved. The hard frame is approved (Mom of
 hatch (7.5–13.5 s) is built and scored; the user approved its second version
 (`out/g01-hatch-v2.mp4`: "it sounds way better!!"), the dry room and the small orchestra. The
 hook and egg beat (0–11.25 s) are built and scored. The second half (16.6–32 s) is built and
-scored: the whole film, 32 s, is waiting for the user's review of `out/g01-full.mp4`.
+scored: the whole film, 32 s, was reviewed by the user (`out/g01-full.mp4`). Their notes led to
+a second draft of the episode, `SCRIPT.md` (two scenes, about 36 s: the siblings leave off
+screen, a new meadow scene where Gucky stumbles and loses the line, then the boot; no water in
+the nest scene; natural first steps). It is waiting for their approval before it is built.
 
 Length: the user dropped the strict 30 s ("it appears we're rushing to catch up to gucky coming
 out of shell"). The opening now breathes: each sibling gets a beat after hatching, the stare holds
