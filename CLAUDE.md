@@ -41,8 +41,9 @@ Firefox is the primary engine; `verify --engine` checks one while iterating, del
   A hook flags `Math.random()`, a lost `__film` and syntax errors as soon as an edit lands.
 - The score is pure too: seeded, exactly `duration` long, scaled once to −16 LUFS under −1 dBTP.
 - Fills (`tint`) go under lines (`ink`). Black is line only; shadow is hatching; colour is spot.
-- Draw in design pixels (1080 wide); `--res` sets the output size. Never scale a drawn bitmap. Keep eyes and key action out of the Reels
-  overlays (roughly top 250, bottom 420 and right 120 px of 1080×1920).
+- Draw in design pixels (1080 wide); `--res` sets the output size. Never scale a drawn bitmap.
+  Keep eyes and key action out of the Reels overlays (roughly top 250, bottom 420 and right
+  120 px of 1080×1920).
 - Changing an element's key or a `Score({ key })` redraws or reseeds it; freeze keys once approved.
 
 ## Map
