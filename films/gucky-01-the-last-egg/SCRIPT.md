@@ -1,13 +1,25 @@
 # Gucky, Episode 1: The Last Egg (script, draft 3)
 
-Status: draft for the user's approval; not built. Draft 3 rewrites Gucky's struggle after the
-user's note on draft 2 and the cut: "Gucky struggle wasn't funny". It now gets its comedy from
-character (he learns to walk by copying his siblings, each copy going wrong in that sibling's
-way), escalates in three, pays off Dot's kindness, and calls back in the meadow. Draft 2 followed
-the user's notes on the first full cut: the siblings leave the nest and go off screen; a second scene has them walking across while
-the music matches the walk; Gucky stumbles and loses pace; then the boot slams down. The stumble
-in the nest should look more natural, and the nest scene loses the water at the top: the pond is
-where they are walking to, and it comes later.
+Status: approved by the user ("Approved") and built; `FILM.md` has the beats as built, 39.3 s.
+Draft 3 rewrote Gucky's struggle after the user's note on draft 2: "Gucky struggle wasn't funny".
+It gets its comedy from character (he learns to walk by copying his siblings, each copy going
+wrong in that sibling's way), escalates in three, pays off Dot's kindness, and calls back in the
+meadow. Draft 2 followed the user's notes on the first full cut: the siblings leave the nest and
+go off screen; a second scene has them walking across while the music matches the walk; Gucky
+stumbles and loses pace; then the boot slams down. The stumble in the nest should look more
+natural, and the nest scene loses the water at the top: the pond is where they are walking to.
+
+As built, changed from the text below (every beat is kept):
+
+- Screen direction is flipped: Mom calls from the left, they all leave left, and the meadow walk
+  runs right to left. Gucky's shell sits to his right, so his wrong-way march goes right.
+- Bean wanders off up the field, seen from behind (a waddle reads side to side that way); Gucky
+  copies it facing us.
+- Dot stays on the right throughout: she hops up onto the rim out of his march, ducks his shell,
+  and boops him round from the front; she cheers from behind him and they run off together.
+- The meadow opens on the line already marching (walking it in from the edge took 4 s); the boot
+  lands just behind the walking line, its heel at Gucky's bill, on the downbeat the march never
+  reaches. About 39 s in all.
 
 Wordless. Vertical 9:16. Two scenes, about 36.5 s. Times are approximate until built.
 

@@ -11,7 +11,7 @@ Read this before any episode. It overrides repo defaults; the user's words overr
 | | |
 |---|---|
 | Frame | vertical, designed at 1080×1920, rendered at 1440×2560 (`--res 1440`), 30 fps |
-| Length | set by the story, not a clock: the user dropped the strict 30 s when episode 1's opening felt rushed. Give each beat room to land; episode 1 runs about 34 s |
+| Length | set by the story, not a clock: the user dropped the strict 30 s when episode 1's opening felt rushed. Give each beat room to land; episode 1 runs about 39 s |
 | Hook | something already happening in frame 0, a sound in the first 0.5 s, a strong action in the first 1–2 s; the question can come once the setup has landed |
 | Safe area | eyes and key action in y ≈ 250–1500 of the design frame, off the right 120 px |
 | Words | none on screen; the name lives in the caption; any drawn sign or title is paths |
@@ -137,7 +137,7 @@ next.
 | Episode | State at the end | Status |
 |---|---|---|
 | — | Gucky has his shell cap; four hatchlings; Mom seen only from below | design approved |
-| 1 The Last Egg | Gucky, dry now, cap on, last in the line behind Dot, Bean and Pip, walking up the field toward Mom (off screen, right, by the reeds); a huge green rubber boot with a blue trouser leg has stamped down just ahead of him, toe the way the line went; the others walk on beyond it; Gucky stares up it. Nest with four empty shells behind. Bean's egg lies on its side behind the nest's middle | built, in review |
+| 1 The Last Egg | Gucky, dry now, cap on, alone in the meadow on the way to the pond (off screen, left): a huge green rubber boot with a blue trouser leg has stamped down just ahead of him, toe pointing the way the line went (left); Pip, Bean and Dot have marched on out of frame, unaware; he stares up it. The nest, with four empty shells, is behind them (Gucky's shell lies at its right edge; Bean's egg on its side behind the middle). Gucky has walked: copying fails, his own three steps work. Dot is the one who turned him round | built (script draft 3), in review |
 
 ## References
 

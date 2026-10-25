@@ -67,6 +67,8 @@ const walkPhase = (dist, s, stride = .08) => dist / (4 * stride * UNIT * s);
  *   bill     0 shut .. 1 wide open                        wing  0 folded .. 1 raised
  *   wet      0 dry .. 1 just hatched                      cap   { tilt, dx, dy } shell cap on the head, or null
  *   headTilt radians                                       tap  0..1 lifts the near foot (side view): impatience
+ *   knee     units a swinging foot lifts (.07): high for a proud march or a hero step
+ *   kick     [forward, up] units: hold the near foot there (side view), a hero step or a foot in a shell
  *   t, key   boil and imperfection
  * Anything left out falls back to the duckling's resting look (DUCKLINGS[who].rest).
  */
@@ -90,7 +92,7 @@ function duckling(g, pose) {
     const q = ((phase % 1) + 1) % 1;
     if (q < .5) return { fx: A - 4 * A * q, lift: 0 };
     const u = (q - .5) / .5;
-    return { fx: -A + 2 * A * smooth(u), lift: Math.sin(u * Math.PI) * .07 };
+    return { fx: -A + 2 * A * smooth(u), lift: Math.sin(u * Math.PI) * (p.knee ?? .07) };
   };
   const drawFoot = (fx, lift, hipX, k, front) => {
     const ax = fx, ay = -lift, hip = [hipX, -.17 - bob * 0];
@@ -106,6 +108,7 @@ function duckling(g, pose) {
 
   if (view === 'side') {
     const near = foot(step, 1), far = foot(step === undefined ? undefined : step + .5, -1);
+    if (p.kick) { near.fx = p.kick[0]; near.lift = p.kick[1]; }
     if (p.tap) near.lift += p.tap * .05;
     drawFoot(far.fx - .03, far.lift, -.06, 'f', false);
     drawFoot(near.fx, near.lift, .02, 'n', false);

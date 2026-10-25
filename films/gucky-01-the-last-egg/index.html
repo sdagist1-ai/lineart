@@ -13,7 +13,7 @@ input{flex:1;min-width:120px}button,a{color:inherit}a{display:none}[hidden]{disp
 // generator only to start a NEW work. Kits: kit/line.js, studies/sound.html, tools/lib/visual-kit.mjs.
 // Draw in design pixels (W x H); the canvas holds K output pixels per design pixel. To change the
 // output size, change K and the frame meta line together (or generate with --res).
-const W=1080, H=1920, K=1.3333333333333333, DUR=32, FPS=30, TITLE="gucky-01-the-last-egg";
+const W=1080, H=1920, K=1.3333333333333333, DUR=39.3, FPS=30, TITLE="gucky-01-the-last-egg";
 /* ── line kit ─────────────────────────────────────────────────────────────────
    Pen and ink on white paper with the odd spot of colour. A line is a filled
    outline that swells and tapers like a nib; its wobble, pressure and the way a
@@ -1062,6 +1062,8 @@ const walkPhase = (dist, s, stride = .08) => dist / (4 * stride * UNIT * s);
  *   bill     0 shut .. 1 wide open                        wing  0 folded .. 1 raised
  *   wet      0 dry .. 1 just hatched                      cap   { tilt, dx, dy } shell cap on the head, or null
  *   headTilt radians                                       tap  0..1 lifts the near foot (side view): impatience
+ *   knee     units a swinging foot lifts (.07): high for a proud march or a hero step
+ *   kick     [forward, up] units: hold the near foot there (side view), a hero step or a foot in a shell
  *   t, key   boil and imperfection
  * Anything left out falls back to the duckling's resting look (DUCKLINGS[who].rest).
  */
@@ -1085,7 +1087,7 @@ function duckling(g, pose) {
     const q = ((phase % 1) + 1) % 1;
     if (q < .5) return { fx: A - 4 * A * q, lift: 0 };
     const u = (q - .5) / .5;
-    return { fx: -A + 2 * A * smooth(u), lift: Math.sin(u * Math.PI) * .07 };
+    return { fx: -A + 2 * A * smooth(u), lift: Math.sin(u * Math.PI) * (p.knee ?? .07) };
   };
   const drawFoot = (fx, lift, hipX, k, front) => {
     const ax = fx, ay = -lift, hip = [hipX, -.17 - bob * 0];
@@ -1101,6 +1103,7 @@ function duckling(g, pose) {
 
   if (view === 'side') {
     const near = foot(step, 1), far = foot(step === undefined ? undefined : step + .5, -1);
+    if (p.kick) { near.fx = p.kick[0]; near.lift = p.kick[1]; }
     if (p.tap) near.lift += p.tap * .05;
     drawFoot(far.fx - .03, far.lift, -.06, 'f', false);
     drawFoot(near.fx, near.lift, .02, 'n', false);
@@ -1446,9 +1449,10 @@ const RING = SET.nestW * SET.depth * SET.rim * 2.2, FLOOR = SET.nestY - SET.nest
 // The hatch (approved) keeps its inner timing; HATCH moves it as a whole. The user asked for an
 // opening that breathes rather than a strict 30 s, so it starts at 11.25 s, not 7.6 s.
 const HATCH = 11.25, hx = (dt) => Math.round((HATCH + dt) * 1000) / 1000;
-// The second half counts from Mom's call (hx(5.35)), so it moves with the hatch. DUR (top of
-// the file) is set by hand to the hold after T.end.
-const sx = (dt) => hx(5.35 + dt);
+// The second half counts from Mom's call (hx(5.35)), so it moves with the hatch; the meadow counts
+// from the cut, on the march's beat (MB). DUR (top of the file) is set by hand to the hold after
+// T.meadow.end.
+const sx = (dt) => hx(5.35 + dt), cx = (dt) => sx(11 + dt), MB = 60 / 132;
 const T = {
   // The hook: three hatch, each their own way, each dries off in character, and each gets a beat.
   hatch: { pip: .25, dot: 3, bean: 4.45 },  // when each leaves its egg
@@ -1478,51 +1482,69 @@ const T = {
   who: hx(3.8), hard: hx(3.9),    // Pip: who are you? (the hard frame, nose to nose)
   blink: hx(4.09), first: hx(4.65), // he blinks at the world; his first peep, small
   reply: hx(4.9), call: hx(5.35), // Pip answers; Mom calls from up the field
-  // The line leaves: Pip dashes to the front, Bean waddles after, Dot stays to watch Gucky, looks
-  // back to cheer him on, and follows. They walk the way out (PATH) at Mom's pace.
-  leave: { pipDash: [sx(.1), sx(1.1)], beanGo: [sx(2), sx(2.6)], dotGo: [sx(3.4), sx(4.8)], dotBack: [sx(4.85), sx(5.15)] },
-  line: { v: 70, gap: 184, enter: { pip: sx(1.1), bean: sx(2.6), dot: sx(4.8) } },  // gap: two stride cycles, so Gucky falls into step
-  // Gucky tries: legs splay and he plops down; he tips and plants his bill; pulling it out, the cap
-  // slides over his eyes and he stumbles blind; he pushes it up, wobbles, steadies.
-  tries: { watch: sx(.3), splay: [sx(.55), sx(.85)], sit: [sx(.85), sx(1.25)], up: [sx(1.25), sx(1.65)],
-    tip: [sx(1.75), sx(2)], stuck: [sx(2), sx(2.4)], capSlide: [sx(2.45), sx(2.65)], blind: [sx(2.7), sx(3.4)],
-    capUp: [sx(3.45), sx(3.65)], blink: sx(3.7), wobble: [sx(3.75), sx(4.6)], hmph: sx(5.2) },
-  // Three wobbly steps on the motif's first notes, quicker steps, a run, and he falls into step.
-  steps: [sx(5.5), sx(6), sx(6.5)], quick: [sx(6.75), sx(8)], run: [sx(8), sx(9.8)], answer: sx(10),
-  // The boot comes down between him and the line; his eyes go up, then his head; the motif asks.
-  boot: [sx(11.75), sx(12.1)], eyes: sx(12.6), head: [sx(13), sx(13.7)], ask: sx(14.1), end: sx(15.3),
+  // Scene 1 after Mom's call. She calls from the left, so the way out is left: Pip marches off,
+  // proud; Bean wanders off up the field asleep on his feet; Dot stays to watch Gucky.
+  leave: { turn: sx(.1), pip: [sx(.15), sx(1.3)], bean: sx(.4) },
+  // Gucky learns to walk by copying, and each copy goes wrong its sibling's way. Pip's hero step:
+  // the cap's weight tips him onto his tail. Bean's waddle: each sway bigger, the last swings him
+  // round. Proud, eyes shut, he marches the wrong way (Dot hops out of it) into his own shell,
+  // clomps in it, looks, shakes it off over Dot and hops back free. Dot, laughing, boops him round
+  // and cheers him on; three careful steps, amazed, beaming; they run off after the others.
+  copy: {
+    puff: sx(1.1), footUp: [sx(1.2), sx(1.35)], hold: [sx(1.35), sx(1.85)], tip: [sx(1.85), sx(2.05)], giggle: sx(2.15), blink: sx(2.4),
+    up: [sx(2.55), sx(2.8)], sway: [sx(2.85), sx(3.6)], turn: [sx(3.6), sx(3.7)],
+    march: [sx(3.8), sx(4.3)], dodge: [sx(3.85), sx(4.15)], clomps: [sx(4.6), sx(4.9)], look: sx(5.05), shake: [sx(5.3), sx(5.55)], shellLands: sx(5.95),
+    laugh: [sx(5.95), sx(6.3)], dotDown: [sx(6.2), sx(6.45)], boop: sx(6.5), spin: [sx(6.55), sx(6.67)], cheer: [sx(6.8), sx(7.1)], brow: sx(7.15),
+    steps: [sx(7.4), sx(7.8), sx(8.2)], feet: [sx(8.5), sx(8.85)], beam: [sx(8.9), sx(9.2)], run: [sx(9.35), sx(10.45)],
+  },
+  cut: sx(11),                    // the empty nest a moment; cut to the meadow
+  // Scene 2: the meadow at their eye level, the line marching left in step, the camera tracking.
+  // Gucky scrambles in and skips into step; he high-steps like Pip, holds it, tips onto his tail;
+  // the camera stops with him; he hurries, out of step; the boot; eyes up, then head; the ask.
+  // The boot lands on the downbeat the march never reaches.
+  meadow: { gIn: cx(.3), join: cx(3.5 * MB), answer: cx(4 * MB), lift: cx(9 * MB), hold: [cx(4.45), cx(4.9)], plop: cx(5.1), blink: cx(5.4), up: [cx(5.55), cx(5.8)],
+    hurry: [cx(5.85), cx(16 * MB)], boot: [cx(16 * MB - .35), cx(16 * MB)], eyes: cx(8.6), head: [cx(9), cx(9.7)], ask: cx(10.1), end: cx(11.3) },
 };
 const BEATS = [
   { id: 'hook', start: 0, end: 2, readAt: .5, action: 'Pip rockets out of his egg and strikes a pose' },
   { id: 'siblings', start: 2, end: 5.55, readAt: 2.3, action: 'Dot peeks out and hops out; Bean falls out asleep and yawns' },
   { id: 'egg', start: 5.55, end: HATCH, readAt: 9.6, action: 'they stare at the last egg; Pip knocks, it rocks him over, a crack runs' },
   { id: 'hatch', start: HATCH, end: hx(5.4), readAt: T.hard, action: 'pip, zip, pop: Gucky tumbles out wearing the cap' },
-  { id: 'tries', start: T.call, end: T.steps[0], readAt: T.tries.stuck[0] + .2, action: 'the line leaves; Gucky splays, plants his bill, goes blind under the cap, steadies' },
-  { id: 'steps', start: T.steps[0], end: T.run[1], readAt: T.run[0] + .8, action: 'three wobbly steps, quicker, then a run up the field' },
-  { id: 'line', start: T.run[1], end: T.boot[0], readAt: T.answer + .6, action: 'he falls into step at the end of the line' },
-  { id: 'boot', start: T.boot[0], end: DUR, readAt: DUR - .4, action: 'a boot stamps down; he looks all the way up it' },
+  { id: 'copy', start: T.call, end: T.copy.march[0], readAt: T.copy.hold[1], action: 'the others leave; Gucky copies Pip and sits down, copies Bean and swings round' },
+  { id: 'shell', start: T.copy.march[0], end: T.copy.boop, readAt: T.copy.clomps[1] + .1, action: 'the wrong way, into his own shell; he clomps and shakes it off' },
+  { id: 'steps', start: T.copy.boop, end: T.cut, readAt: T.copy.beam[0] + .1, action: 'Dot boops him round; three steps; he beams and runs after them' },
+  { id: 'march', start: T.cut, end: T.meadow.lift, readAt: T.meadow.answer + 1, action: 'the meadow: the line marches; Gucky catches up and falls into step' },
+  { id: 'topple', start: T.meadow.lift, end: T.meadow.boot[1], readAt: T.meadow.plop + .1, action: 'he high-steps like Pip, tips onto his tail and loses the line' },
+  { id: 'boot', start: T.meadow.boot[1], end: DUR, readAt: DUR - .4, action: 'a boot stamps down; he looks all the way up it' },
 ];
 
-/* The way out: from the back of the nest, over the rim, diagonally up the field toward Mom at the
-   reeds, off to the upper right (a diagonal file reads; straight up the frame they stack). Distances along it are counted as if walked near the nest (u), so walkers shrink and slow
-   with distance and their feet stay planted. */
-const PATH = curve([[620, 1215], [670, 1130], [740, 1040], [810, 950], [880, 860], [950, 780], [1030, 710], [1120, 650], [1240, 600]], { per: 3 });
-const RIM_Y = 1185;   // feet above this are past the nest's back rim: drawn behind it
+/* The way out is left, toward Mom's call: along the nest floor and over its left rim, or (Bean)
+   wandering off up the field. Distances along a walkway count as if walked near the nest (u), so
+   walkers shrink and slow with distance and their feet stay planted. */
 const relAt = (y) => clamp((y - SET.horizon) / (FLOOR - SET.horizon), .05, 1.2);
-const PATH_U = (() => { const u = [0]; for (let i = 1; i < PATH.length; i++) { const a = PATH[i - 1], b = PATH[i]; u.push(u[i - 1] + Math.hypot(b[0] - a[0], b[1] - a[1]) / relAt((a[1] + b[1]) / 2)); } return u; })();
-function onPath(u) {
-  const n = PATH.length - 1;
-  if (u <= 0) return PATH[0].slice();
-  if (u >= PATH_U[n]) return PATH[n].slice();
-  let lo = 0, hi = n;
-  while (hi - lo > 1) { const m = (lo + hi) >> 1; if (PATH_U[m] <= u) lo = m; else hi = m; }
-  const k = (u - PATH_U[lo]) / (PATH_U[hi] - PATH_U[lo]);
-  return [lerp(PATH[lo][0], PATH[hi][0], k), lerp(PATH[lo][1], PATH[hi][1], k)];
+function walkway(points) {
+  const P = curve(points, { per: 3 }), U = [0];
+  for (let i = 1; i < P.length; i++) { const a = P[i - 1], b = P[i]; U.push(U[i - 1] + Math.hypot(b[0] - a[0], b[1] - a[1]) / relAt((a[1] + b[1]) / 2)); }
+  const n = P.length - 1;
+  const at = (u) => {
+    if (u <= 0) return P[0].slice();
+    if (u >= U[n]) return P[n].slice();
+    let lo = 0, hi = n;
+    while (hi - lo > 1) { const m = (lo + hi) >> 1; if (U[m] <= u) lo = m; else hi = m; }
+    const k = (u - U[lo]) / (U[hi] - U[lo]);
+    return [lerp(P[lo][0], P[hi][0], k), lerp(P[lo][1], P[hi][1], k)];
+  };
+  return { at, length: U[n] };
 }
+const RIM_Y = 1185;   // feet above this are past the nest's back rim: drawn behind it
 /** A little hop over the nest's back rim. */
-const rimHop = (y) => 16 * relAt(y) * Math.sin(Math.PI * clamp((1200 - y) / 50, 0, 1));
-/** Where a sibling is on the way out at t: u along the path, 0 before it gets there. */
-const lineU = (who, t) => Math.max(0, (t - T.line.enter[who]) * T.line.v);
+const backHop = (y) => 16 * relAt(y) * Math.sin(Math.PI * clamp((1200 - y) / 50, 0, 1));
+/** A hop over the nest's left rim for a walker going out along the floor at y. */
+function floorHop(x, y, h = 22) {
+  const k = (y - (SET.nestY - SET.nestW * SET.depth * .45)) / (SET.nestW * SET.depth * .5 * 1.04);
+  const edge = SET.nestX - SET.nestW * .5 * 1.03 * Math.sqrt(Math.max(0, 1 - k * k));
+  return h * Math.sin(Math.PI * clamp((edge + 75 - x) / 75, 0, 1));
+}
 
 /** Smooth steps through [time, value] keys (numbers or [x, y]); holds before the first and after the last. */
 function keyed(t, keys) {
@@ -1676,72 +1698,132 @@ function drawCap(g, t) {
   egg(g, c.p[0], c.p[1] - CRACK_Y * UNIT * c.s, { s: c.s, part: 'top', top: { tilt: c.tilt }, speckled: true, key: 'gucky-egg', t });
 }
 
-/** Gucky: out of the egg in a forward flip, unfolding to full size; lands; the cap lands on him. */
-/* Gucky's way out, from where he stands to the end of the line. */
-const G_NEAR = G_S / relAt(G_AT[1]);
-const G_TOA = Math.hypot(PATH[0][0] - G_AT[0], PATH[0][1] - G_AT[1]);
-/** u along the way out where Gucky falls into step: one stride cycle behind Dot. */
-const U_JOIN = (T.run[1] - T.line.enter.dot) * T.line.v - T.line.gap;
-const dotPhase = (t) => walkPhase(lineU('dot', t), .9 * DUCKLINGS.dot.scale);
-/** Where Gucky is and his walk phase after Mom's call: in place, steps, quick steps, a run, the line, stopped by the boot. */
-function guckyWay(t) {
-  const st = Math.min(t, T.boot[1] + .05), stepped = T.steps.reduce((n, a) => n + smooth(local(st, a, a + .3)), 0), quick = local(st, T.quick[0], T.quick[1]);
-  if (st < T.run[0]) {
-    const d = stepped * 15 + ease.inOut(quick) * (G_TOA - 45), k = d / G_TOA, x = lerp(G_AT[0], PATH[0][0], k), y = lerp(G_AT[1], PATH[0][1], k);
-    return { x, y, phase: .5 * stepped + 2 * quick, stride: .08, u: 0 };
-  }
-  const p0 = .5 * T.steps.length + 2, l = local(st, T.run[0], T.run[1]), dur = T.run[1] - T.run[0];
-  if (st < T.run[1]) {
-    // A run from standing to line pace, arriving one stride behind Dot.
-    const u = U_JOIN * (3 * l * l - 2 * l * l * l) + T.line.v * dur * (l * l * l - l * l), [x, y] = onPath(u);
-    return { x, y, phase: p0 + walkPhase(u, G_NEAR, .11), stride: .11, u };
-  }
-  const u = U_JOIN + (st - T.run[1]) * T.line.v, [x, y] = onPath(u);
-  // Falls into step: his phase eases onto Dot's.
-  const c0 = p0 + walkPhase(U_JOIN, G_NEAR, .11) - dotPhase(T.run[1]), c = lerp(c0, Math.round(c0), smooth(local(st, T.run[1], T.run[1] + .6)));
-  return { x, y, phase: dotPhase(st) + c, stride: .08, u };
+/* Gucky after Mom's call, copying his way to walking. The wrong-way march ends with his near foot
+   in his own shell; two clomps carry him on; shaken free, he hops back to where Dot can boop his
+   bill; three careful steps; the run. Bean wanders off up the field on BEAN_WAY. */
+const G_FULL = UNIT * G_S;                                  // px a unit, Gucky in the nest
+const G_MARCH = { stride: .106, from: G_AT[0], to: EGG.x - .185 * G_FULL };   // the near foot lands in the shell
+const G_CLOMP = 8, G_BACK = 590, G_STEP = .07, G_RUN = .12;  // a clomp's carry; where the hops back leave him; strides
+const G_STEPPED = G_BACK - 3 * 2 * G_STEP * G_FULL;         // where the three steps leave him
+const G_RUN_V = 700, DOT_RUN_V = 760;                        // px/s flat out
+const DOT_PERCH = [975, FLOOR - 85], DOT_BOOP = [G_BACK + .54 * G_FULL + .53 * UNIT * .9 * DUCKLINGS.dot.scale, FLOOR];
+const SHELL_LAND = [1040, FLOOR - 40];
+// Straight up the gap between Gucky and Dot, then left along the field, far enough off to pass over Gucky's head.
+const BEAN_WAY = walkway([[BEAN_AT[0], BEAN_AT[1]], [680, 1150], [690, 980], [650, 870], [400, 840], [100, 815], [-120, 800]]), BEAN_V = 170;
+/** Each sway of his copy of Bean's waddle: [seconds, radians], every one bigger and slower than the last. */
+const SWAYS = [[.17, .07], [.18, .12], [.19, .18], [.21, .27]];
+/** Distance run from a standing start: up to speed v in acc seconds, then flat out. */
+const runFrom = (tau, v, acc = .3) => tau <= 0 ? 0 : v * (tau < acc ? tau * tau / (2 * acc) : tau - acc / 2);
+/** The rig's foot, for poses that take a walking foot over by hand: [forward, up] units at phase q. */
+function footOf(phase, A, knee = .07) {
+  const q = ((phase % 1) + 1) % 1;
+  if (q < .5) return [A - 4 * A * q, 0];
+  const u = (q - .5) / .5;
+  return [-A + 2 * A * smooth(u), Math.sin(u * Math.PI) * knee];
 }
+/** Where a side-view pose's near foot is: under the middle of its pad, frame px. */
+function nearFootAt(p) {
+  const S = UNIT * (p.s ?? 1) * DUCKLINGS[p.who].scale, f = p.facing ?? 1, sq = p.squash ?? 1, st = 1 / Math.sqrt(sq);
+  const [fx, lift] = p.kick || [.045, 0];
+  return xf([[(fx + .06) * st, -lift * sq]], p.x, p.y, (p.lean || 0) * f + (p.waddle || 0), f * S, S)[0];
+}
+
+/** Gucky's x in the nest after Mom's call. */
+function guckyX(t) {
+  const C = T.copy;
+  if (t < C.march[0]) return G_AT[0];
+  if (t < C.march[1]) return lerp(G_MARCH.from, G_MARCH.to, local(t, C.march[0], C.march[1]));
+  const clomped = G_MARCH.to + G_CLOMP * C.clomps.reduce((n, c) => n + smooth(local(t, c - .22, c)), 0);
+  if (t < C.shake[1]) return clomped;
+  if (t < C.steps[0]) { const u = local(t, C.shake[1], C.shake[1] + .45) * 3, k = Math.min(2, Math.floor(u)); return lerp(clomped, G_BACK, (k + smooth(u - k)) / 3); }
+  const stepped = C.steps.reduce((n, a) => n + smooth(local(t, a, a + .3)), 0);
+  return G_BACK - stepped * 2 * G_STEP * G_FULL - runFrom(t - C.run[0], G_RUN_V);
+}
+/** The near foot while it wears the shell: its pad's middle (frame x) and lift (units). */
+function shellFoot(t) {
+  const C = T.copy;
+  let x = EGG.x, lift = 0, fwd = 0;
+  C.clomps.forEach((c) => { const u = local(t, c - .22, c); x += G_CLOMP * smooth(u); lift += .15 * Math.sin(Math.PI * Math.pow(u, .7)); });
+  // The shake: up, and a rattle every frame.
+  const up = smooth(local(t, C.shake[0] - .12, C.shake[0])), rattle = t > C.shake[0] && t < C.shake[1] ? shiver(t) : 0;
+  lift += .1 * up + .015 * rattle; fwd += .05 * up + .03 * rattle;
+  return { x, lift, fwd };
+}
+
 /** Gucky after Mom's call. */
 function guckyLate(t) {
-  const G = T.tries, w = guckyWay(t), k = (keys) => keyed(t, keys), r = relAt(w.y), B = T.boot[1];
-  const tryStep = t < T.steps[0] - .1;
-  // The tries, as pose: splayed legs, a plop onto his tail, a bill in the straw, blind under the cap.
-  const stride = t < G.up[1] ? k([[G.splay[0], .08], [G.splay[0] + .12, .25], [G.sit[0] + .1, .25], [G.sit[1], .06], [G.up[1], .08]]) : t < G.blind[1] ? k([[G.blind[0], .08], [G.blind[0] + .1, .03], [G.blind[1] - .1, .03], [G.blind[1], .08]]) : w.stride;
-  let phase = w.phase;
-  if (t < G.splay[0]) phase = undefined;
-  else if (t < G.up[1]) phase = 0;
-  else if (t < G.tip[0]) phase = undefined;
-  else if (t < G.stuck[1]) phase = t > G.stuck[0] ? (t - G.stuck[0]) * 6 : undefined;
-  else if (t < G.blind[0]) phase = undefined;
-  else if (t < G.blind[1]) phase = (t - G.blind[0]) * 2.5;
-  else if (tryStep) phase = undefined;
-  const lean = k([[G.splay[1], 0], [G.sit[0] + .06, -.42], [G.sit[1], -.42], [G.up[1], 0], [G.tip[0], 0], [G.tip[0] + .12, .3], [G.stuck[0], 1.12], [G.stuck[1], 1.12], [G.stuck[1] + .06, -.18], [G.stuck[1] + .2, 0],
-    ...T.steps.flatMap(a => [[a, 0], [a + .15, .1], [a + .3, 0]]), [T.quick[0], .05], [T.quick[1], .12], [T.run[0] + .2, .22], [T.run[1], .22], [T.run[1] + .3, .05], [B, .05], [B + .05, -.1], [B + .2, 0], [T.head[0], 0], [T.head[1], -.12]]);
-  const waddle = t < G.wobble[0] ? .06 * Math.sin((t - G.blind[0]) * 11) * bump(t, G.blind[0], G.blind[0] + .1, G.blind[1])
-    : .15 * Math.exp(-(t - G.wobble[0]) * 3.2) * Math.sin((t - G.wobble[0]) * 14) * (t < G.wobble[1] + .3 ? 1 : 0) + T.steps.reduce((v, a, i) => v + (i % 2 ? -1 : 1) * .1 * Math.sin(Math.PI * local(t, a, a + .45)), 0);
-  const jolt = bump(t, B, B + .06, B + .2);
-  return { who: 'gucky', view: 'side', facing: t < G.watch ? -1 : 1, key: 'gucky', t, x: w.x, y: w.y - rimHop(w.y) - 14 * r * jolt, ground: w.y, s: G_NEAR * r,
-    step: phase, stride, lean, waddle, wet: 1 - smooth(local(t, T.run[0], T.run[0] + 3)),
-    squash: k([[G.splay[0], 1], [G.splay[0] + .12, .8], [G.sit[0], .8], [G.sit[0] + .06, .72], [G.sit[0] + .2, .8], [G.sit[1], .8], [G.up[1], 1], [B, 1], [B + .04, .86], [B + .14, 1]]),
-    look: k([[T.call + .1, [0, -1]], [G.watch, [.5, -.3]], [G.splay[0], [.4, .6]], [G.up[1], [.4, .3]], [G.tip[0], [.6, .6]], [G.capUp[1], [.3, 0]], [G.wobble[1], [.6, -.3]], [T.steps[0], [.6, 0]], [B, [.6, 0]], [T.eyes - .1, [.6, 0]], [T.eyes + .05, [.3, -1]]]),
-    headTilt: k([[T.call + .1, -.3], [G.watch, -.1], [G.splay[0], .1], [G.up[1], 0], [G.blind[0], 0], [G.blind[0] + .2, -.12], [G.blind[0] + .45, .12], [G.blind[1], 0], [T.steps[0], 0], [T.head[0], 0], [T.head[1], -.6]]),
-    blink: k([[G.splay[1], 0], [G.splay[1] + .03, 1], [G.splay[1] + .15, .3], [G.up[1], 0], [G.blink - .04, 0], [G.blink, 1], [G.blink + .08, 0], [T.end - .6, 0], [T.end - .55, 1], [T.end - .45, 0]]),
-    happy: t > T.answer && t < T.answer + .9,
-    brow: k([[G.splay[0], 0], [G.splay[0] + .1, -.6], [G.up[1], -.3], [G.tip[0], -.3], [G.wobble[0], -.3], [G.hmph - .1, .6], [T.run[1], .6], [T.run[1] + .3, 0], [B, 0], [B + .05, -.5], [T.head[1], -.2]]),
-    wing: t > G.stuck[0] && t < G.stuck[1] ? .4 + .4 * Math.sin((t - G.stuck[0]) * 40)
-      : k([[G.splay[0], 0], [G.splay[0] + .1, .7], [G.sit[1], .3], [G.up[1], .1], [G.tip[0] + .1, .8], [G.blind[0], .5], [G.blind[1], .5], [G.capUp[0], .95], [G.capUp[1], .9], [G.capUp[1] + .2, .2], [G.wobble[0], .5], [G.wobble[1], .2], [T.steps[0], .4], [T.quick[1], .3], [T.run[1], .25], [T.run[1] + .3, 0], [B, 0], [B + .05, .6], [B + .5, .2]]),
-    bill: k([[G.splay[0], 0], [G.splay[0] + .1, .3], [G.sit[1], .1], [G.up[1], 0], [G.hmph - .03, 0], [G.hmph, .2], [G.hmph + .1, 0], [T.run[0] + .3, .2], [T.run[1], .2], [T.run[1] + .1, 0], [B, 0], [B + .05, .3], [T.head[1], .15]]),
-    cap: { tilt: k([[G.capSlide[0], .2], [G.capSlide[1], .05], [G.capUp[1], .2], [T.run[1], .2], [T.head[0], .2], [T.head[1], .28]]) + (t > T.run[1] && t < B ? .08 * Math.sin(w.phase * TAU * 2) : 0),
-      dy: k([[G.capSlide[0], 0], [G.capSlide[1], .13], [G.capUp[0], .13], [G.capUp[1], 0], [B, 0], [B + .05, -.07], [B + .2, 0], [T.head[0], 0], [T.head[1], -.05]]), dx: k([[T.head[0], 0], [T.head[1], -.03]]) },
+  const C = T.copy, k = (keys) => keyed(t, keys), x = guckyX(t), P = C.tip[1], M = C.march[1], B = C.shake[1];
+  let view = 'side', facing = -1;
+  if (t >= C.up[1] && t < C.turn[0]) view = 'front';
+  else if (t >= C.turn[0] && t < C.spin[0] + .04) facing = 1;
+  else if (t >= C.spin[0] + .04 && t < C.spin[1] - .04) view = 'front';
+  // Feet: a held hero step, the sit, the front-view sway, the march, the shell, the steps, the run.
+  let step, stride, knee, kick, waddle = 0;
+  if (t >= C.footUp[0] && t < C.up[1]) {
+    const tr = .008 * Math.sin(t * 40) * local(t, C.hold[0], C.hold[1]);
+    kick = t < C.hold[0] ? [lerp(.045, .2, smooth(local(t, C.footUp[0], C.footUp[1]))), lerp(0, .11, smooth(local(t, C.footUp[0], C.footUp[1])))]
+      : k([[C.hold[1], [.2 + tr, .11 + tr]], [P, [.22, .14]], [P + .1, [.16, .05]], [C.up[0], [.16, .05]], [C.up[1], [.045, 0]]]);
+    waddle = .1 * local(t, C.hold[0], C.hold[1]) * Math.sin((t - C.hold[0]) * 17) * (t < P ? 1 : 0);
+  } else if (view === 'front') {
+    let a = C.sway[0];
+    for (let i = 0; i < SWAYS.length; i++) {
+      const [d, amp] = SWAYS[i], u = (t - a) / d, sgn = i % 2 ? 1 : -1, last = i === SWAYS.length - 1;
+      if (u < 1 || last) { if (u >= 0) { waddle = sgn * amp * (last ? Math.sin(Math.PI / 2 * Math.min(1, u)) : Math.sin(Math.PI * u)); step = (sgn > 0 ? .5 : 0) + .5 * clamp(u, 0, 1); knee = .05; } break; }
+      a += d;
+    }
+  } else if (t >= C.turn[0] && t < C.march[0]) waddle = -.2 * (1 - smooth(local(t, C.turn[0], C.turn[1]))) - .08 * ring(t, C.turn[1], 4, 18);
+  else if (t >= C.march[0] && t < M) { step = .16 + (x - G_MARCH.from) / (4 * G_MARCH.stride * G_FULL); stride = G_MARCH.stride; knee = .12; }
+  else if (t >= M && t < B) { const f = shellFoot(t); kick = [(f.x - x) / G_FULL - .06 + f.fwd, f.lift]; waddle = .04 * (t > C.shake[0] ? shiver(t) : 0); }
+  else if (t >= C.steps[0] && t < C.run[0]) { step = .5 * C.steps.reduce((n, a) => n + smooth(local(t, a, a + .3)), 0); stride = G_STEP; waddle = C.steps.reduce((v, a, i) => v + (i % 2 ? -1 : 1) * .08 * Math.sin(Math.PI * local(t, a, a + .4)), 0); }
+  else if (t >= C.run[0]) { step = 1.5 + (G_STEPPED - x) / (4 * G_RUN * G_FULL); stride = G_RUN; }
+  if (t >= B && t < C.steps[0]) waddle += .12 * ring(t, B + .45, 4, 16) + .1 * ring(t, C.spin[1], 5, 20);
+  // Hops: back from the shell, and over the rim on the way out.
+  const hopU = local(t, B, B + .45) * 3, hop = t > B && t < B + .45 ? 18 * Math.sin(Math.PI * (hopU - Math.floor(hopU))) : 0;
+  const y = G_AT[1] - hop - (t > C.run[0] ? floorHop(x, G_AT[1]) : 0);
+  return { who: 'gucky', view, facing, key: 'gucky', t, x, y, ground: G_AT[1], s: G_S, step, stride, knee, kick, waddle,
+    wet: 1 - .75 * smooth(local(t, T.call, C.run[1])),
+    lean: k([[C.puff - .1, 0], [C.puff + .1, -.15], [C.hold[0], -.15], [C.hold[1], -.32], [P, -.58], [P + .06, -.52], [C.up[0], -.52], [C.up[1], 0],
+      [C.turn[1], 0], [C.turn[1] + .1, -.1], [M, -.1], [M + .05, .15], [M + .2, .04], [C.look, .04], [C.shake[0], .04], [C.shake[0] + .1, -.05],
+      [B, -.05], [B + .05, -.25], [B + .45, -.05], [B + .6, 0], [C.boop, 0], [C.boop + .04, -.1], [C.boop + .2, 0],
+      ...C.steps.flatMap(a => [[a, 0], [a + .15, .1], [a + .3, 0]]), [C.feet[0], .1], [C.feet[1], .1], [C.beam[0], -.06], [C.beam[1], -.06], [C.run[0], .1], [C.run[0] + .2, .25]])
+      - C.clomps.reduce((v, c) => v + .14 * Math.sin(Math.PI * local(t, c - .22, c)), 0),
+    squash: k([[P, 1], [P + .04, .72], [P + .12, .8], [C.up[0], .8], [C.up[1], 1], [C.turn[0], 1], [C.turn[0] + .04, .9], [C.turn[1], 1], [M, 1], [M + .04, .88], [M + .14, 1],
+      [C.boop, 1], [C.boop + .03, .92], [C.boop + .1, 1]]) * C.clomps.reduce((v, c) => v * (1 - .1 * bump(t, c - .01, c + .03, c + .15)), 1),
+    look: view === 'front' ? [-.6, -.4] : k([[T.call + .1, [.6, -.3]], [C.puff - .4, [.8, 0]], [C.puff, [.3, -.3]], [C.hold[1], [.2, .2]], [P, [0, -.5]], [P + .2, [.3, 0]], [C.up[0], [.3, 0]], [C.up[1], [.6, -.6]],
+      [M, [.4, .1]], [M + .05, [.5, .8]], [C.look, [.5, .9]], [C.look + .1, [.4, 1]], [C.shake[1], [.4, .8]], [B + .05, [.9, -.4]], [C.shellLands, [.9, -.1]], [C.dotDown[0], [.9, 0]],
+      [C.spin[1], [.3, .1]], [C.brow, [.6, 0]], [C.steps[0], [.3, .8]], [C.feet[0], [.2, 1]], [C.beam[0], [.6, -.3]], [C.run[0], [.8, 0]]]),
+    headTilt: view === 'front' ? -waddle * .5 : k([[C.puff - .1, -.05], [C.puff + .1, -.15], [C.hold[1], -.1], [P, -.2], [P + .2, 0], [C.turn[1], 0], [C.turn[1] + .1, -.18], [M, -.18], [M + .05, .2],
+      [C.look, .25], [C.look + .1, .35], [C.shake[0], .2], [B, .2], [B + .1, -.1], [C.boop, -.1], [C.spin[1], 0], [C.brow, -.05], [C.steps[0], .2], [C.feet[0], .2], [C.feet[0] + .12, .35],
+      [C.feet[1], .35], [C.beam[0], -.12], [C.beam[1], -.12], [C.run[0], 0]]),
+    blink: k([[P, 0], [P + .02, 1], [P + .1, .3], [C.blink - .04, .2], [C.blink, 1], [C.blink + .08, 0], [C.turn[0], 0], [C.turn[0] + .03, 1], [C.turn[1], 1], [C.turn[1] + .05, 0],
+      [C.turn[1] + .12, 0], [C.turn[1] + .18, 1], [M, 1], [M + .02, 0], [C.look + .16, 0], [C.look + .2, 1], [C.look + .27, 0], [C.boop - .02, 0], [C.boop, 1], [C.boop + .08, 0],
+      [C.spin[1], 0], [C.spin[1] + .05, 1], [C.spin[1] + .12, 0], [C.feet[0] + .15, 0], [C.feet[0] + .19, 1], [C.feet[0] + .26, 0], [C.beam[0] - .03, 0], [C.beam[0], 1], [C.beam[1] + .1, 1], [C.beam[1] + .14, 0]]),
+    happy: (t > C.turn[1] + .15 && t < M) || (t > C.beam[0] && t < C.beam[1] + .12),
+    brow: k([[C.puff - .1, 0], [C.puff + .1, .6], [C.hold[0], .6], [C.hold[1], -.4], [P, -.5], [C.up[1], -.2], [C.turn[0], -.2], [C.turn[1], 0], [C.turn[1] + .15, .5], [M, .5], [M + .04, -.5],
+      [C.clomps[1], -.3], [C.look, -.4], [C.shake[0] - .1, -.4], [C.shake[0], .4], [B, .4], [B + .05, -.5], [C.boop, -.3], [C.spin[1], 0], [C.brow - .05, 0], [C.brow + .05, .6],
+      [C.steps[2] + .3, .6], [C.feet[0], 0], [C.run[0], 0], [C.run[0] + .1, .7]]),
+    bill: k([[P, 0], [P + .03, .3], [P + .2, 0], [M, 0], [M + .03, .35], [M + .2, .1], [C.look, 0], [C.shake[0], .2], [B, .2], [B + .05, .3], [B + .3, 0],
+      [C.feet[0] + .2, 0], [C.feet[0] + .26, .25], [C.feet[1], .2], [C.beam[0], .35], [C.beam[1] + .1, .3], [C.run[0], .1]]),
+    wing: t > C.hold[0] && t < P ? .5 + .3 * Math.sin((t - C.hold[0]) * 30) * local(t, C.hold[0], C.hold[1])
+      : t > C.shake[0] && t < B + .45 ? .6 + .3 * Math.sin((t - C.shake[0]) * 40)
+      : t > C.run[0] ? .4 + .3 * Math.sin((t - C.run[0]) * 30)
+      : k([[C.puff - .1, 0], [C.puff + .1, .25], [P, .9], [P + .3, .3], [C.up[0], .3], [C.up[1], .4], [C.turn[0], .3], [C.turn[0] + .05, .6], [C.turn[1] + .2, .15], [M, .15], [M + .04, .7],
+        [M + .3, .5], [C.look, .1], [B + .45, .9], [B + .7, .2], [C.spin[0], .2], [C.spin[1], .6], [C.spin[1] + .3, .1], [C.steps[0], .35], [C.feet[0], 0], [C.beam[0], 0], [C.beam[0] + .08, .7]]),
+    cap: { tilt: .2 + .1 * ring(t, P, 6, 22) + .08 * ring(t, M, 7, 26) + .12 * ring(t, C.spin[1], 6, 24),
+      dy: k([[M, 0], [M + .04, -.07], [M + .14, 0], [C.boop, 0], [C.boop + .04, -.05], [C.boop + .12, 0]]) - C.clomps.reduce((v, c) => v + .05 * bump(t, c, c + .04, c + .14), 0) },
   };
 }
-/** The boot: comes down out of the sky between Gucky and the line, its shaft right behind him. */
-function bootPose(t) {
-  if (t < T.boot[0]) return null;
-  // Toe the way the line went (the boot walks that way too: episode 2 follows it); shaft over Gucky.
-  const w = guckyWay(T.boot[1] + .05), y = w.y - 55, s = G_NEAR * relAt(y), x = w.x + .75 * UNIT * s;
-  return { x, y, s, lift: 8 * (1 - ease.in(local(t, T.boot[0], T.boot[1]))) };
+/** Gucky's eggshell: in the nest, then on his foot, flung off over Dot, landed at the edge. */
+function shellAt(t) {
+  const C = T.copy;
+  if (t < C.march[1]) { const e = eggState(t); return { x: EGG.x, y: EGG.y, rock: e.rock, squash: e.squash, on: 'nest' }; }
+  if (t < C.shake[1]) { const p = guckyLate(t), [x, y] = nearFootAt(p); return { x, y, rock: .1 - 1.4 * p.kick[1] + .12 * (p.waddle || 0), on: 'foot' }; }
+  const p = guckyLate(C.shake[1] - 1e-3), from = nearFootAt(p), r0 = .1 - 1.4 * p.kick[1];
+  if (t < C.shellLands) { const u = local(t, C.shake[1], C.shellLands), [x, y] = toss(u, from, SHELL_LAND, 400); return { x, y, rock: lerp(r0, .5 + 2 * TAU, u), on: 'air' }; }
+  return { x: SHELL_LAND[0], y: SHELL_LAND[1], rock: .5 + .3 * ring(t, C.shellLands, 5, 20), on: 'nest' };
 }
+
+/** Gucky: out of the egg in a forward flip, unfolding to full size; lands; the cap lands on him. */
 function guckyPose(t) {
   if (t >= T.call + .1) return guckyLate(t);
   if (t < T.pop) return null;
@@ -1819,22 +1901,17 @@ function pipEarly(t) {
   };
 }
 
-/** Pip after Mom's call: dashes across the nest to the front of the line, calls the others, leads the way out. */
+/** Pip after Mom's call: turns to it, and marches off left with his chest out and his knees high, over the rim. */
 function pipLate(t) {
-  const L = T.leave, sc = DUCKLINGS.pip.scale, k = (keys) => keyed(t, keys), base = { who: 'pip', view: 'side', s: .9, key: 'pip', t };
-  const peepBill = bump(t, T.line.enter.pip + .05, T.line.enter.pip + .1, T.line.enter.pip + .25) * .5;
-  if (t < L.pipDash[1]) {
-    const u = ease.inOut(local(t, L.pipDash[0], L.pipDash[1])), x = lerp(PIP_TO, PATH[0][0], u), y = lerp(FLOOR, PATH[0][1], u);
-    return { ...base, facing: 1, x, y, s: .9 * relAt(y), step: walkPhase(Math.hypot(x - PIP_TO, y - FLOOR), .9 * sc * relAt(y)), lean: .2 * Math.sin(Math.PI * u),
-      look: k([[L.pipDash[0], [0, -1]], [L.pipDash[0] + .12, [.6, 0]]]), headTilt: k([[L.pipDash[0], -.35], [L.pipDash[0] + .12, -.07]]), brow: .75, wing: .3 * Math.sin(Math.PI * u) };
-  }
-  const u = lineU('pip', t), [x, y] = onPath(u);
-  return { ...base, facing: 1, x, y: y - rimHop(y), ground: y, s: .9 * relAt(y), step: walkPhase(u, .9 * sc), brow: .45, look: [.3, -.1], bill: peepBill };
+  const L = T.leave, sc = DUCKLINGS.pip.scale, A = .12, d = runFrom(t - L.pip[0], 290, .15), x = PIP_TO - d;
+  if (x < -220) return null;
+  return { who: 'pip', view: 'side', facing: -1, s: .9, key: 'pip', t, x, y: FLOOR - floorHop(x, FLOOR), ground: FLOOR,
+    step: d > 0 ? walkPhase(d, .9 * sc, A) : undefined, stride: A, knee: .13, lean: -.1, headTilt: -.15, brow: .75, look: [.3, -.2], wing: .15 * smooth(local(t, L.pip[0], L.pip[0] + .2)) };
 }
 
 /** Pip: taps his foot, flinches at the pip, leans in, leaps back at the pop, then asks who this is. */
 function pipPose(t) {
-  if (t >= T.leave.pipDash[0]) return pipLate(t);
+  if (t >= T.call + .1) return pipLate(t);
   if (t < T.taps[0] - .3) return pipEarly(t);
   const k = (keys) => keyed(t, keys), P = T.pop, hop = local(t, P + .02, P + .3);
   return { who: 'pip', view: 'side', facing: 1, s: .9, key: 'pip', t,
@@ -1881,26 +1958,46 @@ function dotEarly(t) {
   };
 }
 
-/** Dot after Mom's call: stays to watch Gucky try, winces, smiles, cheers; goes, looks back to cheer him on, follows. */
+/**
+ * Dot after Mom's call: stays to watch Gucky; giggles at his plop; hops up onto the rim out of his
+ * wrong-way march; ducks his shell; laughs; hops down and boops him round; cheers him on; runs.
+ */
 function dotLate(t) {
-  const L = T.leave, G = T.tries, sc = DUCKLINGS.dot.scale, k = (keys) => keyed(t, keys), base = { who: 'dot', view: 'side', s: .9, key: 'dot', t };
-  const face = {
-    look: k([[T.call + .1, [0, -1]], [G.watch, [.6, .2]], [L.dotGo[0], [.6, .2]], [L.dotGo[0] + .1, [.4, 0]]]),
-    headTilt: k([[T.call + .1, -.25], [G.watch, .15], [G.stuck[0], .15], [G.stuck[0] + .1, .32], [G.capSlide[1], .32], [G.capSlide[1] + .1, .15]]),
-    brow: k([[G.splay[1], 0], [G.splay[1] + .08, -.6], [G.up[1], -.6], [G.up[1] + .2, 0], [G.stuck[0], 0], [G.stuck[0] + .08, -.6], [G.capSlide[0], -.6], [G.capSlide[0] + .1, 0]]),
-    blink: k([[G.splay[1], .1], [G.splay[1] + .03, 1], [G.splay[1] + .12, .1], [G.blind[0] + .15, .1], [G.blind[0] + .2, 1], [G.blind[1] - .05, 1], [G.blind[1], .18]]),
-    happy: t > G.blind[0] + .18 && t < G.blind[1] - .03,
-    wing: k([[G.capUp[1], 0], [G.capUp[1] + .08, .5], [G.capUp[1] + .25, .1], [G.capUp[1] + .4, .45], [G.capUp[1] + .6, 0]]),
-    bill: k([[G.capUp[1] + .05, 0], [G.capUp[1] + .1, .3], [G.capUp[1] + .3, 0], [L.dotBack[0], 0], [L.dotBack[0] + .05, .35], [L.dotBack[0] + .15, .1], [L.dotBack[0] + .2, .35], [L.dotBack[1], 0]]),
-  };
-  if (t < L.dotGo[0]) return { ...base, facing: -1, x: DOT_AT, y: FLOOR, ...face };
-  if (t < L.dotGo[1]) {
-    const u = local(t, L.dotGo[0], L.dotGo[1]), x = lerp(DOT_AT, PATH[0][0], u), y = lerp(FLOOR, PATH[0][1], u);
-    return { ...base, ...face, facing: -1, look: [.4, 0], x, y, s: .9 * relAt(y), step: walkPhase(Math.hypot(x - DOT_AT, y - FLOOR), .9 * sc * relAt(y)) };
+  const C = T.copy, k = (keys) => keyed(t, keys), sc = DUCKLINGS.dot.scale, base = { who: 'dot', view: 'side', facing: -1, s: .9, key: 'dot', t };
+  const go = C.beam[0] + .05, duck = C.shake[1] + .05;
+  let x, y, ground, step, stride;
+  if (t < C.dodge[0]) [x, y] = [DOT_AT, FLOOR];
+  else if (t < C.dodge[1]) [x, y] = toss(local(t, C.dodge[0], C.dodge[1]), [DOT_AT, FLOOR], DOT_PERCH, 50);
+  else if (t < C.dotDown[0]) [x, y] = DOT_PERCH;
+  else if (t < go) [x, y] = toss(smooth(local(t, C.dotDown[0], C.dotDown[1])), DOT_PERCH, DOT_BOOP, 30);
+  else {
+    // After the others, in a lane just behind Gucky's.
+    const d = runFrom(t - go, DOT_RUN_V, .25);
+    x = DOT_BOOP[0] - d; ground = FLOOR - 14 * smooth(local(t, go, go + .2)); y = ground - floorHop(x, ground);
+    if (x < -220) return null;
+    stride = .12; step = walkPhase(d, .9 * sc, stride);
   }
-  // On the way out she turns back once to cheer him on.
-  const u = lineU('dot', t), [x, y] = onPath(u), back = t > L.dotBack[0] && t < L.dotBack[1];
-  return { ...base, ...face, facing: back ? -1 : 1, x, y: y - rimHop(y), ground: y, s: .9 * relAt(y), step: walkPhase(u, .9 * sc), look: back ? [.5, .2] : [.3, -.1], blink: .18, happy: false };
+  const giggle = (a, n) => t > a && t < a + n * .12 ? .3 * Math.abs(Math.sin((t - a) / .12 * Math.PI)) : 0;
+  return { ...base, x, y, ground: ground ?? y, step, stride,
+    squash: k([[C.dodge[1], 1], [C.dodge[1] + .04, .85], [C.dodge[1] + .14, 1], [duck - .02, 1], [duck + .06, .74], [duck + .3, .74], [duck + .42, 1], [C.dotDown[1], 1], [C.dotDown[1] + .04, .88], [C.dotDown[1] + .14, 1]])
+      * (1 - .06 * giggle(C.giggle, 3) - .06 * giggle(C.laugh[0], 3)),
+    lean: k([[C.dodge[0], 0], [C.dodge[0] + .05, -.15], [C.dodge[1] + .1, -.12], [duck, -.12], [duck + .06, .15], [duck + .3, .15], [duck + .42, 0], [C.dotDown[1], .05], [C.boop - .06, .05], [C.boop, .22], [C.boop + .15, 0],
+      [C.cheer[0], 0], [C.cheer[0] + .08, -.1], [C.cheer[1], -.1], [C.cheer[1] + .15, 0], [go, 0], [go + .2, .2]]),
+    look: k([[T.call + .1, [.6, -.3]], [C.puff - .4, [.6, 0]], [C.puff, [.6, .35]], [C.dodge[0], [.6, .2]], [C.dodge[1], [.6, .6]], [C.shake[1], [.6, .6]], [duck, [-.2, -.8]], [duck + .3, [-.2, -.8]],
+      [C.shellLands, [.6, .5]], [C.dotDown[0], [.6, .4]], [C.boop, [.6, .2]], [C.steps[0], [.6, .4]], [go, [.4, 0]]]),
+    headTilt: k([[T.call + .1, -.2], [C.puff, .2], [C.sway[0], .2], [C.sway[1], .3], [C.dodge[0], .05], [C.dodge[1] + .1, .25], [duck, .25], [duck + .06, -.1], [C.shellLands, .2], [C.boop, .25], [C.cheer[0], -.1], [C.cheer[1], -.1],
+      [C.steps[0], .2], [go, 0]]),
+    blink: k([[C.giggle - .02, .18], [C.giggle, 1], [C.giggle + .4, 1], [C.giggle + .45, .18], [C.dodge[0], .18], [C.dodge[0] + .03, 0], [duck - .02, 0], [duck, 1], [duck + .3, 1], [duck + .35, 0],
+      [C.laugh[0] - .02, 0], [C.laugh[0], 1], [C.laugh[1], 1], [C.laugh[1] + .05, .18], [C.cheer[0], .18], [C.cheer[0] + .03, 1], [C.cheer[1], 1], [C.cheer[1] + .05, .18],
+      [C.beam[0], .18], [C.beam[0] + .03, 1], [go + .1, 1], [go + .15, .18]]),
+    happy: (t > C.giggle && t < C.giggle + .42) || (t > C.laugh[0] && t < C.laugh[1] + .03) || (t > C.cheer[0] && t < C.cheer[1] + .03) || (t > C.beam[0] && t < go + .13),
+    brow: k([[C.dodge[0], 0], [C.dodge[0] + .05, -.5], [C.dodge[1] + .2, -.5], [C.dodge[1] + .4, 0], [duck, 0], [duck + .05, -.6], [duck + .35, -.6], [duck + .45, 0], [C.steps[0], -.3], [C.steps[2] + .3, -.3], [C.feet[1], 0]]),
+    bill: giggle(C.giggle, 3) + giggle(C.laugh[0], 3) + k([[C.dodge[0], 0], [C.dodge[0] + .04, .35], [C.dodge[0] + .2, 0], [duck, 0], [duck + .04, .3], [duck + .2, 0],
+      [C.cheer[0], 0], [C.cheer[0] + .04, .4], [C.cheer[0] + .12, .05], [C.cheer[0] + .16, .4], [C.cheer[0] + .26, 0], [C.beam[0], 0], [C.beam[0] + .05, .35], [C.beam[0] + .2, 0]]),
+    wing: t > go ? .35 + .25 * Math.sin((t - go) * 30)
+      : k([[C.giggle, 0], [C.giggle + .05, .3], [C.giggle + .4, 0], [C.dodge[0], 0], [C.dodge[0] + .05, .7], [C.dodge[1] + .15, .2], [duck, .2], [duck + .05, .5], [duck + .3, .5], [duck + .45, 0],
+        [C.laugh[0], .4], [C.laugh[1], .2], [C.dotDown[0], .5], [C.dotDown[1] + .1, .1], [C.cheer[0], .1], [C.cheer[0] + .06, .9], [C.cheer[1], .8], [C.cheer[1] + .2, .1], [C.beam[0], .1], [C.beam[0] + .08, .8]]),
+  };
 }
 
 /** Dot: curious at the pip, a startled hop at the pop, then she watches him; his peep makes her smile. */
@@ -1937,18 +2034,17 @@ function beanEarly(t) {
   };
 }
 
-/** Bean after Mom's call: stands up from behind the shell, turns, waddles after Pip half asleep. */
+/** Bean after Mom's call: stands up from behind the shell, turns his back, and waddles off up the field half asleep. */
 function beanLate(t) {
-  const L = T.leave, sc = DUCKLINGS.bean.scale, near = .7 / relAt(BEAN_AT[1]), k = (keys) => keyed(t, keys), base = { who: 'bean', s: .7, key: 'bean', t };
-  if (t < L.beanGo[0]) return { ...base, view: 'front', x: BEAN_AT[0], y: BEAN_AT[1] + 14 * (1 - smooth(local(t, T.call + .2, T.call + .5))),
-    blink: k([[T.call + .5, 0], [T.call + 1, .5]]), look: k([[T.call + .1, [0, -1]], [T.call + .4, [-.5, -.2]]]), headTilt: 0, squash: .95, bill: .14 };
-  const sleepy = { blink: .5, bill: .14 + .3 * bump(t, T.line.enter.bean + .1, T.line.enter.bean + .2, T.line.enter.bean + .35) };
-  if (t < L.beanGo[1]) {
-    const u = local(t, L.beanGo[0], L.beanGo[1]), x = lerp(BEAN_AT[0], PATH[0][0], u), y = lerp(BEAN_AT[1], PATH[0][1], u);
-    return { ...base, ...sleepy, view: 'side', facing: 1, x, y, s: near * relAt(y), step: walkPhase(Math.hypot(x - BEAN_AT[0], y - BEAN_AT[1]), near * sc * relAt(y)) };
-  }
-  const u = lineU('bean', t), [x, y] = onPath(u);
-  return { ...base, ...sleepy, view: 'side', facing: 1, x, y: y - rimHop(y), ground: y, s: near * relAt(y), step: walkPhase(u, near * sc) };
+  const sc = DUCKLINGS.bean.scale, k = (keys) => keyed(t, keys), go = T.leave.bean, base = { who: 'bean', key: 'bean', t, bill: .14, blink: .5 };
+  if (t < go) return { ...base, view: 'front', s: .7, x: BEAN_AT[0], y: BEAN_AT[1] + 14 * (1 - smooth(local(t, T.call + .1, T.call + .35))),
+    look: k([[T.call + .1, [0, -1]], [T.call + .25, [-.6, -.3]]]), headTilt: 0, squash: .95 };
+  const u = Math.max(0, (t - go - .1) * BEAN_V);
+  if (u >= BEAN_WAY.length) return null;
+  const [x, y] = BEAN_WAY.at(u), r = relAt(y) / relAt(BEAN_AT[1]), ph = walkPhase(u, .7 * sc, .09);
+  // From behind, a sleepy waddle: a roll onto each foot in turn.
+  return { ...base, view: 'back', s: .7 * r, x, y: y - backHop(y), ground: y, step: u > 0 ? ph : undefined, stride: .09,
+    waddle: .15 * Math.sin(ph * TAU) * smooth(local(t, go + .1, go + .4)), squash: .96 };
 }
 
 /** Bean: asleep through everything until the pop; then wide awake, peeking from behind the shell. */
@@ -2017,48 +2113,195 @@ function marks(g, t) {
   if (t >= T.pop + .05 && t < T.bonk - .03) { const a = capPath(t).p, b = capPath(t - f).p; trail([a[0], a[1] - 30], [b[0], b[1] - 30], 45, 'speed:cap'); }
 }
 
-/** Action marks after Mom's call: Pip's dash, Gucky's falls, his run, the boot's stamp and his "!". */
+/** Action marks after Mom's call: the plop, the shell's clonks and rattle, its flight and landing, the boop, the beam, the run. */
 function marksLate(g, t) {
-  const G = T.tries, B = T.boot[1], f = 1 / FPS;
-  const trail = (a, b, h, key, n = 3) => { const dx = b.x - a.x, dy = b.y - a.y, l = Math.hypot(dx, dy); if (l > 4) speed(g, a.x + dx / l * 40, a.y - h + dy / l * 40, dx, dy, { key, t, n, spread: h * .5, len: Math.min(70, l * 4) }); };
-  if (t > T.leave.pipDash[0] + .1 && t < T.leave.pipDash[1] - .1) trail(pipPose(t), pipPose(t - f), 120, 'speed:pipdash');
-  if (t > T.run[0] + .3 && t < T.run[1] - .2) { const a = guckyPose(t); trail(a, guckyPose(t - f), 120 * relAt(a.ground), 'speed:run'); }
-  const gk = guckyWay(t), r = relAt(gk.y);
-  if (t >= G.sit[0] && t < G.sit[0] + .45) puff(g, gk.x - 40, gk.y - 6, 22, { key: 'puff:plop', t, u: local(t, G.sit[0], G.sit[0] + .45) });
-  if (t >= G.stuck[0] && t < G.stuck[0] + .1) burst(g, gk.x + 150, gk.y - 10, { key: 'burst:plant', t, n: 6, r0: 20, r1: 46, a0: Math.PI + .3, span: Math.PI - .6 });
-  if (t >= G.stuck[0] && t < G.stuck[0] + .5) puff(g, gk.x + 150, gk.y - 8, 20, { key: 'puff:plant', t, u: local(t, G.stuck[0], G.stuck[0] + .5) });
-  if (t >= G.stuck[1] && t < G.stuck[1] + .08) burst(g, gk.x + 150, gk.y - 40, { key: 'burst:out', t, n: 5, r0: 16, r1: 36 });
-  const b = bootPose(t);
-  if (b && t < B) speed(g, b.x - .75 * UNIT * b.s, b.y - (b.lift + 4.2) * UNIT * b.s, 0, -1, { key: 'speed:boot', t, n: 4, spread: 160, len: 120 });
+  const C = T.copy, f = 1 / FPS, gk = guckyLate(t), B = C.shake[1];
+  const trail = (a, b, h, key, n = 3) => { if (!a || !b) return; const dx = b.x - a.x, dy = b.y - a.y, l = Math.hypot(dx, dy); if (l > 4) speed(g, a.x + dx / l * 60, a.y - h + dy / l * 60, dx, dy, { key, t, n, spread: h * .5, len: Math.min(80, l * 4) }); };
+  if (t >= C.tip[1] && t < C.tip[1] + .45) puff(g, gk.x + 70, G_AT[1] - 8, 22, { key: 'puff:plop', t, u: local(t, C.tip[1], C.tip[1] + .45) });
+  // The shell: a clonk as he steps in and on each clomp, a rattle as he shakes it, a trail as it flies, a burst where it lands.
+  for (const [i, at] of [C.march[1], ...C.clomps].entries()) if (t >= at && t < at + .08) { const s = shellAt(t); burst(g, s.x, s.y - 20, { key: `burst:clonk${i}`, t, n: 6, r0: 70, r1: 105, a0: Math.PI + .2, span: Math.PI - .4, w: 2.6 }); }
+  if (t > C.shake[0] && t < B) { const s = shellAt(t); burst(g, s.x, s.y - 50, { key: 'burst:rattle', t, n: 5, r0: 80, r1: 100, a0: Math.PI * .8, span: Math.PI * 1.4, w: 2.2 }); }
+  if (t > B + .03 && t < C.shellLands - .02) { const a = shellAt(t), b = shellAt(t - f); trail({ x: a.x, y: a.y }, { x: b.x, y: b.y }, 50, 'speed:shell'); }
+  if (t >= C.shellLands && t < C.shellLands + .1) burst(g, SHELL_LAND[0] - 20, SHELL_LAND[1] - 30, { key: 'burst:shellland', t, n: 6, r0: 60, r1: 100, a0: Math.PI + .3, span: Math.PI - .6 });
+  if (t >= C.dodge[0] && t < C.dodge[1]) trail(dotPose(t), dotPose(t - f), 120, 'speed:dodge', 2);
+  if (t >= C.boop && t < C.boop + .08) burst(g, G_BACK + .54 * G_FULL, G_AT[1] - .8 * G_FULL, { key: 'burst:boop', t, n: 4, r0: 16, r1: 34, w: 2.4 });
+  if (t >= C.spin[0] && t < C.spin[1] + .1) { const a = local(t, C.spin[0], C.spin[1] + .1); for (const side of [-1, 1]) ink(g, ellipse(G_BACK + side * 125, G_AT[1] - 140, 40, 70, { a0: side > 0 ? -1.2 : Math.PI - 1.2, a1: side > 0 ? 1.2 : Math.PI + 1.2, n: 16 }), { key: `spin${side}`, t, w: 2.4, taper: [10, 20], alpha: 1 - a }); }
+  // He beams: four twinkles round his head.
+  [[-150, -330, 0], [130, -360, .07], [-200, -170, .14], [180, -210, .2]].forEach(([dx, dy, d], i) => {
+    const a = C.beam[0] + .03 + d, r = 18 * Math.sin(Math.PI * local(t, a, a + .3));
+    if (t > a && t < a + .3) sparkle(g, G_STEPPED + dx, G_AT[1] + dy, r, `sparkle:beam${i}`, t);
+  });
+  if (t > C.run[0] + .25) trail(gk, guckyLate(t - f), 140, 'speed:run');
+  if (t > C.beam[0] + .3) trail(dotPose(t), dotPose(t - f), 120, 'speed:dotrun');
+}
+
+/** Action marks in the meadow: Gucky's scramble, the plop, the boot's fall and stamp, his "!". */
+function marksMeadow(g, t) {
+  const M = T.meadow, f = 1 / FPS, B = M.boot[1], gk = guckyMeadow(t);
+  if (!gk) return;
+  if (t < M.join - .25) { const b = guckyMeadow(t - f); if (b) { const dx = b.x - gk.x; if (dx > 4) speed(g, gk.x + 70, gk.y - 90, dx, 0, { key: 'speed:scramble', t, n: 3, spread: 50, len: Math.min(90, dx * 4) }); } }
+  if (t >= M.plop && t < M.plop + .45) puff(g, gk.x + 50, MEADOW.ground - 6, 18, { key: 'puff:mplop', t, u: local(t, M.plop, M.plop + .45) });
+  const b = bootMeadow(t);
+  if (b && t < B) speed(g, b.x + .3 * UNIT * b.s, b.y - (b.lift + 4.2) * UNIT * b.s, 0, -1, { key: 'speed:boot', t, n: 5, spread: 220, len: 160 });
   if (b && t >= B && t < B + .1) {
-    burst(g, b.x - 1.5 * UNIT * b.s, b.y - 10, { key: 'burst:heel', t, n: 6, r0: 30, r1: 80, a0: Math.PI * .9, span: Math.PI * .6 });
-    burst(g, b.x + 1.3 * UNIT * b.s, b.y - 10, { key: 'burst:toe', t, n: 6, r0: 30, r1: 80, a0: -Math.PI * .5, span: Math.PI * .6 });
+    burst(g, b.x + 1.5 * UNIT * b.s, b.y - 10, { key: 'burst:heel', t, n: 6, r0: 30, r1: 90, a0: -Math.PI * .5, span: Math.PI * .6 });
+    burst(g, b.x - 1.6 * UNIT * b.s, b.y - 10, { key: 'burst:toe', t, n: 6, r0: 30, r1: 90, a0: Math.PI * .9, span: Math.PI * .6 });
   }
-  if (b && t >= B && t < B + .6) { const u = local(t, B, B + .6); puff(g, b.x - 1.45 * UNIT * b.s, b.y - 8, 36, { key: 'puff:bootL', t, u }); puff(g, b.x + 1.2 * UNIT * b.s, b.y - 8, 36, { key: 'puff:bootR', t, u }); }
-  if (t >= B + .03 && t < T.eyes) {
+  if (b && t >= B && t < B + .6) { const u = local(t, B, B + .6); puff(g, b.x - 1.5 * UNIT * b.s, b.y - 8, 40, { key: 'puff:bootL', t, u }); puff(g, b.x + 1.45 * UNIT * b.s, b.y - 8, 40, { key: 'puff:bootR', t, u }); }
+  if (t >= B + .03 && t < M.eyes) {
     // "!" over his head, drawn as paths.
-    const top = gk.y - (1.25 * UNIT * G_NEAR * r) - 10 * r, a = Math.min(1, local(t, B + .03, B + .1) * 1.3);
-    ink(g, [[gk.x - 6 * r, top - 46 * r * a], [gk.x, top - 12 * r]], { key: 'bang:line', t, w: 4.2 * Math.sqrt(r), taper: [2, 9] });
-    dot(g, gk.x - 1, top, 3.4 * Math.sqrt(r));
+    const top = MEADOW.ground - 1.3 * UNIT * MEADOW.s, a = Math.min(1, local(t, B + .03, B + .1) * 1.3);
+    ink(g, [[gk.x + 4, top - 50 * a], [gk.x + 8, top - 12]], { key: 'bang:line', t, w: 4.4, taper: [2, 9] });
+    dot(g, gk.x + 9, top, 3.6);
   }
 }
 
-function background(g, t) {
-  const pond = [[-20, SET.horizon], [1100, SET.horizon], [1100, SET.pondTo], [-20, SET.pondTo]];
-  tint(g, pond, SPOT.sky, { key: 'pond', marker: false, alpha: .75, miss: 4 });
-  ink(g, [[-20, SET.horizon], [1100, SET.horizon]], { key: 'horizon', w: 2.4, wobble: 1.2, skip: .2, alpha: .7 });
-  ink(g, curve([[-20, SET.pondTo + 6], [300, SET.pondTo - 4], [700, SET.pondTo + 8], [1100, SET.pondTo]], { per: 20 }), { key: 'shore', w: 3, wobble: 2, skip: .15 });
-  const r = rngFor('ripples');
-  for (let i = 0; i < 5; i++) { const x = 120 + i * 200 + r() * 60, y = SET.horizon + 30 + r() * 70; ink(g, [[x, y], [x + 50 + r() * 50, y]], { key: 'ripple' + i, t, w: 2, taper: [12, 12], wobble: .6, alpha: .7 }); }
-  // Reeds at the pond's ends and tufts across the field, smaller toward the horizon.
-  const rr = rngFor('reeds');
-  for (const [x0, n] of [[20, 6], [930, 6]]) for (let i = 0; i < n; i++) {
-    const x = x0 + i * 20 + rr() * 10, h = 110 + rr() * 110, lean = (rr() - .5) * 36;
-    ink(g, curve([[x, SET.pondTo + 4], [x + lean * .4, SET.pondTo - h * .5], [x + lean, SET.pondTo - h]], { per: 8 }), { key: 'reed' + x0 + i, t, w: 2.4, taper: [4, 22], wobble: 1 });
+/* Scene 2: the meadow at the ducklings' eye level. World x falls to the left, the way to the pond;
+   cam is the world x of the frame's left edge. The line marches in step at MEADOW.v, a footfall on
+   every eighth note; the camera tracks it, then eases to a stop with Gucky when he stops. */
+const MEADOW = { ground: 1420, bootGround: 1374, grass: 1365, horizon: 1215, s: .72, v: 210, boot: .7 };
+const LINE = { pip: 150, bean: 385, dot: 620, gucky: 860 };   // frame x at the cut, in marching order, a beak's length apart
+const CAM_STOP = .8;                                          // seconds the camera takes to stop
+function camAt(t) {
+  const h = T.meadow.hold[0], v = MEADOW.v;
+  if (t < h) return -v * (t - T.cut);
+  const u = Math.min(t - h, CAM_STOP);
+  return -v * (h - T.cut) - v * (u - u * u / (2 * CAM_STOP));
+}
+/** The line's walk phase: a footfall on every eighth note from the cut. */
+const linePhase = (t) => (t - T.cut) / MB;
+const lineStride = (who) => MEADOW.v * MB / (4 * UNIT * MEADOW.s * DUCKLINGS[who].scale);
+/** A sibling in the line: in step, rest look, each in character. */
+function lineWalker(who, t) {
+  const wx = LINE[who] - MEADOW.v * (t - T.cut), x = wx - camAt(t), ph = linePhase(t);
+  if (x < -240) return null;
+  const extra = { pip: { knee: .1, lean: -.06 }, bean: { waddle: .07 * Math.sin(ph * TAU) }, dot: {} }[who];
+  return { who, view: 'side', facing: -1, s: MEADOW.s, key: who, t, x, y: MEADOW.ground, step: ph, stride: lineStride(who), ...extra };
+}
+/** Gucky's world x in the meadow, and his walk phase. */
+const G_IN = 1220, G_SCRAMBLE = .15, G_HURRY = .05, G_HURRY_V = 130;
+function guckyWorld(t) {
+  const M = T.meadow, S = UNIT * MEADOW.s, v = MEADOW.v;
+  // Scrambling in from the right edge, slowing onto his place at the end of the line.
+  const inAt = (tt) => G_IN - (G_IN - LINE.gucky) * (1 - Math.pow(1 - local(tt, M.gIn, M.join), 2)) + camAt(tt);
+  const runPh = (tt) => (inAt(M.gIn) - inAt(tt)) / (4 * G_SCRAMBLE * S);
+  if (t < M.join) return { wx: inAt(t), phase: runPh(t), stride: G_SCRAMBLE };
+  // Skips into step: his phase eases onto the line's.
+  const c0 = runPh(M.join) - linePhase(M.join), c = lerp(c0, Math.round(c0), smooth(local(t, M.join, M.join + .45)));
+  const lineX = (tt) => LINE.gucky - v * (tt - T.cut);
+  if (t < M.hold[0]) return { wx: lineX(t), phase: linePhase(t) + c, stride: lineStride('gucky'), skip: t < M.join + .45 };
+  const held = lineX(M.hold[0]), heldPh = linePhase(M.hold[0]) + Math.round(c0);
+  if (t < M.hurry[0]) return { wx: held, phase: heldPh, stride: lineStride('gucky') };
+  // Hurrying, out of step; the slam stops him with a skid.
+  const B = M.boot[1], d = runFrom(Math.min(t, B) - M.hurry[0], G_HURRY_V, .2) + 14 * smooth(local(t, B, B + .2));
+  return { wx: held - d, phase: heldPh + d / (4 * G_HURRY * S) + .05 * Math.sin((t - M.hurry[0]) * 17), stride: G_HURRY };
+}
+/** Gucky in the meadow. */
+function guckyMeadow(t) {
+  const M = T.meadow, k = (keys) => keyed(t, keys);
+  if (t < M.gIn) return null;
+  const w = guckyWorld(t), H0 = M.hold[0], P = M.plop, B = M.boot[1];
+  let step = w.phase, kick, knee = .07;
+  if (t >= M.lift && t < H0) knee = .16;
+  if (t >= H0 && t < M.hurry[0]) {
+    // The hero step again: the swinging foot goes up and stays there; over he goes; up again.
+    const from = footOf(w.phase, w.stride, .16);
+    kick = k([[H0, from], [H0 + .12, [.2, .11]], [M.hold[1], [.2, .11]], [P, [.22, .14]], [P + .1, [.16, .05]], [M.up[0], [.16, .05]], [M.up[1], footOf(w.phase, w.stride)]]);
+    if (t < M.hold[1]) kick = kick.map(v => v + .008 * Math.sin(t * 40) * local(t, H0, M.hold[1]));
   }
+  const hop = w.skip ? 16 * Math.abs(Math.sin(Math.PI * local(t, M.join, M.join + .45) * 2)) : 0;
+  return { who: 'gucky', view: 'side', facing: -1, s: MEADOW.s, key: 'gucky', t, x: w.wx - camAt(t), y: MEADOW.ground - hop, ground: MEADOW.ground,
+    step, stride: w.stride, knee, kick, wet: 0,
+    lean: k([[M.join, .2], [M.join + .3, 0], [M.lift, 0], [M.lift + .1, -.12], [H0, -.12], [M.hold[1], -.3], [P, -.58], [P + .06, -.52], [M.up[0], -.52], [M.up[1], 0], [M.hurry[0], .05], [M.hurry[0] + .2, .2], [B, .2], [B + .05, -.25], [B + .3, -.05],
+      [M.head[0], -.05], [M.head[1], -.14]]),
+    waddle: t > H0 && t < P ? .1 * local(t, H0, M.hold[1]) * Math.sin((t - H0) * 17) : 0,
+    squash: k([[P, 1], [P + .04, .72], [P + .12, .8], [M.up[0], .8], [M.up[1], 1], [B, 1], [B + .04, .84], [B + .14, 1.02], [B + .25, 1]]),
+    look: k([[M.gIn, [.8, 0]], [M.join + .5, [.6, -.1]], [H0, [.3, -.3]], [M.hold[1], [.2, .2]], [P, [0, -.5]], [P + .2, [.3, 0]], [M.up[1], [.7, 0]], [B, [.7, 0]], [B + .05, [.5, -.3]], [M.eyes - .1, [.5, -.2]], [M.eyes + .08, [.25, -1]]]),
+    headTilt: k([[M.join, 0], [M.join + .5, -.05], [M.lift, -.05], [M.lift + .1, -.15], [M.hold[1], -.1], [P, -.2], [P + .2, 0], [B, 0], [B + .05, -.15], [B + .3, 0], [M.head[0], 0], [M.head[1], -.75]]),
+    blink: k([[M.answer + .3, 0], [M.answer + .33, 1], [M.answer + 1.2, 1], [M.answer + 1.25, 0], [P, 0], [P + .02, 1], [P + .1, .3], [M.blink - .04, .2], [M.blink, 1], [M.blink + .08, 0],
+      [B, 0], [B + .02, 1], [B + .06, 0], [M.end - .6, 0], [M.end - .55, 1], [M.end - .45, 0]]),
+    happy: t > M.answer + .3 && t < M.answer + 1.23,
+    brow: k([[M.gIn, .6], [M.join + .4, .6], [M.join + .6, 0], [M.lift, 0], [M.lift + .1, .7], [H0, .7], [M.hold[1], -.4], [P, -.5], [M.up[1], -.3], [M.hurry[0], -.4], [B, -.4], [B + .05, -.8], [B + .6, -.5], [M.head[1], -.2]]),
+    bill: k([[M.gIn, .3], [M.join, .3], [M.join + .2, 0], [P, 0], [P + .03, .3], [P + .2, 0], [M.hurry[0], .15], [B, .15], [B + .05, .4], [B + .5, .15], [M.head[1], .15]]),
+    wing: t < M.join ? .45 + .3 * Math.sin((t - M.gIn) * 32) : t > H0 && t < P ? .5 + .3 * Math.sin((t - H0) * 30) * local(t, H0, M.hold[1]) : t > M.hurry[0] && t < B ? .35 + .25 * Math.sin((t - M.hurry[0]) * 26)
+      : k([[M.join, .4], [M.join + .4, 0], [M.lift, 0], [M.lift + .1, .25], [P, .9], [P + .3, .3], [M.up[1], .2], [B, .35], [B + .05, .8], [B + .5, .3], [M.head[1], .1]]),
+    cap: { tilt: .2 + (t > M.join + .45 && t < H0 ? .05 * Math.sin(w.phase * TAU * 2) : 0) + .1 * ring(t, P, 6, 22),
+      dy: -.12 * bump(t, B, B + .05, B + .22) - .04 * (t > M.join + .45 && t < H0 ? Math.abs(Math.sin(w.phase * TAU)) : 0) },
+  };
+}
+/** The boot: drops out of the sky into the gap in front of Gucky, behind the walking line, toe the way they went. */
+function bootMeadow(t) {
+  const M = T.meadow;
+  if (t < M.boot[0]) return null;
+  const g = guckyWorld(M.boot[1]), sb = MEADOW.boot, heel = g.wx - .54 * UNIT * MEADOW.s - 22;
+  return { x: heel - 1.47 * UNIT * sb - camAt(t), y: MEADOW.bootGround, s: sb, lift: 9 * (1 - ease.in(local(t, M.boot[0], M.boot[1]))) };
+}
+
+/** Things scattered along a layer, `gap` world px apart; depth k moves them with the camera (1 at the line, less behind). */
+function along(cam, k, gap, fn) {
+  const c = cam * k, i0 = Math.floor((c - 320) / gap), i1 = Math.ceil((c + W + 320) / gap);
+  for (let i = i0; i <= i1; i++) fn(i, i * gap - c);
+}
+/** A cloud: a scalloped top on a flat bottom. */
+function cloud(g, x, y, w, key, t) {
+  const top = [];
+  for (let i = 0; i <= 48; i++) { const a = Math.PI + Math.PI * i / 48, b = 1 + .1 * Math.abs(Math.sin(a * 4.5)); top.push([x + w * Math.cos(a) * b, y + .5 * w * Math.sin(a) * b]); }
+  const P = [...top, [x + w * .8, y + 4], [x - w * .8, y + 4]];
+  knock(g, P); ink(g, P, { key, t, closed: true, w: 2.6, wobble: 1.4, join: 2 });
+}
+/** A bush on the horizon: a scalloped mound. */
+function bush(g, x, y, w, h, key, t) {
+  const P = [];
+  for (let i = 0; i <= 40; i++) { const a = Math.PI + Math.PI * i / 40, b = 1 + .12 * Math.abs(Math.sin(a * 6)); P.push([x + w * Math.cos(a) * b, y + h * Math.sin(a) * b]); }
+  knock(g, P); ink(g, P, { key, t, w: 2.4, wobble: 1, taper: [8, 8] });
+}
+/** A clump of grass blades from (x, y): n blades, h tall, curling; a flower on top of one sometimes. */
+function blades(g, x, y, h, n, key, t, o = {}) {
+  const r = rngFor(key);
+  for (let j = 0; j < n; j++) {
+    const bx = x + (j - (n - 1) / 2) * (o.spread ?? 9), bh = h * (.6 + r() * .5), lean = (j - (n - 1) / 2) * 14 + (r() - .5) * 30, curl = (r() - .5) * 26;
+    const tip = [bx + lean + curl, y - bh];
+    ink(g, curve([[bx, y], [bx + lean * .3, y - bh * .5], tip], { per: 8 }), { key: `${key}:${j}`, t, w: o.w ?? 2.4, taper: [3, bh * .25], wobble: .7 });
+    if (o.flowers && j === 1 && r() < o.flowers) {
+      const fc = [SPOT.pink, SPOT.violet][Math.floor(r() * 2)], fr = 8 + r() * 4;
+      for (let p = 0; p < 5; p++) { const a = p / 5 * TAU + r() * .3, P = ellipse(tip[0] + Math.cos(a) * fr, tip[1] + Math.sin(a) * fr, fr * .62, fr * .62, { n: 14 }); knock(g, P); tint(g, P, fc, { key: `${key}:pet${p}`, t, marker: false, miss: 1.5 }); outline(g, P, { key: `${key}:pet${p}`, t, w: 1.8, join: 2 }); }
+      dot(g, tip[0], tip[1], 3.4);
+    }
+  }
+}
+/** Behind the line: sky, far bushes on the horizon, tall grass and flowers. */
+function meadowBack(g, t, cam) {
+  const M = MEADOW;
+  along(cam, .05, 420, (i, x0) => { const r = rngFor(`cloud${i}`); if (r() < .3) return; cloud(g, x0 + r() * 180, 330 + r() * 430, 60 + r() * 60, `cloud${i}`, t); });
+  ink(g, [[-20, M.horizon], [1100, M.horizon]], { key: 'mhorizon', t, w: 2.4, wobble: 1.2, skip: .15, alpha: .8 });
+  along(cam, .2, 150, (i, x0) => { const r = rngFor(`mbush${i}`); if (r() < .25) return; bush(g, x0 + r() * 70, M.horizon + 2, 45 + r() * 55, 22 + r() * 26, `mbush${i}`, t); });
+  along(cam, .8, 46, (i, x0) => { const r = rngFor(`mgrass${i}`); blades(g, x0 + r() * 20, M.grass + r() * 10, 110 + r() * 110, 3, `mgrass${i}`, t, { flowers: .3 }); });
+}
+/** Along the line: the path's near edge and its small tufts. */
+function meadowGround(g, t, cam) {
+  const M = MEADOW;
+  ink(g, [[-20, M.ground + 32], [1100, M.ground + 32]], { key: 'mpath', t, w: 2.2, wobble: 1.4, skip: .3, alpha: .7 });
+  along(cam, 1, 110, (i, x0) => { const r = rngFor(`mtuft${i}`); blades(g, x0 + r() * 50, M.ground + 36 + r() * 6, 22 + r() * 18, 3, `mtuft${i}`, t, { w: 2, spread: 6 }); });
+  [[1.1, 1530, 34, 170], [1.22, 1650, 48, 210]].forEach(([k, y, h, gap], row) => along(cam, k, gap, (i, x0) => {
+    const r = rngFor(`mrow${row}:${i}`); if (r() < .25) return;
+    blades(g, x0 + r() * gap * .6, y + r() * 30, h * (.7 + r() * .6), 3, `mrow${row}:${i}`, t, { w: 2.2 + row * .4, spread: 7 + row * 3 });
+  }));
+}
+/** In front: big blades close to the lens, sliding fastest. */
+function meadowFront(g, t, cam) {
+  along(cam, 1.4, 150, (i, x0) => { const r = rngFor(`mfront${i}`); if (r() < .3) return; blades(g, x0 + r() * 60, 1930, 170 + r() * 160, 3, `mfront${i}`, t, { w: 3.4, spread: 14 }); });
+}
+
+function background(g, t) {
+  // The field runs back to a soft horizon with a line of far bushes; the pond is beyond, off left.
+  ink(g, [[-20, SET.horizon], [1100, SET.horizon]], { key: 'horizon', w: 2.4, wobble: 1.2, skip: .2, alpha: .7 });
+  const br = rngFor('bushes');
+  for (let i = 0; i < 7; i++) bush(g, -30 + i * 180 + br() * 60, SET.horizon + 2, 50 + br() * 60, 24 + br() * 28, `bush${i}`, t);
+  cloud(g, 250, 330, 70, 'cloud:nestA', t); cloud(g, 820, 250, 55, 'cloud:nestB', t);
+  // Tufts across the field, smaller toward the horizon.
   const tr = rngFor('tufts');
-  for (let i = 0; i < 14; i++) {
-    const y = SET.pondTo + 60 + tr() * 640, d = depthAt(y), x = 40 + tr() * 1000;
+  for (let i = 0; i < 18; i++) {
+    const y = SET.horizon + 50 + tr() * 750, d = depthAt(y), x = 40 + tr() * 1000;
     if (Math.abs(x - SET.nestX) < SET.nestW * .55 && y > SET.nestY - 260) continue;
     for (let k = 0; k < 3; k++) { const h = (20 + tr() * 30) * (.4 + d), lean = (k - 1) * 10 * (.4 + d); ink(g, [[x + k * 6 * d, y], [x + k * 6 * d + lean, y - h]], { key: `tuft${i}:${k}`, t, w: 1.6 + d, taper: [2, 10], wobble: .5 }); }
   }
@@ -2079,23 +2322,44 @@ function foreground(g, t) {
 function drawLate(g, t, n) {
   const items = [
     { y: SIB_EGG.pip.y, draw: () => sibEgg(g, t, 'pip') }, { y: SIB_EGG.dot.y, draw: () => sibEgg(g, t, 'dot') },
-    { y: SIB_EGG.bean.y, draw: () => sibEgg(g, t, 'bean') }, { y: EGG.y, draw: () => drawEgg(g, t) },
+    { y: SIB_EGG.bean.y, draw: () => sibEgg(g, t, 'bean') },
   ];
-  for (const p of [pipPose(t), dotPose(t), beanPose(t), guckyPose(t)]) items.push({ y: p.ground ?? p.y, draw: () => duckling(g, p) });
-  const b = bootPose(t);
-  if (b) items.push({ y: b.y, draw: () => boot(g, b.x, b.y, b.s, { facing: 1, lift: b.lift, key: 'boot', t }) });
+  const sh = shellAt(t), gk = guckyPose(t);
+  const shell = () => egg(g, sh.x, sh.y, { s: EGG.s, speckled: true, key: 'gucky-egg', t, rock: sh.rock, squash: sh.squash ?? 1, top: { gone: true } });
+  for (const p of [pipPose(t), dotPose(t), beanPose(t)]) if (p) items.push({ y: p.ground ?? p.y, draw: () => duckling(g, p) });
+  // While he wears it, the shell goes on over his foot.
+  items.push({ y: gk.ground ?? gk.y, draw: () => { duckling(g, gk); if (sh.on === 'foot') shell(); } });
+  if (sh.on === 'nest') items.push({ y: sh.y, draw: shell });
   items.sort((a, c) => a.y - c.y);
   items.filter(i => i.y < RIM_Y).forEach(i => i.draw());
   nest(g, SET.nestX, SET.nestY, SET.nestW, { key: 'nest', part: 'back', ...n });
   chips(g, t, 'pip'); chips(g, t, 'pop');
   items.filter(i => i.y >= RIM_Y).forEach(i => i.draw());
+  if (sh.on === 'air') shell();
   nest(g, SET.nestX, SET.nestY, SET.nestW, { key: 'nest', part: 'front', ...n });
   foreground(g, t);
   marks(g, t);
 }
 
+/** The meadow: everything at the camera's x; the stamp shakes the frame. */
+function drawMeadow(g, t) {
+  const cam = camAt(t), B = T.meadow.boot[1], shake = t > B && t < B + .4 ? 10 * Math.exp(-(t - B) * 12) * Math.sin((t - B) * 75) : 0;
+  g.save(); g.translate(0, shake);
+  meadowBack(g, t, cam);
+  const b = bootMeadow(t);
+  if (b) boot(g, b.x, b.y, b.s, { facing: -1, lift: b.lift, key: 'boot', t });
+  meadowGround(g, t, cam);
+  for (const who of ['pip', 'bean', 'dot']) { const p = lineWalker(who, t); if (p) duckling(g, p); }
+  const gk = guckyMeadow(t);
+  if (gk) duckling(g, gk);
+  meadowFront(g, t, cam);
+  marksMeadow(g, t);
+  g.restore();
+}
+
 function drawArt(t) {
   const g = ctx, n = { depth: SET.depth, rim: SET.rim, t };
+  if (t >= T.cut) return drawMeadow(g, t);
   background(g, t);
   if (t >= T.call + .1) return drawLate(g, t, n);
   nest(g, SET.nestX, SET.nestY, SET.nestW, { key: 'nest', part: 'back', ...n });
@@ -2305,62 +2569,130 @@ function buildScore(s) {
   peep(s, T.first, { who: 'gucky', bright: .15, dur: .09, level: .035, x: G_AT[0], key: 'first' });
   peepRun(s, T.reply, 2, .15, { who: 'pip', level: .036, x: PIP_TO, key: 'reply' });
   peep(s, T.reply + .3, { who: 'dot', bright: .1, dur: .15, level: .025, x: DOT_AT, key: 'coo' });
-  // Mom, up the field.
-  quack(s, T.call, { far: 1, level: .009, x: 540, key: 'call0' });
-  quack(s, T.call + .3, { far: 1, level: .008, dur: .2, x: 540, key: 'call1' });
+  // Mom, off to the left.
+  quack(s, T.call, { far: 1, level: .009, x: 0, key: 'call0' });
+  quack(s, T.call + .3, { far: 1, level: .008, dur: .2, x: 0, key: 'call1' });
 
-  // The second half. Mom's far, steady steps up the field to the left; the siblings answer and go.
-  const G = T.tries, L = T.leave, B = T.boot[1], gx = (t) => guckyWay(t).x;
-  for (let at = T.call + .2, i = 0; at < T.run[1]; at += .46, i++) contact(s, at, { material: 'felt', f0: 110, level: .02 * (1 - i * .025), x: W, send: .1, key: `momstep${i}` });
-  [74, 76, 78, 79].forEach((m, i) => pizz(s, L.pipDash[0] + .1 + i * .15, m, { level: .04, x: 200 + i * 90, key: `dash${i}` }));
-  peepRun(s, T.line.enter.pip + .05, 2, .14, { who: 'pip', level: .03, bright: .7, x: PATH[0][0], key: 'comeon' });
-  peep(s, T.line.enter.bean + .1, { who: 'bean', bright: .1, dur: .16, level: .018, x: PATH[0][0], key: 'beango' });
-  // Gucky tries. Splay: a wah-wah down; the plop; up again.
-  pizz(s, G.splay[0] + .02, 45, { level: .1, dur: .5, x: G_AT[0], key: 'splay0' }); pizz(s, G.splay[0] + .17, 40, { level: .1, dur: .6, x: G_AT[0], key: 'splay1' });
-  paper(s, G.splay[0], { kind: 'slide', dur: .25, level: .025, x: G_AT[0], key: 'splayslide' });
-  contact(s, G.sit[0], { material: 'felt', f0: 140, level: .16, x: G_AT[0], key: 'plop' }); pizz(s, G.sit[0], 38, { level: .1, dur: .6, x: G_AT[0], key: 'plopnote' });
-  peep(s, G.sit[0] + .05, { who: 'dot', bright: .5, dur: .1, level: .015, x: DOT_AT, key: 'dotoh' });
-  pizz(s, G.up[0] + .1, 50, { level: .06, x: G_AT[0], key: 'up0' }); pizz(s, G.up[0] + .3, 57, { level: .06, x: G_AT[0], key: 'up1' });
-  // He tips: a run down, the bill into the straw, legs kicking, a muffled peep; out it comes.
-  [74, 69, 62].forEach((m, i) => pizz(s, G.tip[0] + i * .07, m, { level: .05, x: G_AT[0], key: `tip${i}` }));
-  contact(s, G.stuck[0], { material: 'wood', f0: 280, level: .14, x: G_AT[0] + 150, key: 'plant' }); paper(s, G.stuck[0], { kind: 'slide', dur: .2, level: .03, x: G_AT[0] + 150, key: 'plantstraw' });
-  for (let i = 0; i < 5; i++) contact(s, G.stuck[0] + .06 + i * .065, { material: 'card', f0: 1500 + (i % 2) * 300, level: .015, x: G_AT[0], key: `kick${i}` });
-  peep(s, G.stuck[0] + .2, { who: 'gucky', bright: .1, dur: .1, level: .015, x: G_AT[0] + 150, key: 'muffled' });
-  cork(s, G.stuck[1], { level: .05, from: 900, to: 300, x: G_AT[0] + 150 });
-  // The cap slides over his eyes; he stumbles blind on tiptoe notes; he pushes it up and blinks.
-  paper(s, G.capSlide[0], { kind: 'slide', dur: .2, level: .025, x: G_AT[0], key: 'capslide' });
-  [86, 81, 78].forEach((m, i) => glock(s, G.capSlide[0] + i * .07, m, { level: .012, x: G_AT[0] }));
-  [62, 64, 62].forEach((m, i) => pizz(s, G.blind[0] + .1 + i * .25, m, { level: .045, x: G_AT[0], key: `blind${i}` }));
-  paper(s, G.capUp[0], { kind: 'flick', level: .03, x: G_AT[0], key: 'capup' });
-  [78, 86].forEach((m, i) => glock(s, G.capUp[0] + .03 + i * .08, m, { level: .012, x: G_AT[0] }));
-  glock(s, G.blink, 93, { level: .007, decay: .4, x: G_AT[0] });
-  // He wobbles: a marimba tock on each sway, dying; Dot, going, looks back and cheers him on; hmph.
-  for (let i = 0; i < 4; i++) mallet(s, G.wobble[0] + (Math.PI / 2 + i * Math.PI) / 14, i % 2 ? 55 : 57, { level: .03 * Math.exp(-i * .45), decay: .25, x: G_AT[0] });
-  peepRun(s, L.dotBack[0] + .05, 2, .15, { who: 'dot', level: .03, bright: .4, x: onPath(lineU('dot', L.dotBack[0]))[0], key: 'dotcheer' });
-  peep(s, G.hmph, { who: 'gucky', bright: .3, dur: .12, level: .028, x: G_AT[0], key: 'hmph' });
-  // Three wobbly steps on the motif's first three notes, quicker steps climbing, a run.
+  // Scene 1 after the call. Pip marches off, a proud pizzicato note on every footfall, up the scale.
+  const C = T.copy, gx = (t) => guckyLate(t).x;
+  footfalls(pipPose, T.leave.pip[0], T.leave.pip[0] + 1.4).forEach(([at, x], i) => pizz(s, at, [62, 64, 66, 67, 69, 71, 73, 74][i % 8], { level: .06, x, key: `pipmarch${i}` }));
+  peepRun(s, T.leave.pip[0] + .9, 2, .14, { who: 'pip', level: .022, bright: .7, x: 60, key: 'comeon' });
+  // Bean waddles off up the field: a sleepy marimba tick-tock, fading as he goes.
+  footfalls(beanPose, T.leave.bean, T.leave.bean + BEAN_WAY.length / BEAN_V).forEach(([at, x, p], i) => mallet(s, at, i % 2 ? 50 : 45, { level: .022 * relAt(p.ground), decay: .3, x, key: `beanstep${i}` }));
+  yawn(s, T.leave.bean + .15, { level: .016, dur: .4, x: BEAN_AT[0] });
+  // Gucky copies Pip: a proud two-note fanfare, the foot goes up; held, a long note wobbles, and as
+  // he tips it slides down; plop. Dot giggles. A beat; he blinks.
+  [[C.puff, 69], [C.puff + .14, 74]].forEach(([at, m], i) => pizz(s, at, m, { level: .09, bright: .45, x: G_AT[0], key: `fanfare${i}` }));
+  glock(s, C.puff + .14, 86, { level: .012, x: G_AT[0] });
+  bowSlide(s, C.footUp[0], C.tip[1] + .02, 74, 62, { slide: C.hold[1] - .05, level: .016, x: G_AT[0] });
+  contact(s, C.tip[1], { material: 'felt', f0: 140, level: .15, x: G_AT[0] + 60, key: 'plop' });
+  pizz(s, C.tip[1], 38, { level: .1, dur: .6, x: G_AT[0], key: 'plopnote' });
+  paper(s, C.tip[1], { kind: 'slide', dur: .2, level: .025, x: G_AT[0], key: 'plopstraw' });
+  peepRun(s, C.giggle, 3, .11, { who: 'dot', level: .016, bright: .8, x: DOT_AT, key: 'giggle' });
+  glock(s, C.blink, 93, { level: .008, decay: .4, x: G_AT[0] });
+  pizz(s, C.up[0] + .05, 50, { level: .06, x: G_AT[0], key: 'up0' }); pizz(s, C.up[0] + .2, 57, { level: .06, x: G_AT[0], key: 'up1' });
+  // Copies Bean: a marimba tick-tock that swings wider and slower; a swish on the turn.
+  { let a = C.sway[0]; SWAYS.forEach(([d], i) => { mallet(s, a + d * .5, [[57, 55], [59, 54], [62, 52], [64, 50]][i][i % 2], { level: .03 + i * .008, decay: .3, x: G_AT[0] + (i % 2 ? 60 : -60) }); a += d; }); }
+  breath(s, C.turn[0] - .03, .18, { level: .02, from: 700, to: 1800, back: 900, x: G_AT[0], key: 'swish' });
+  // Pleased, eyes shut, the wrong way: proud notes on his footfalls, then his foot goes into the shell: clonk.
+  glock(s, C.turn[1] + .15, 86, { level: .01, x: G_AT[0] });
+  footfalls(guckyPose, C.march[0], C.march[1] - .02).forEach(([at, x], i) => pizz(s, at, [62, 66][i % 2], { level: .07, x, key: `wrongway${i}` }));
+  const clonk = (at, i, x) => { contact(s, at, { material: 'wood', f0: 430 - i * 30, level: .11, x, key: `clonk${i}` }); mallet(s, at, [52, 50, 47][i], { level: .05, decay: .35, x, key: `clonkm${i}` }); };
+  [C.march[1], ...C.clomps].forEach((at, i) => clonk(at, i, shellAt(at + .01).x));
+  pizz(s, C.march[1], 45, { level: .08, dur: .5, x: EGG.x, key: 'stepin' });
+  peep(s, C.march[1] + .05, { who: 'gucky', bright: .9, dur: .08, level: .02, x: EGG.x, key: 'oh' });
+  peep(s, C.dodge[0] + .03, { who: 'dot', bright: 1, dur: .08, level: .018, x: DOT_AT, key: 'eep' });
+  harpRun(s, C.dodge[0] + .02, C.dodge[1] - .03, [74, 78, 81, 86], { x: DOT_PERCH[0], level: .025, key: 'dodge' });
+  // He looks at it (nothing); shakes it: a rattle; off it flies, over Dot, and lands with a ting.
+  for (let i = 0; i < 8; i++) contact(s, C.shake[0] + i * .03, { material: 'card', f0: 1700 + (i % 2) * 400, level: .03, x: shellAt(C.shake[0] + i * .03).x, key: `rattle${i}` });
+  breath(s, C.shake[1], C.shellLands - C.shake[1], { level: .025, from: 900, to: 2000, back: 1200, x: 900, key: 'shellfly' });
+  peep(s, C.shake[1] + .08, { who: 'dot', bright: 1, dur: .07, level: .014, x: DOT_PERCH[0], key: 'duck' });
+  contact(s, C.shellLands, { material: 'card', f0: 2400, level: .05, x: SHELL_LAND[0], key: 'shellland' });
+  glock(s, C.shellLands + .01, 88, { level: .02, x: SHELL_LAND[0] });
+  [.12, .24].forEach((d, i) => contact(s, C.shellLands + d, { material: 'card', f0: 2100, level: .015, x: SHELL_LAND[0], key: `shellrock${i}` }));
+  [74, 69, 62].forEach((m, i) => pizz(s, C.shake[1] + .05 + i * .15, m, { level: .05, x: gx(C.shake[1] + .1 + i * .15), key: `hopback${i}` }));
+  // Dot laughs, hops down and boops him round; a swish as he spins; she cheers him on.
+  peepRun(s, C.laugh[0], 4, .1, { who: 'dot', level: .018, bright: .8, x: DOT_PERCH[0], key: 'laugh' });
+  harpRun(s, C.dotDown[0], C.dotDown[1], [81, 78, 74], { x: DOT_BOOP[0], level: .02, key: 'dotdown' });
+  pizz(s, C.boop, 86, { level: .07, bright: .5, x: G_BACK + 170, key: 'boop' });
+  cork(s, C.boop, { level: .03, from: 1600, to: 900, x: G_BACK + 170 });
+  harpRun(s, C.spin[0], C.spin[1] + .05, [62, 69, 74, 81, 74], { x: G_BACK, level: .03, key: 'spin' });
+  peepRun(s, C.cheer[0] + .03, 2, .12, { who: 'dot', level: .028, bright: .5, x: DOT_BOOP[0], key: 'cheer' });
+  // He sets his brow. Three careful steps on his motif's first notes; amazed; beaming: a sparkle.
+  pizz(s, C.brow, 50, { level: .07, x: G_BACK, key: 'brow' });
   const ask = GUCKY.motif.ask.map(d => degree(GUCKY.motif.root, GUCKY.motif.mode, d));
-  T.steps.forEach((at, i) => { pizz(s, at + .15, ask[i], { level: .14, x: gx(at), key: `step${i}` }); contact(s, at + .28, { material: 'felt', f0: 300, level: .05, x: gx(at), key: `stepfoot${i}` }); });
-  [ask[3], 79, 81, 83].forEach((m, i) => pizz(s, lerp(T.quick[0], T.quick[1], i / 4) + .05, m, { level: .12, x: gx(T.quick[0]), key: `quick${i}` }));
-  [74, 78, 81, 83, 86, 88, 90, 93].forEach((m, i) => pizz(s, T.run[0] + (T.run[1] - T.run[0]) * Math.pow(i / 8, .8), m, { level: .08, bright: .45, x: gx(T.run[0] + i * .2), key: `run${i}` }));
-  peepRun(s, T.run[0] + .5, 3, .3, { who: 'gucky', level: .03, bright: .6, x: gx(T.run[0] + .8), key: 'runpeeps' });
-  breath(s, T.run[0] + .2, 1.3, { level: .012, from: 500, to: 1200, back: 600, x: gx(T.run[0] + .8), key: 'runair' });
-  // He falls into step: a little skip, the motif resolved, warm strings under the walk.
-  glock(s, T.run[1] + .05, 86, { level: .012, x: gx(T.run[1]) });
-  motif(s, T.answer, 'answer', .3, { voice: pizz, level: .15, x: gx(T.answer) });
-  strings(s, T.run[1], T.boot[0], [50, 57, 66, 74], { level: .012, attack: .6, release: .05, cutoff: 1400 });
+  C.steps.forEach((at, i) => { pizz(s, at + .28, ask[i], { level: .13, x: gx(at), key: `step${i}` }); contact(s, at + .28, { material: 'felt', f0: 300, level: .04, x: gx(at), key: `stepfoot${i}` }); });
+  glock(s, C.feet[0] + .2, 81, { level: .01, decay: 1.2, x: G_STEPPED });
+  [86, 90, 93, 98].forEach((m, i) => glock(s, C.beam[0] + .05 + i * .07, m, { level: .014, decay: .9, x: G_STEPPED + (i % 2 ? 150 : -150) }));
+  peep(s, C.beam[0] + .05, { who: 'gucky', bright: .6, dur: .11, level: .03, x: G_STEPPED, key: 'yay' });
+  // They run off after the others: a harp run, peeps going left.
+  harpRun(s, C.run[0], C.run[1], [62, 66, 69, 74, 78, 81, 86, 90], { x: 200, level: .035, key: 'runoff' });
+  peepRun(s, C.run[0] + .3, 3, .22, { who: 'gucky', level: .024, bright: .6, x: 150, key: 'runpeeps' });
+  peep(s, C.run[0] + .45, { who: 'dot', level: .018, bright: .5, x: 120, key: 'dotrun' });
+  // The empty nest: Mom again, far off.
+  quack(s, C.run[1] + .15, { far: 1, level: .006, dur: .2, x: 0, key: 'call2' });
+
+  // Scene 2. The march: a pizzicato bass on every beat, soft footfalls on every eighth, a
+  // glockenspiel tune on top, from the cut until the boot lands on the downbeat it never reaches.
+  const M = T.meadow, Bt = M.boot[1], beat = (b) => T.cut + b * MB, lineX = (t) => (lineWalker('pip', t)?.x ?? -200) / 2 + (lineWalker('dot', t)?.x ?? -200) / 2;
+  const away = (t) => 1 - .45 * local(t, M.hold[0], Bt);
+  const BASS = [38, 45, 38, 45, 43, 50, 43, 50, 45, 52, 45, 52, 38, 45, 38, 45];
+  const TUNE = [[0, 74], [2, 78], [3, 76], [4, 74], [6, 69], [8, 71], [10, 74], [11, 76], [12, 79], [14, 76], [16, 73], [18, 76], [19, 78], [20, 81], [22, 79], [24, 78], [26, 74], [28, 76], [30, 73]];
+  BASS.forEach((m, b) => { const at = beat(b); if (at < Bt - .05) pizz(s, at, m, { level: .1 * away(at), x: lineX(at), key: `mbass${b}` }); });
+  TUNE.forEach(([e, m]) => { const at = beat(e / 2); if (at < Bt - .05) glock(s, at, m + 12, { level: .011 * away(at), decay: .5, x: lineX(at) }); });
+  for (let e = 0; beat(e / 2) < Bt - .05; e++) contact(s, beat(e / 2), { material: 'felt', f0: 260, level: .018 * away(beat(e / 2)), x: lineX(beat(e / 2)), key: `mstep${e}` });
+  // Gucky scrambles in: quick plucks out of time; skips into step; his motif joins the march, whole.
+  footfalls(guckyMeadow, M.gIn, M.join).forEach(([at, x], i) => pizz(s, at, 74 + (i % 3) * 2, { level: .045, x, key: `scramble${i}` }));
+  peepRun(s, M.gIn + .2, 3, .25, { who: 'gucky', level: .02, bright: .7, x: 1000, key: 'wait' });
+  glock(s, M.join + .1, 86, { level: .012, x: LINE.gucky });
+  motif(s, M.answer, 'answer', MB, { voice: pizz, level: .13, x: LINE.gucky });
+  strings(s, M.answer, M.hold[0] + .4, [50, 57, 62, 66], { level: .01, attack: .8, release: .3, cutoff: 1400 });
+  // He high-steps like Pip: the fanfare again, the wobbling note, the slide, the plop; out of step.
+  [[M.lift, 69], [M.lift + .14, 74]].forEach(([at, m], i) => pizz(s, at, m, { level: .08, bright: .45, x: LINE.gucky, key: `mfanfare${i}` }));
+  bowSlide(s, M.hold[0], M.plop + .02, 74, 62, { slide: M.hold[1] - .05, level: .016, x: LINE.gucky + 40 });
+  contact(s, M.plop, { material: 'felt', f0: 140, level: .14, x: LINE.gucky + 60, key: 'mplop' });
+  pizz(s, M.plop, 38, { level: .09, dur: .6, x: LINE.gucky + 60, key: 'mplopnote' });
+  glock(s, M.blink, 93, { level: .008, decay: .4, x: LINE.gucky + 60 });
+  // He hurries, his steps out of time with the march going away.
+  footfalls(guckyMeadow, M.hurry[0], Bt - .05).forEach(([at, x], i) => pizz(s, at, [76, 74, 78, 76][i % 4], { level: .04, x, key: `hurry${i}` }));
   // The boot: a whoosh down out of the sky, the stamp (a deep thud, dust), then silence. The line
-  // walks on, far and faint behind it. His motif asks, and is not answered.
-  breath(s, T.boot[0] - .05, B - T.boot[0] + .05, { level: .03, from: 1400, to: 250, back: 200, x: gx(B), key: 'bootfall' });
-  // The stamp is one designed, saturated thump (loud for its peak; a sub or a click only peaks).
-  stomp(s, B, { level: .06, x: gx(B) });
-  contact(s, B, { material: 'wood', f0: 160, level: .1, x: gx(B), key: 'stampbody' });
-  pizz(s, B + .01, 38, { level: .08, dur: .9, x: gx(B), key: 'stampnote' });
-  paper(s, B + .02, { kind: 'slide', dur: .35, level: .03, x: gx(B), key: 'dust' });
-  [B + .6, B + 1.3].forEach((at, i) => peep(s, at, { who: ['pip', 'dot'][i], bright: .4, dur: .1, level: .006, x: 1000, key: `far${i}` }));
-  motif(s, T.ask, 'ask', .38, { voice: pizz, level: .11, x: gx(T.ask) });
+  // walks on beyond it, far and faint. His motif asks, and is not answered.
+  const gb = guckyMeadow(Bt).x;
+  breath(s, M.boot[0] - .05, Bt - M.boot[0] + .05, { level: .03, from: 1400, to: 250, back: 200, x: gb - 200, key: 'bootfall' });
+  stomp(s, Bt, { level: .06, x: gb - 200 });
+  contact(s, Bt, { material: 'wood', f0: 160, level: .1, x: gb - 200, key: 'stampbody' });
+  pizz(s, Bt + .01, 38, { level: .08, dur: .9, x: gb - 200, key: 'stampnote' });
+  paper(s, Bt + .02, { kind: 'slide', dur: .35, level: .03, x: gb - 200, key: 'dust' });
+  [Bt + .7, Bt + 1.3].forEach((at, i) => peep(s, at, { who: ['dot', 'bean'][i], bright: .4, dur: .1, level: .006 - i * .002, x: 60, key: `far${i}` }));
+  strings(s, M.head[0], M.ask + .2, [62, 69], { level: .007, attack: .6, release: .3, swell: true, cutoff: 1800 });
+  motif(s, M.ask, 'ask', .38, { voice: pizz, level: .11, x: gb });
 }
-const MARKS = [T.hatch.pip, T.hook.pipApex[0], T.hook.pipLand, T.hook.lid, T.hook.tip, T.hook.beanLand, ...T.knocks, T.shove, T.thud, T.crack[0], ...T.taps, T.pip, ...T.zip, T.pop, T.land, T.bonk, T.who, T.first, T.call, T.tries.sit[0], T.tries.stuck[0], T.tries.stuck[1], ...T.steps, T.run[0], T.run[1], T.answer, T.boot[1], T.ask]; // read by audio.mjs
+/** Footfall times in [a, b] of a pose function: [time, x, pose] each time a foot comes down. */
+function footfalls(pose, a, b) {
+  const out = [];
+  let last = null;
+  for (let t = a; t < b; t += .004) {
+    const p = pose(t); if (!p || p.step === undefined) { last = null; continue; }
+    const f = Math.floor(p.step * 2); if (last !== null && f !== last) out.push([t, p.x, p]); last = f;
+  }
+  return out;
+}
+/** One bowed note held while a balance goes: its vibrato grows, then from `slide` it sinks to `to`. */
+function bowSlide(s, at, end, from, to, o = {}) {
+  const { level = .02, slide = end, x = null } = o;
+  const env = s.ac.createGain(), f = s.ac.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 2200;
+  env.gain.setValueAtTime(0, at); env.gain.linearRampToValueAtTime(level, at + .08); env.gain.setValueAtTime(level, end - .06); env.gain.linearRampToValueAtTime(0, end);
+  const vib = s.osc('sine', 6, at, end), depth = s.ac.createGain();
+  depth.gain.setValueAtTime(hz(from) * .004, at); depth.gain.linearRampToValueAtTime(hz(from) * .03, slide); vib.connect(depth);
+  [-7, 0, 6].forEach(c => {
+    const osc = s.osc('sawtooth', hz(from), at, end, { detune: c }), g = s.ac.createGain(); g.gain.value = 1 / 3;
+    osc.frequency.setValueAtTime(hz(from), slide); osc.frequency.exponentialRampToValueAtTime(hz(to), end);
+    depth.connect(osc.frequency); osc.connect(g).connect(f);
+  });
+  f.connect(env); s.place(env, { x, send: .2, bus: 'fore' });
+}
+const MARKS = [T.hatch.pip, T.hook.pipApex[0], T.hook.pipLand, T.hook.lid, T.hook.tip, T.hook.beanLand, ...T.knocks, T.shove, T.thud, T.crack[0], ...T.taps, T.pip, ...T.zip, T.pop, T.land, T.bonk, T.who, T.first, T.call,
+  T.copy.tip[1], T.copy.march[1], ...T.copy.clomps, T.copy.shellLands, T.copy.boop, ...T.copy.steps, T.copy.beam[0], T.cut, T.meadow.answer, T.meadow.plop, T.meadow.boot[1], T.meadow.ask]; // read by audio.mjs
 // SCORE END
 
 const canvas=document.getElementById('c'),ctx=canvas.getContext('2d');
