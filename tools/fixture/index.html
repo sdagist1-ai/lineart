@@ -1,0 +1,48 @@
+<!doctype html><meta charset="utf-8"><title>harness probe</title>
+<style>html,body{margin:0;background:#111;display:grid;place-items:center;height:100%}canvas{width:100vmin;height:100vmin}</style>
+<canvas id="c"></canvas>
+<script>
+// Minimal reference implementation of the film contract the tools expect.
+// Any film must expose: window.__film = { duration, ready, seek(t), renderAudio? }
+const DURATION = 3.0, SIZE = 1080;
+const cv = document.getElementById('c'), cx = cv.getContext('2d');
+cv.width = cv.height = SIZE;
+
+function render(t) {
+  const u = t / DURATION;
+  cx.fillStyle = '#F2EDE3'; cx.fillRect(0, 0, SIZE, SIZE);
+  cx.strokeStyle = '#0078BF'; cx.lineWidth = 6;
+  cx.beginPath(); cx.arc(SIZE / 2, SIZE / 2, 40 + u * SIZE * 0.5, 0, Math.PI * 2); cx.stroke();
+  cx.fillStyle = '#FF48B0';
+  cx.beginPath(); cx.arc(SIZE / 2 - 4, SIZE / 2 + 4, 14, 0, Math.PI * 2); cx.fill();
+  cx.fillStyle = '#2E3192';
+  cx.beginPath(); cx.arc(SIZE / 2, SIZE / 2, 14, 0, Math.PI * 2); cx.fill();
+  cx.fillStyle = '#2E3192'; cx.font = '48px monospace'; cx.textAlign = 'center';
+  cx.fillText(t.toFixed(3) + 's', SIZE / 2, SIZE - 80);
+}
+
+async function renderAudio() {
+  const sr = 48000, oc = new OfflineAudioContext(2, Math.ceil(sr * DURATION), sr);
+  const o = oc.createOscillator(), g = oc.createGain();
+  o.frequency.value = 220; g.gain.value = 0.2; o.connect(g).connect(oc.destination);
+  o.start(0); o.stop(DURATION);
+  const buf = await oc.startRendering();
+  const n = buf.length, bytes = 44 + n * 4, dv = new DataView(new ArrayBuffer(bytes));
+  const ascii = (off, s) => { for (let i = 0; i < s.length; i++) dv.setUint8(off + i, s.charCodeAt(i)); };
+  ascii(0, 'RIFF'); dv.setUint32(4, bytes - 8, true); ascii(8, 'WAVEfmt ');
+  dv.setUint32(16, 16, true); dv.setUint16(20, 1, true); dv.setUint16(22, 2, true);
+  dv.setUint32(24, sr, true); dv.setUint32(28, sr * 4, true); dv.setUint16(32, 4, true);
+  dv.setUint16(34, 16, true); ascii(36, 'data'); dv.setUint32(40, n * 4, true);
+  const L = buf.getChannelData(0), R = buf.getChannelData(1);
+  for (let i = 0; i < n; i++) {
+    dv.setInt16(44 + i * 4, Math.max(-1, Math.min(1, L[i])) * 32767, true);
+    dv.setInt16(46 + i * 4, Math.max(-1, Math.min(1, R[i])) * 32767, true);
+  }
+  let s = '', u8 = new Uint8Array(dv.buffer);
+  for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000));
+  return btoa(s);
+}
+
+window.__film = { duration: DURATION, ready: true, seek: render, renderAudio };
+render(Number(new URLSearchParams(location.search).get('t')) || 0);
+</script>

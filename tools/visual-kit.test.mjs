@@ -1,0 +1,30 @@
+import assert from 'node:assert/strict';
+import {camera,plane,pathByLength,travel,hermite,ballistic} from './lib/visual-kit.mjs';
+const close=(a,b)=>assert.ok(Math.abs(a-b)<1e-7,`${a} != ${b}`);
+const cam=camera({eye:[0,0,0],target:[0,0,1],focal:100,cx:0,cy:0,near:1});
+// Perspective foreshortening and the common horizon hold for every point on a ground plane.
+const floor=plane([0,-1,0],[1,0,0],[0,0,1]);
+const a=cam.project(floor(1,2)), b=cam.project(floor(1,4));
+close(a[0]/b[0],2); close(a[1]/b[1],2);
+assert.equal(cam.project([0,0,-1]),null);
+const clipped=cam.polygon([[-1,-1,0],[1,-1,3],[1,1,3],[-1,1,0]]);
+assert.equal(clipped.length,4); assert.ok(clipped.flat().every(Number.isFinite));
+assert.equal(cam.line([0,0,-3],[0,0,0]).length,0);
+assert.equal(cam.line([0,0,0],[1,0,2]).length,2);
+// Unequal segments still travel equal distances in equal times, also after a cold jump.
+const p=pathByLength([[0,0],[1,0],[1,0],[11,0],[11,4]]), m=travel(p,{start:2,speed:3});
+close(m.end,7); close(m.at(3).distance,3); close(m.at(4).distance,6);
+assert.deepEqual(m.at(3).point,[3,0]); m.at(6.2); assert.deepEqual(m.at(3).point,[3,0]);
+const slow=travel(p,{start:2,duration:10});
+assert.deepEqual(slow.at(8).point,m.at(5).point);
+assert.deepEqual(p.prefix(p.length).at(-1),[11,4]);
+assert.throws(()=>travel(p,{speed:3,duration:5}));
+assert.throws(()=>travel(p,{speed:0}));
+assert.throws(()=>pathByLength([[1,1],[1,1]]));
+assert.deepEqual(hermite([0],[10],[2],[3],4,0),[0]);
+assert.deepEqual(hermite([0],[10],[2],[3],4,1),[10]);
+const e=1e-5, left=(10-hermite([0],[10],[2],[3],4,1-e)[0])/(4*e);
+const right=(hermite([10],[15],[3],[0],2,e)[0]-10)/(2*e);
+assert.ok(Math.abs(left-right)<1e-3);
+assert.deepEqual(ballistic([0,0],[2,3],[0,-2],2),[4,2]);
+console.log('PASS: perspective, near clipping, constant-distance travel, retiming, shared velocity, analytic flight');
