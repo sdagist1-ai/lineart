@@ -1,7 +1,7 @@
 # Gucky
 
 A duckling named Gucky lives a human coming of age, from the egg onward: born last, learning to
-stand, outwitting his siblings, getting lost, growing up. Wordless, warm comedy, about 30 seconds
+stand, outwitting his siblings, getting lost, growing up. Wordless, warm comedy, 30–40 seconds
 an episode, for Instagram Reels. Up to about 200 episodes in seasons; Season 1 first.
 
 Read this before any episode. It overrides repo defaults; the user's words override it.
@@ -11,8 +11,8 @@ Read this before any episode. It overrides repo defaults; the user's words overr
 | | |
 |---|---|
 | Frame | vertical, designed at 1080×1920, rendered at 1440×2560 (`--res 1440`), 30 fps |
-| Length | about 30 s; let the story set it within 25–35 s |
-| Hook | something already happening in frame 0, a question by 3 s, a sound in the first 0.5 s |
+| Length | set by the story, not a clock: the user dropped the strict 30 s when episode 1's opening felt rushed. Give each beat room to land; episode 1 runs about 34 s |
+| Hook | something already happening in frame 0, a sound in the first 0.5 s, a strong action in the first 1–2 s; the question can come once the setup has landed |
 | Safe area | eyes and key action in y ≈ 250–1500 of the design frame, off the right 120 px |
 | Words | none on screen; the name lives in the caption; any drawn sign or title is paths |
 | Ending | the payoff, then a cliffhanger in the last 2–3 s that the next episode opens on (below) |
@@ -89,7 +89,7 @@ bottom half now keeps the whole egg's specks (it used to redraw them elsewhere a
 
 ## Episode shape
 
-Hook (0–3 s) → what Gucky wants → he tries and it goes comically wrong → a turn caused by
+Hook (action in the first 1–2 s) → what Gucky wants → he tries and it goes comically wrong → a turn caused by
 something in his world → payoff → cliffhanger. Plant something early that returns changed.
 
 ## Cliffhangers

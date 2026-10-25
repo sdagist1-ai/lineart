@@ -13,7 +13,7 @@ input{flex:1;min-width:120px}button,a{color:inherit}a{display:none}[hidden]{disp
 // generator only to start a NEW work. Kits: kit/line.js, studies/sound.html, tools/lib/visual-kit.mjs.
 // Draw in design pixels (W x H); the canvas holds K output pixels per design pixel. To change the
 // output size, change K and the frame meta line together (or generate with --res).
-const W=1080, H=1920, K=1.3333333333333333, DUR=30, FPS=30, TITLE="gucky-01-the-last-egg";
+const W=1080, H=1920, K=1.3333333333333333, DUR=34, FPS=30, TITLE="gucky-01-the-last-egg";
 /* ── line kit ─────────────────────────────────────────────────────────────────
    Pen and ink on white paper with the odd spot of colour. A line is a filled
    outline that swells and tapers like a nib; its wobble, pressure and the way a
@@ -1440,42 +1440,48 @@ const depthAt = (y) => clamp((y - SET.horizon) / (SET.nestY - SET.horizon), 0, 1
 const RING = SET.nestW * SET.depth * SET.rim * 2.2, FLOOR = SET.nestY - SET.nestW * SET.depth * .45 - RING * .55;
 
 /* The one timeline: every pose, mark, shot and sound reads its times from here. */
+// The hatch (approved) keeps its inner timing; HATCH moves it as a whole. The user asked for an
+// opening that breathes rather than a strict 30 s, so it starts at 11.25 s, not 7.6 s.
+const HATCH = 11.25, hx = (dt) => Math.round((HATCH + dt) * 1000) / 1000;
 const T = {
-  // The hook: three hatch, each their own way, and each dries off in character.
-  hatch: { pip: .25, dot: 1.4, bean: 1.95 },  // when each leaves its egg
+  // The hook: three hatch, each their own way, each dries off in character, and each gets a beat.
+  hatch: { pip: .25, dot: 3, bean: 4.45 },  // when each leaves its egg
   hook: {
-    squeeze: [.1, .24], pipApex: [.45, .56], pipLand: .68, shake: [.74, 1],  // Pip: squeezes, rockets up, poses, drops, shakes dry
-    lid: 1, peek: [1.05, 1.4], dotLand: 1.75, shimmy: [1.78, 2.02], // Dot: lid flips open, peeks, hops out, shimmies dry
-    wobble: [1.45, 1.8], tip: 1.88, beanLand: 2.1, yawn: [2.15, 2.5], // Bean: wobbles, falls over, slides out asleep, yawns
+    squeeze: [.1, .24], pipApex: [.45, .56], pipLand: .68, shake: [.74, 1],   // Pip: squeezes, rockets up, poses, drops, shakes dry
+    proud: [1.05, 1.9], applause: [1.15, 1.45], nod: 1.7,                       // ... then preens, looks round for applause, nods
+    lid: 2.1, peek: [2.15, 3], duck: [2.42, 2.6], again: 2.62, turn: [2.72, 2.88], dotBlinks: [2.33, 2.93], // Dot: lid opens, peeks, ducks, peeks, looks round
+    dotLand: 3.35, shimmy: [3.38, 3.62],                                         // ... hops out, shimmies dry
+    wobble: [3.95, 4.3], tip: 4.38, beanLand: 4.6, yawn: [4.85, 5.25],           // Bean: wobbles, falls over, slides out asleep, sleeps, yawns
   },
-  stare: [2.55, 3.05],            // three heads turn to the speckled egg; nothing
-  blinkPip: 3.4,                  // still nothing: Pip blinks
-  walk: [3.75, 4.55],             // Pip marches up to the egg
-  knocks: [4.85, 5.1],            // two taps of his bill on it
-  listen: 5.25,                   // he puts his head to it
-  shove: 5.45, thud: 5.75,        // it rocks into him; he lands on his back
-  crack: [6.05, 6.4],             // a zigzag runs halfway across
-  sitUp: 6.55, stand: [6.8, 7.15],// he sits up, sees the crack, gets up
-  doze: [3.6, 4.6],               // Bean nods off again
-  taps: [7.6, 8.0, 8.5],          // Pip's foot, impatient, slowing as he gives up
-  tremble: [8.7, 9.0],            // the egg shivers
-  pip: 9.0, peek: [9.06, 9.36],   // a hole punched; the bill tip shows and goes
-  zip: [9.5, 9.8, 10.1],          // three pushes run the crack round
-  tense: [10.3, 10.6],            // the egg presses down; silence
-  pop: 10.6,                      // the cap flies; Gucky tumbles out
-  land: 11.04, bonk: 11.22,       // he lands; the cap lands on him
-  who: 11.4, hard: 11.5,          // Pip: who are you? (the hard frame, nose to nose)
-  blink: 11.69, first: 12.25,     // he blinks at the world; his first peep, small
-  reply: 12.5, call: 12.95,       // Pip answers; Mom calls from up the field
+  stare: [5.55, 6.95],            // three heads turn to the speckled egg; nothing, for a long moment
+  blinkPip: 6.35,                 // still nothing: Pip blinks
+  walk: [7.4, 8.2],               // Pip and Dot exchange a look; Pip marches up to the egg
+  knocks: [8.5, 8.75],            // two taps of his bill on it
+  listen: 8.9,                    // he puts his head to it
+  shove: 9.1, thud: 9.4,          // it rocks into him; he lands on his back
+  crack: [9.7, 10.05],            // a zigzag runs halfway across
+  sitUp: 10.2, stand: [10.45, 10.8], // he sits up, sees the crack, gets up
+  doze: [6.4, 7.4],               // Bean nods off again
+  taps: [hx(0), hx(.4), hx(.9)],  // Pip's foot, impatient, slowing as he gives up
+  tremble: [hx(1.1), hx(1.4)],    // the egg shivers
+  pip: hx(1.4), peek: [hx(1.46), hx(1.76)], // a hole punched; the bill tip shows and goes
+  zip: [hx(1.9), hx(2.2), hx(2.5)], // three pushes run the crack round
+  tense: [hx(2.7), hx(3)],        // the egg presses down; silence
+  pop: hx(3),                     // the cap flies; Gucky tumbles out
+  land: hx(3.44), bonk: hx(3.62), // he lands; the cap lands on him
+  who: hx(3.8), hard: hx(3.9),    // Pip: who are you? (the hard frame, nose to nose)
+  blink: hx(4.09), first: hx(4.65), // he blinks at the world; his first peep, small
+  reply: hx(4.9), call: hx(5.35), // Pip answers; Mom calls from up the field
 };
 const BEATS = [
-  { id: 'hook', start: 0, end: 3, readAt: 2.5, action: 'three eggs hatch on the beat; the speckled one does not' },
-  { id: 'egg', start: 3, end: 8, readAt: 6, action: 'Pip taps the egg, it rocks him over, a crack runs' },
-  { id: 'hatch', start: 8, end: 13, readAt: T.hard, action: 'pip, zip, pop: Gucky tumbles out wearing the cap' },
-  { id: 'stand', start: 13, end: 21, readAt: 17, action: 'the siblings leave; Gucky tries to stand' },
-  { id: 'steps', start: 21, end: 25.5, readAt: 23, action: 'three wobbly steps, then a run' },
-  { id: 'line', start: 25.5, end: 27.5, readAt: 26.8, action: 'he joins the end of the line' },
-  { id: 'boot', start: 27.5, end: 30, readAt: 29.6, action: 'a boot stamps down; he looks all the way up it' },
+  { id: 'hook', start: 0, end: 2, readAt: .5, action: 'Pip rockets out of his egg and strikes a pose' },
+  { id: 'siblings', start: 2, end: 5.55, readAt: 2.3, action: 'Dot peeks out and hops out; Bean falls out asleep and yawns' },
+  { id: 'egg', start: 5.55, end: HATCH, readAt: 9.6, action: 'they stare at the last egg; Pip knocks, it rocks him over, a crack runs' },
+  { id: 'hatch', start: HATCH, end: hx(5.4), readAt: T.hard, action: 'pip, zip, pop: Gucky tumbles out wearing the cap' },
+  { id: 'stand', start: hx(5.4), end: hx(13.4), readAt: hx(9.4), action: 'the siblings leave; Gucky tries to stand' },
+  { id: 'steps', start: hx(13.4), end: hx(17.9), readAt: hx(15.4), action: 'three wobbly steps, then a run' },
+  { id: 'line', start: hx(17.9), end: hx(19.9), readAt: hx(19.2), action: 'he joins the end of the line' },
+  { id: 'boot', start: hx(19.9), end: DUR, readAt: DUR - .4, action: 'a boot stamps down; he looks all the way up it' },
 ];
 
 /** Smooth steps through [time, value] keys (numbers or [x, y]); holds before the first and after the last. */
@@ -1694,33 +1700,33 @@ function pipEarly(t) {
     x = C[0] - hh * Math.sin(r); y = C[1] + hh * Math.cos(r); rot = r;
     if (t >= L && t < T.sitUp) step = (t - L) * 5;
   }
-  const P = H.pipLand, Z = H.shake;
+  const P = H.pipLand, Z = H.shake, A = H.applause, E = T.taps[0] - .3, St = T.stare, K0 = T.knocks[0] - .13;
   return { ...base, x, y, waddle: rot, step, wet,
     squash: k([[P, .7], [P + .06, 1.1], [P + .14, 1]]) * k([[L, 1], [L + .03, .85], [L + .12, 1]]),
-    lean: k([[P, -.18], [1.05, -.18], [1.35, -.07], [T.walk[0], -.07], [T.walk[0] + .15, .05], [T.walk[1], .05], [4.72, .26], [T.knocks[0] - .05, .26], [T.knocks[0], .33], [T.knocks[0] + .08, .26], [T.knocks[1] - .05, .26], [T.knocks[1], .33], [T.knocks[1] + .08, .26], [T.listen, .22], [KO, .22], [KO + .06, 0], [T.stand[1], 0], [7.3, .06]]),
-    headTilt: k([[P, -.2], [1.35, -.07], [T.stare[0], -.07], [T.stare[0] + .15, .12], [3.7, .12], [T.walk[0] + .1, -.07], [4.72, .42], [T.knocks[1] + .1, .42], [T.listen, .62], [KO, .62], [KO + .1, -.2], [L, -.2], [T.stand[1], .1], [7.3, -.07]]),
-    look: k([[P, [-.3, -.3]], [H.lid - .02, [-.3, -.3]], [H.lid + .08, [.6, 0]], [h + 1.6, [.6, 0]], [T.hatch.bean + .05, [.3, .1]], [T.stare[0], [.3, .1]], [T.stare[0] + .15, [.7, .4]], [3.7, [.7, .4]], [4.72, [.6, .6]], [T.knocks[1] + .1, [.6, .6]], [T.listen, [0, -.6]], [KO, [0, -.6]], [KO + .05, [-.5, -.5]], [T.crack[1], [-.5, -.5]], [T.sitUp + .05, [.7, .3]], [7.3, [.5, .3]]]),
-    brow: k([[P, .45], [T.walk[0], .45], [T.walk[0] + .1, .7], [T.knocks[1] + .1, .7], [T.listen, .2], [KO, .2], [KO + .05, -.8], [L + .1, -.5], [5.95, .8], [T.crack[1], .8], [T.sitUp + .05, .2], [T.stand[1], .6], [7.3, .6]]),
-    wing: k([[P, .95], [Z[0], .95], [Z[0] + .05, .3], [Z[1], .3], [Z[1] + .08, .85], [1.25, .75], [1.5, 0], [KO, 0], [KO + .05, .9], [L, .6], [T.sitUp, .3], [T.stand[1], .2], [7.3, 0]]),
-    bill: k([[P, .7], [Z[0], .6], [Z[0] + .04, 0], [Z[1] + .04, 0], [Z[1] + .1, .5], [1.2, .4], [1.3, 0], [KO, 0], [KO + .04, .7], [KO + .25, .3], [L, .2], [5.95, 0], [6, .55], [6.15, .1], [6.25, 0]]),
-    blink: k([[Z[0], 0], [Z[0] + .03, 1], [Z[1] - .03, 1], [Z[1], 0], [T.blinkPip - .04, 0], [T.blinkPip, 1], [T.blinkPip + .08, 0], [L, 0], [L + .03, 1], [L + .12, .5], [5.95, .3], [6, 0]]),
+    lean: k([[P, -.18], [H.proud[1], -.2], [H.proud[1] + .3, -.07], [T.walk[0], -.07], [T.walk[0] + .15, .05], [T.walk[1], .05], [K0, .26], [T.knocks[0] - .05, .26], [T.knocks[0], .33], [T.knocks[0] + .08, .26], [T.knocks[1] - .05, .26], [T.knocks[1], .33], [T.knocks[1] + .08, .26], [T.listen, .22], [KO, .22], [KO + .06, 0], [T.stand[1], 0], [E, .06]]),
+    headTilt: k([[P, -.2], [H.nod - .1, -.2], [H.nod, .12], [H.nod + .12, -.15], [H.proud[1] + .3, -.07], [St[0], -.07], [St[0] + .15, .12], [St[1], .12], [T.walk[0] + .1, -.07], [K0, .42], [T.knocks[1] + .1, .42], [T.listen, .62], [KO, .62], [KO + .1, -.2], [L, -.2], [T.stand[1], .1], [E, -.07]]),
+    look: k([[P, [-.3, -.3]], [A[0], [-.6, -.4]], [A[0] + .15, [-.6, -.4]], [A[1], [.5, -.3]], [A[1] + .2, [.5, -.3]], [H.nod, [.2, .1]], [H.lid - .02, [.2, .1]], [H.lid + .08, [.6, 0]], [T.hatch.dot + .1, [.6, 0]], [T.hatch.bean + .05, [.3, .1]], [St[0], [.3, .1]], [St[0] + .15, [.7, .4]], [St[1], [.7, .4]], [St[1] + .1, [.6, 0]], [T.walk[0] - .05, [.6, 0]], [K0, [.6, .6]], [T.knocks[1] + .1, [.6, .6]], [T.listen, [0, -.6]], [KO, [0, -.6]], [KO + .05, [-.5, -.5]], [T.crack[1], [-.5, -.5]], [T.sitUp + .05, [.7, .3]], [E, [.5, .3]]]),
+    brow: k([[P, .45], [T.walk[0] - .3, .45], [T.walk[0] - .2, .7], [T.knocks[1] + .1, .7], [T.listen, .2], [KO, .2], [KO + .05, -.8], [L + .1, -.5], [L + .2, .8], [T.crack[1], .8], [T.sitUp + .05, .2], [T.stand[1], .6], [E, .6]]),
+    wing: k([[P, .95], [Z[0], .95], [Z[0] + .05, .3], [Z[1], .3], [Z[1] + .08, .85], [H.proud[1] - .3, .8], [H.proud[1], 0], [KO, 0], [KO + .05, .9], [L, .6], [T.sitUp, .3], [T.stand[1], .2], [E, 0]]),
+    bill: k([[P, .7], [Z[0], .6], [Z[0] + .04, 0], [Z[1] + .04, 0], [Z[1] + .1, .5], [Z[1] + .25, .4], [Z[1] + .35, 0], [KO, 0], [KO + .04, .7], [KO + .25, .3], [L, .2], [L + .2, 0], [L + .25, .55], [L + .4, .1], [L + .5, 0]]),
+    blink: k([[Z[0], 0], [Z[0] + .03, 1], [Z[1] - .03, 1], [Z[1], 0], [T.blinkPip - .04, 0], [T.blinkPip, 1], [T.blinkPip + .08, 0], [L, 0], [L + .03, 1], [L + .12, .5], [L + .2, .3], [L + .25, 0]]),
   };
 }
 
 /** Pip: taps his foot, flinches at the pip, leans in, leaps back at the pop, then asks who this is. */
 function pipPose(t) {
-  if (t < 7.3) return pipEarly(t);
+  if (t < T.taps[0] - .3) return pipEarly(t);
   const k = (keys) => keyed(t, keys), P = T.pop, hop = local(t, P + .02, P + .3);
   return { who: 'pip', view: 'side', facing: 1, s: .9, key: 'pip', t,
     x: lerp(PIP_AT, PIP_TO, hop), y: FLOOR - 4 * 70 * hop * (1 - hop),
     tap: T.taps.reduce((v, a) => Math.max(v, bump(t, a - .16, a - .07, a)), 0),
-    lean: k([[8.6, .06], [8.85, .13], [T.pip, .13], [T.pip + .06, -.14], [T.pip + .3, -.02], [T.zip[0], .05], [T.tense[0], .18], [P - .05, .24], [P + .04, -.28], [P + .3, -.2], [P + .6, -.07], [T.who - .1, .05], [T.who + .3, .03], [12, -.04]]),
+    lean: k([[hx(1), .06], [hx(1.25), .13], [T.pip, .13], [T.pip + .06, -.14], [T.pip + .3, -.02], [T.zip[0], .05], [T.tense[0], .18], [P - .05, .24], [P + .04, -.28], [P + .3, -.2], [P + .6, -.07], [T.who - .1, .05], [T.who + .3, .03], [hx(4.4), -.04]]),
     brow: k([[T.pip, .6], [T.pip + .05, -.4], [T.pip + .4, .2], [T.tense[0], .3], [P + .02, .3], [P + .06, -.7], [P + .5, -.3], [T.who - .1, .45], [T.reply - .05, .45], [T.reply, .75]]),
-    look: k([[8.7, [.5, .3]], [8.9, [.7, .4]], [T.pip + .04, [.4, 0]], [T.zip[0], [.6, .35]], [P, [.6, .35]], [P + .05, [.2, -.6]], [P + .3, [.3, -.3]], [P + .5, [.3, .2]], [T.call, [.3, .2]], [T.call + .1, [0, -1]]]),
+    look: k([[hx(1.1), [.5, .3]], [hx(1.3), [.7, .4]], [T.pip + .04, [.4, 0]], [T.zip[0], [.6, .35]], [P, [.6, .35]], [P + .05, [.2, -.6]], [P + .3, [.3, -.3]], [P + .5, [.3, .2]], [T.call, [.3, .2]], [T.call + .1, [0, -1]]]),
     headTilt: k([[P, -.07], [P + .05, -.3], [P + .3, -.2], [P + .5, -.07], [T.reply - .12, -.07], [T.reply - .06, .12], [T.reply + .1, -.02], [T.call, -.02], [T.call + .1, -.35]]),
     wing: k([[T.pip, 0], [T.pip + .03, .5], [T.pip + .3, .1], [P, 0], [P + .04, .9], [P + .35, .6], [P + .7, .45], [T.first, .2], [T.first + .4, 0]]),
     bill: k([[P + .02, 0], [P + .06, .55], [P + .25, .3], [P + .45, 0], [T.who - .08, 0], [T.who, .5], [T.who + .3, .5], [T.who + .42, .05], [T.reply - .04, 0], [T.reply, .45], [T.reply + .1, .1], [T.reply + .16, .45], [T.reply + .28, 0]]),
-    blink: k([[8.26, 0], [8.3, 1], [8.36, 0], [T.who + .5, 0], [T.who + .54, 1], [T.who + .6, 0]]),
+    blink: k([[hx(.66), 0], [hx(.7), 1], [hx(.76), 0], [T.who + .5, 0], [T.who + .54, 1], [T.who + .6, 0]]),
     squash: k([[P + .29, 1], [P + .32, .82], [P + .42, 1.04], [P + .5, 1]]),
   };
 }
@@ -1735,28 +1741,29 @@ function dotEarly(t) {
   if (t < H.peek[0]) return null;
   const wet = 1 - smooth(local(t, H.shimmy[0], H.shimmy[1])), PEEK = .32, E = SIB_EGG.dot;
   if (t < h) {
-    const rise = ease.back(local(t, H.peek[0], H.peek[0] + .12), 1.4);
-    return { ...base, s: PEEK, x: E.x, y: E.y + 50 - 50 * rise, wet, peek: true, facing: t > 1.22 && t < 1.31 ? 1 : -1,
-      look: [.7, 0], headTilt: .12, blink: bump(t, 1.14, 1.17, 1.2) + bump(t, 1.33, 1.36, 1.39) };
+    // Up, a look at Pip, shy: back down; up again, a look the other way.
+    const rise = t < H.again ? ease.back(local(t, H.peek[0], H.peek[0] + .12), 1.4) * (1 - smooth(local(t, H.duck[0], H.duck[1]))) : ease.back(local(t, H.again, H.again + .1), 1.4);
+    return { ...base, s: PEEK, x: E.x, y: E.y + 50 - 50 * rise, wet, peek: true, facing: t > H.turn[0] && t < H.turn[1] ? 1 : -1,
+      look: [.7, 0], headTilt: .12, blink: H.dotBlinks.reduce((v, b) => v + bump(t, b - .03, b, b + .03), 0) };
   }
   if (t < H.dotLand) return { ...base, ...emerge(t, h, H.dotLand - h, [E.x, E.y - .45 * UNIT * PEEK * sc], [DOT_AT, FLOOR - .45 * S], PEEK, .9, 80, sc), wet, wing: .5, blink: .18, look: [.4, -.2], headTilt: .1 };
   const k = (keys) => keyed(t, keys), KO = T.shove, C0 = T.crack[0], D = H.dotLand, M = H.shimmy;
   return { ...base, x: DOT_AT, y: FLOOR, wet, waddle: .07 * Math.sin((t - M[0]) * TAU * 9) * bump(t, M[0], M[0] + .04, M[1]),
     squash: k([[D, .85], [D + .08, 1.03], [D + .16, 1]]),
-    headTilt: k([[D, .13], [T.stare[0], .13], [T.stare[0] + .15, .22], [3.6, .22], [3.8, .1], [KO, .1], [KO + .05, -.1], [5.8, .05], [C0, .05], [C0 + .15, .3], [6.6, .3], [7, .13]]),
-    look: k([[D, [.35, .15]], [T.hatch.bean, [.35, .15]], [T.hatch.bean + .1, [.6, .1]], [T.stare[0], [.6, .1]], [T.stare[0] + .15, [.6, .35]], [3.7, [.6, .35]], [3.9, [.4, .05]], [KO, [.4, .05]], [KO + .1, [.5, .4]], [C0, [.5, .4]], [C0 + .12, [.6, .3]], [6.6, [.6, .3]], [7, [.35, .15]]]),
-    blink: k([[M[0], .18], [M[0] + .05, 1], [M[1] + .15, 1], [M[1] + .2, .18], [KO, .18], [KO + .03, 1], [KO + .12, 0], [6.6, 0], [7, .18]]),
+    headTilt: k([[D, .13], [T.stare[0], .13], [T.stare[0] + .15, .22], [T.stare[1], .22], [T.stare[1] + .2, .1], [KO, .1], [KO + .05, -.1], [T.thud + .05, .05], [C0, .05], [C0 + .15, .3], [T.crack[1] + .2, .3], [T.crack[1] + .6, .13]]),
+    look: k([[D, [.35, .15]], [T.hatch.bean, [.35, .15]], [T.hatch.bean + .1, [.6, .1]], [T.stare[0], [.6, .1]], [T.stare[0] + .15, [.6, .35]], [T.stare[1] + .1, [.6, .35]], [T.stare[1] + .3, [.4, .05]], [KO, [.4, .05]], [KO + .1, [.5, .4]], [C0, [.5, .4]], [C0 + .12, [.6, .3]], [T.crack[1] + .2, [.6, .3]], [T.crack[1] + .6, [.35, .15]]]),
+    blink: k([[M[0], .18], [M[0] + .05, 1], [M[1] + .15, 1], [M[1] + .2, .18], [KO, .18], [KO + .03, 1], [KO + .12, 0], [T.crack[1] + .2, 0], [T.crack[1] + .6, .18]]),
     happy: t > M[0] + .03 && t < M[1] + .18,
-    brow: k([[KO, 0], [KO + .1, -.6], [6, -.6], [6.2, 0]]),
-    lean: k([[KO, 0], [KO + .05, -.12], [5.9, 0]]),
-    wing: k([[D, .5], [D + .1, .2], [M[1], .2], [M[1] + .1, 0], [KO, 0], [KO + .05, .4], [5.9, 0]]),
+    brow: k([[KO, 0], [KO + .1, -.6], [T.thud + .25, -.6], [T.thud + .45, 0]]),
+    lean: k([[KO, 0], [KO + .05, -.12], [T.thud + .15, 0]]),
+    wing: k([[D, .5], [D + .1, .2], [M[1], .2], [M[1] + .1, 0], [KO, 0], [KO + .05, .4], [T.thud + .15, 0]]),
     bill: k([[M[1], 0], [M[1] + .05, .25], [M[1] + .17, 0], [KO + .02, 0], [KO + .06, .3], [KO + .2, 0]]),
   };
 }
 
 /** Dot: curious at the pip, a startled hop at the pop, then she watches him; his peep makes her smile. */
 function dotPose(t) {
-  if (t < 7.3) return dotEarly(t);
+  if (t < T.taps[0] - .3) return dotEarly(t);
   const k = (keys) => keyed(t, keys), P = T.pop, hop = local(t, P + .03, P + .26);
   return { who: 'dot', view: 'side', facing: -1, s: .9, key: 'dot', t, x: DOT_AT, y: FLOOR - 4 * 40 * hop * (1 - hop),
     // Curious, but her bill stays clear of the egg.
@@ -1789,7 +1796,7 @@ function beanEarly(t) {
 
 /** Bean: asleep through everything until the pop; then wide awake, peeking from behind the shell. */
 function beanPose(t) {
-  if (t < 7.3) return beanEarly(t);
+  if (t < T.taps[0] - .3) return beanEarly(t);
   const k = (keys) => keyed(t, keys), P = T.pop, asleep = t < P, sway = (u) => .06 + .08 * Math.sin(u * TAU / 2.6);
   return { who: 'bean', view: 'front', s: .7, key: 'bean', t, x: BEAN_AT[0],
     y: BEAN_AT[1] - 45 * Math.sin(Math.PI * local(t, P, P + .26)) + 14 * smooth(local(t, P + .35, P + .55)),
@@ -1970,6 +1977,7 @@ function buildScore(s) {
   for (let i = 0; i < 8; i++) mallet(s, HK.shake[0] + i * .032, i % 2 ? 71 : 69, { level: .012, decay: .12, x: PIP_WALK[0] });
   paper(s, HK.shake[0], { kind: 'slide', dur: HK.shake[1] - HK.shake[0], level: .025, x: PIP_WALK[0], key: 'shake' });
   { const r = rngFor('spray:pip'); for (let i = 0; i < 12; i++) { const t0 = HK.shake[0] + r() * .25, a = Math.PI + .25 + r() * (Math.PI - .5); r(); if (i % 3 === 0) drop(s, t0 + .3, { level: .03, f0: 1400 + i * 90, x: PIP_WALK[0] + Math.cos(a) * 160 }); } }
+  [62, 74].forEach((m, i) => pizz(s, HK.nod + i * .05, m, { level: .05, x: PIP_WALK[0], key: `nod${i}` }));
   glock(s, hp + PIP_TOP.dur, 90, { level: .012, x: px - 50 });
   contact(s, hp + PIP_TOP.dur, { material: 'card', f0: 2400, level: .025, x: px - 50, key: 'piptoptink' });
   // Dot: soft cracks, the lid creaks open and lands, a curious note as she peeks, a plink on each
@@ -1978,8 +1986,9 @@ function buildScore(s) {
   [-.25, -.15, -.06].forEach((d, i) => contact(s, HK.lid + d, { material: 'card', f0: 1900 + i * 150, level: .022, x: dx, key: `dotcrack${i}` }));
   paper(s, HK.lid - .02, { kind: 'turn', dur: .22, level: .03, x: dx, key: 'lid' });
   contact(s, HK.lid + .17, { material: 'wood', f0: 1100, level: .03, x: dx + 40, key: 'lidland' });
-  pizz(s, HK.peek[0] + .05, 69, { level: .05, x: dx, key: 'peek0' }); pizz(s, HK.peek[0] + .12, 74, { level: .05, x: dx, key: 'peek1' });
-  [1.17, 1.36].forEach((at, i) => glock(s, at, 93, { level: .007, decay: .4, x: dx }));
+  // Each pop up, duck and turn of her peek gets a soft note: up, down, up, round.
+  [[HK.peek[0] + .06, 69], [HK.duck[0] + .06, 64], [HK.again + .05, 69], [HK.turn[0] + .02, 74], [HK.turn[1] + .02, 71]].forEach(([at, m], i) => pizz(s, at, m, { level: .05, x: dx, key: `peek${i}` }));
+  HK.dotBlinks.forEach((at, i) => glock(s, at, 93, { level: .007, decay: .4, x: dx }));
   harpRun(s, T.hatch.dot + .03, HK.dotLand - .04, [66, 69, 71, 74, 78], { x: dx + 30, level: .03, key: 'dothop' });
   contact(s, HK.dotLand, { material: 'felt', f0: 200, level: .07, x: DOT_AT, key: 'dotland' });
   [90, 93, 88, 95].forEach((m, i) => glock(s, HK.shimmy[0] + .05 + [0, .08, .16, .22][i], m, { level: .009, decay: .8, x: DOT_AT }));
@@ -1994,6 +2003,7 @@ function buildScore(s) {
   contact(s, T.hatch.bean, { material: 'card', f0: 1000, level: .04, x: bx + 60, key: 'beanpop' });
   paper(s, T.hatch.bean, { kind: 'slide', dur: HK.beanLand - T.hatch.bean, level: .02, x: BEAN_AT[0], key: 'beanslide' });
   pizz(s, HK.beanLand, 45, { level: .08, dur: .5, x: BEAN_AT[0], key: 'beanplop' });
+  breath(s, HK.beanLand + .05, .3, { level: .012, from: 220, to: 420, back: 220, x: BEAN_AT[0], key: 'snore' });
   yawn(s, HK.yawn[0] + .03, { level: .025, dur: .45, x: BEAN_AT[0] });
   breath(s, HK.yawn[0] + .1, .4, { level: .012, from: 300, to: 700, back: 300, x: BEAN_AT[0], key: 'stretch' });
   // The fourth event never comes: silence on the stare. Still nothing: Pip blinks.
@@ -2015,7 +2025,7 @@ function buildScore(s) {
   pizz(s, T.thud, 38, { level: .14, dur: .7, x: LIE, key: 'thudnote' });
   // The egg wobbles to rest, a tock on each swing; Pip: hey!
   [57, 54, 50].forEach((m, i) => mallet(s, T.shove + .02 + (i + 1) * Math.PI / 9, m, { level: [.05, .03, .018][i], decay: .3, x: EGG.x }));
-  peep(s, 6, { who: 'pip', bright: .8, dur: .14, level: .034, x: LIE, key: 'hey' });
+  peep(s, T.thud + .25, { who: 'pip', bright: .8, dur: .14, level: .034, x: LIE, key: 'hey' });
   // A crack runs halfway across; Dot sees it first. Pip sits up, sees it, gets up.
   paper(s, T.crack[0], { kind: 'tear', dur: T.crack[1] - T.crack[0], level: .045, x: EGG.x, key: 'crackrun' });
   for (let i = 0; i < 5; i++) contact(s, T.crack[0] + i * .07, { material: 'card', f0: 1600 + i * 150, level: .03 + i * .006, x: EGG.x - 60 + i * 15, key: `crackbit${i}` });

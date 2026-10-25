@@ -9,12 +9,17 @@ Status: beats approved by the user in chat (hook, the egg, the hatch, the first 
 the line), and the boot cliffhanger approved. The hard frame is approved (Mom off screen). The
 hatch (7.5–13.5 s) is built and scored; the user approved its second version
 (`out/g01-hatch-v2.mp4`: "it sounds way better!!"), the dry room and the small orchestra. The
-hook and egg beat (0–7.5 s) are built and scored, waiting for the user's review of
-`out/g01-0-13.5-v3.mp4`; the rest (13.5–30 s) is not built yet.
+hook and egg beat (0–11.25 s) are built and scored, waiting for the user's review of
+`out/g01-0-17.mp4` (retimed to about 34 s); the rest (16.6–34 s) is not built yet.
+
+Length: the user dropped the strict 30 s ("it appears we're rushing to catch up to gucky coming
+out of shell"). The opening now breathes: each sibling gets a beat after hatching, the stare holds
+1.4 s, and the approved hatch, its inner timing unchanged, starts at 11.25 s instead of 7.6 s
+(`HATCH` in the film moves it as a whole). Planned length about 34 s.
 
 ## Form
 
-One continuous take, vertical 1080×1920 design rendered at 1440×2560, 30 s. The camera sits a
+One continuous take, vertical 1080×1920 design rendered at 1440×2560, about 34 s. The camera sits a
 little above the ducklings, looking down the field to the pond along the top of the frame
 (horizon y 430, shore y 540). The nest is a low straw ring in the lower middle (centre x 540,
 base y 1480, 960 wide); ducklings in it stand about 290 px tall. Walking away means walking up
@@ -29,13 +34,13 @@ strip of `SPOT.sky` pond appears at the top in the last beat. Boil at 8 per seco
 
 | Time | What happens | Feeling | Sound |
 |---|---|---|---|
-| 0–3 s, hook | Frame 0: four eggs in the nest, the first already cracking. Pop (0.3 s), pop (1.1 s), pop (1.9 s): Pip, Dot and Bean burst out, each differently. The speckled egg does nothing. Three heads turn to stare at it. | comic surprise, then a question | three shell cracks with a rising peep each, on the beat; silence on the stare |
-| 3–8 s | Nothing. Pip leans in and taps it; the egg rocks and knocks him over. A crack zigzags across the shell. | comic tension | a ticking pulse that stretches; a wobble "tock" on each rock; a thud and an indignant peep for Pip; a dry crack sweep |
-| 8–13 s | A pip punches through, the zigzag runs round, and the cap pops: Gucky tumbles out, wet and spiky, the top of the shell on his head. He blinks. | release, wonder | silence just before the pop; the pop on its frame; a soft pad swell; Gucky's first peep, small |
-| 13–21 s | His siblings are already waddling off toward Mom's call, out of the nest and up the field. Gucky tries to stand: legs splay, bill plants in the straw, the cap slides over his eyes, he pushes it up, stands, wobbles. | underdog comedy | mickey-moused: each failed try has its own sound (splay boing, bill thunk, cap slide); Mom's footsteps far and steady |
-| 21–25.5 s | Three wobbly steps (motif 'ask'), then a run up the frame after the line, his down drying fluffy as he goes. | determination | the motif incomplete on the steps, quickening; peeps rising |
-| 25.5–27.5 s, payoff | He reaches the end of the line and falls into step, last, cap bobbing. | warm triumph, a smile | the motif resolved ('answer') |
-| 27.5–30 s, cliffhanger | A huge rubber boot stamps down between Gucky and the line, which walks on out of frame. Gucky stops. His eyes go up, then his head, all the way up the boot. Hold on his face. | wonder, uh-oh | a deep thud on the stamp; silence; the motif 'ask', unresolved |
+| 0–5.5 s, hook | Frame 0: four eggs in the nest, the first already cracking. Pip (0.25 s), Dot (2.1 s) and Bean (4.4 s) hatch, each their own way, each with a beat after. The speckled egg does nothing. Three heads turn to stare at it. | comic surprise, then a question | three shell cracks with a rising peep each, on the beat; silence on the stare |
+| 5.5–11.25 s | Nothing (a 1.4 s stare). Pip leans in and taps it; the egg rocks and knocks him over. A crack zigzags across the shell. | comic tension | a ticking pulse that stretches; a wobble "tock" on each rock; a thud and an indignant peep for Pip; a dry crack sweep |
+| 11.25–16.6 s | A pip punches through, the zigzag runs round, and the cap pops: Gucky tumbles out, wet and spiky, the top of the shell on his head. He blinks. | release, wonder | silence just before the pop; the pop on its frame; a soft pad swell; Gucky's first peep, small |
+| 16.6–24.6 s | His siblings are already waddling off toward Mom's call, out of the nest and up the field. Gucky tries to stand: legs splay, bill plants in the straw, the cap slides over his eyes, he pushes it up, stands, wobbles. | underdog comedy | mickey-moused: each failed try has its own sound (splay boing, bill thunk, cap slide); Mom's footsteps far and steady |
+| 24.6–29.2 s | Three wobbly steps (motif 'ask'), then a run up the frame after the line, his down drying fluffy as he goes. | determination | the motif incomplete on the steps, quickening; peeps rising |
+| 29.2–31.2 s, payoff | He reaches the end of the line and falls into step, last, cap bobbing. | warm triumph, a smile | the motif resolved ('answer') |
+| 31.2–34 s, cliffhanger | A huge rubber boot stamps down between Gucky and the line, which walks on out of frame. Gucky stops. His eyes go up, then his head, all the way up the boot. Hold on his face. | wonder, uh-oh | a deep thud on the stamp; silence; the motif 'ask', unresolved |
 
 ## Actions to prove first
 
@@ -65,28 +70,28 @@ strip of `SPOT.sky` pond appears at the top in the last beat. Boil at 8 per seco
   at about 290 px, and leaving means climbing the frame.
 - The nest is a low mound of loose straw with a raised ring (kit `nest`, `depth: .3, rim: .13`),
   after a flat tray, a deep tub and a basket-like drum each read wrong.
-- Hard frame at 11.5 s: Pip nose to nose with wet Gucky ("who are you?"), Bean peeking from
+- Hard frame at 11.5 s (15.15 s since the retime): Pip nose to nose with wet Gucky ("who are you?"), Bean peeking from
   behind, Dot watching, Gucky's shell behind him.
 
-## The hook and the egg beat as built (0–7.5 s)
+## The hook and the egg beat as built (0–11.25 s)
 
 | Time | Picture | Sound |
 |---|---|---|
 | 0–0.25 | four eggs; Pip's (left) already cracking and shivering, then squeezing down | card cracks from the first frame; four pizzicato notes climbing over the squeeze |
 | 0.25–1.1 | Pip's top launches high ahead of him, spinning twice, and falls back beside the egg; he rockets straight up after it, stretched thin with eyes shut, hangs at the top in a hero pose (wings up, chest out, a shine burst), drops straight down feet first, lands hard in two puffs of dust, then shakes himself dry in a spray of drops | a card pop and a whoosh; a harp run up; a pizzicato D major chord and a bright peep on the hero pose; a run down; a felt thud and a low note on the landing; a marimba trill and a brush for the shake, water drops; a tink as his top lands |
-| 1.0–1.4 | Dot's lid flips open on its hinge; a small Dot peeks out, looks at Pip, turns to look the other way, blinks twice | soft cracks, a creak and a light tock as the lid lands; two curious pizzicato notes; a glockenspiel plink on each blink |
-| 1.4–2.0 | she hops out light, lands soft, shimmies dry with sparkles and a smile | a gentle harp run, a soft landing, high glockenspiel sparkles, a content peep |
-| 1.45–2.5 | Bean's egg wobbles, falls over with a thunk; Bean slides out still asleep (z's), lands, then dries off in one huge yawn and stretch | marimba tocks on the wobble, a low thunk and pizzicato note, a slide, a plop, the yawn |
-| 2.55–3.05 | three heads turn to the speckled egg and hold | nothing comes: silence |
-| 3.4 | still nothing; Pip blinks | a tiny glockenspiel plink |
-| 3.75–4.55 | Pip marches up to the egg, chest out | a pizzicato note per footfall, up the scale |
-| 4.85, 5.1 | he leans in and knocks twice with his bill | two wood knocks |
-| 5.25 | he puts his head to it and listens | silence |
-| 5.45 | it leans back and swings into him; over he goes, onto his back at 5.75, legs kicking | a wood bonk, a yelp, a pizzicato run down as he falls, a felt thud and a low pizzicato note; Dot's "oh!" |
-| 5.8–6.5 | the egg wobbles to rest | a marimba tock on each swing, dying away; Pip: "hey!" |
-| 6.05–6.4 | a zigzag crack runs halfway across; Dot sees it first | a dry crack sweep, a glockenspiel note for Dot |
-| 6.55–7.15 | Pip sits up, sees the crack, gets up | two pizzicato notes, up |
-| 3.6–4.6 | meanwhile Bean nods off again (z's) | |
+| 1.05–1.9 | Pip preens: wings up, chest out, looks round for applause, nods | two pizzicato notes on the nod |
+| 2.1–3.0 | Dot's lid flips open on its hinge; a small Dot peeks out and looks at Pip, ducks back down shyly, peeks again, turns to look the other way, blinks | soft cracks, a creak and a light tock as the lid lands; a soft pizzicato note on each up, down, up and turn; a glockenspiel plink on each blink |
+| 3.0–3.65 | she hops out light, lands soft, shimmies dry with sparkles and a smile | a gentle harp run, a soft landing, high glockenspiel sparkles, a content peep |
+| 3.95–5.25 | Bean's egg wobbles, falls over with a thunk; Bean slides out still asleep (z's), sleeps a moment, then dries off in one huge yawn and stretch | marimba tocks on the wobble, a low thunk and pizzicato note, a slide, a plop, a small snore, the yawn |
+| 5.55–6.95 | three heads turn to the speckled egg and hold; Pip blinks (6.35) | nothing comes: silence, but for a tiny glockenspiel plink on the blink |
+| 6.95–7.4 | Pip and Dot exchange a look; Bean nods off again (6.4–7.4) | |
+| 7.4–8.2 | Pip marches up to the egg, chest out | a pizzicato note per footfall, up the scale |
+| 8.5, 8.75 | he leans in and knocks twice with his bill | two wood knocks |
+| 8.9 | he puts his head to it and listens | silence |
+| 9.1 | it leans back and swings into him; over he goes, onto his back at 9.4, legs kicking | a wood bonk, a yelp, a pizzicato run down as he falls, a felt thud and a low pizzicato note; Dot's "oh!" |
+| 9.45–10.15 | the egg wobbles to rest | a marimba tock on each swing, dying away; Pip: "hey!" |
+| 9.7–10.05 | a zigzag crack runs halfway across; Dot sees it first | a dry crack sweep, a glockenspiel note for Dot |
+| 10.2–10.8 | Pip sits up, sees the crack, gets up | two pizzicato notes, up |
 
 Decisions: the user found the first sibling hatches "bland compared to gucky". Now each hatches
 in character and comes out wet like Gucky, drying off its own way: Pip the show-off (a launched
@@ -109,26 +114,26 @@ frame by frame, every frame of 6.7–7.7 (the join), and the 11.5 s hard frame a
 one (unchanged).
 `verify.mjs --engine chromium` passes; `review.mjs` finds no held stretch. Not heard here.
 
-## The hatch as built (7.5–13.5 s)
+## The hatch as built (11.25–17.25 s; approved at 7.5–13.5 s, moved whole by `HATCH`)
 
 Every time lives in the film's one timeline, `T`; poses, marks, shots and the score read it.
 
 | Time | Picture | Sound |
 |---|---|---|
-| 7.6, 8.0, 8.5 | Pip taps his near foot, impatient, slowing | a pizzicato bass note on each tap (D, B, A), lower and softer each time, with a soft foot tap |
-| 8.7–9.0 | the egg shivers (flips every frame); Bean sleeps (z's) | a marimba roll on A, growing |
-| 9.0 | the pip: a hole and a star of cracks on the zigzag's line, a burst, three chips fly and land; Pip flinches | a card crack, a flick and a high pizzicato plink; each chip ticks where the picture lands it |
-| 9.06–9.36 | the bill tip shows in the hole and goes | (silence) |
-| 9.5, 9.8, 10.1 | three pushes: the crack runs on, the egg rocks and dips, a small burst at the crack's tip; Pip and Dot lean in | a paper tear, a card knock and a pizzicato note per push, climbing a semitone each (A, B♭, B); tremolo strings swell under all three |
-| 10.3–10.6 | the egg presses down and trembles | the strings cut: silence |
-| 10.6 | pop: the cap flies spinning, Gucky comes out unfolding (.38 → .98) in a forward flip; Pip leaps back, Dot hops, Bean wakes with a jump; four chips | a card pop and a soft cork, a strummed pizzicato D major chord, a glockenspiel spark; three startled peeps; a harp run up with the cap to its apex and back down as it falls; a soft whoosh |
-| 11.04 | he lands, squashes, sways dazed | a felt thud and straw, a low pizzicato D |
-| 11.22 | the cap lands on his head: burst, squash, the cap rocks and settles | a wood bonk and a high glockenspiel ting |
-| 11.4–11.5 | Pip leans in, bill open: who are you? (the hard frame at 11.5) | Pip's rising peep |
-| 11.69–12.15 | Gucky blinks slowly, then looks up and around | warm strings under it all from the landing; a glockenspiel note on the blink and on each look |
-| 12.25 | his first peep, small, chin up | Gucky's peep, quiet |
-| 12.5 | Pip answers, bossy; Dot's eyes close in a smile | two Pip peeps; Dot's soft coo |
-| 12.95 | Mom calls from up the field: every head turns up | two far quacks (kit `quack`, `far: 1`) |
+| 11.25, 11.65, 12.15 | Pip taps his near foot, impatient, slowing | a pizzicato bass note on each tap (D, B, A), lower and softer each time, with a soft foot tap |
+| 12.35–12.65 | the egg shivers (flips every frame); Bean sleeps (z's) | a marimba roll on A, growing |
+| 12.65 | the pip: a hole and a star of cracks on the zigzag's line, a burst, three chips fly and land; Pip flinches | a card crack, a flick and a high pizzicato plink; each chip ticks where the picture lands it |
+| 12.71–13.01 | the bill tip shows in the hole and goes | (silence) |
+| 13.15, 13.45, 13.75 | three pushes: the crack runs on, the egg rocks and dips, a small burst at the crack's tip; Pip and Dot lean in | a paper tear, a card knock and a pizzicato note per push, climbing a semitone each (A, B♭, B); tremolo strings swell under all three |
+| 13.95–14.25 | the egg presses down and trembles | the strings cut: silence |
+| 14.25 | pop: the cap flies spinning, Gucky comes out unfolding (.38 → .98) in a forward flip; Pip leaps back, Dot hops, Bean wakes with a jump; four chips | a card pop and a soft cork, a strummed pizzicato D major chord, a glockenspiel spark; three startled peeps; a harp run up with the cap to its apex and back down as it falls; a soft whoosh |
+| 14.69 | he lands, squashes, sways dazed | a felt thud and straw, a low pizzicato D |
+| 14.87 | the cap lands on his head: burst, squash, the cap rocks and settles | a wood bonk and a high glockenspiel ting |
+| 15.05–15.15 | Pip leans in, bill open: who are you? (the hard frame, at 15.15 since the retime) | Pip's rising peep |
+| 15.34–15.8 | Gucky blinks slowly, then looks up and around | warm strings under it all from the landing; a glockenspiel note on the blink and on each look |
+| 15.9 | his first peep, small, chin up | Gucky's peep, quiet |
+| 16.15 | Pip answers, bossy; Dot's eyes close in a smile | two Pip peeps; Dot's soft coo |
+| 16.6 | Mom calls from up the field: every head turns up | two far quacks (kit `quack`, `far: 1`) |
 
 The room is nearly dry (`ROOM`: wet .06, a 0.5 s tail): outdoors at a pond, and the user heard
 the kit's default room (a 2.2 s tail with early taps) as echoes on everything.
