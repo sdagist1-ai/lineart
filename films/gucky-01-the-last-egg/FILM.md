@@ -10,7 +10,7 @@ the line), and the boot cliffhanger approved. The hard frame is approved (Mom of
 hatch (7.5–13.5 s) is built and scored; the user approved its second version
 (`out/g01-hatch-v2.mp4`: "it sounds way better!!"), the dry room and the small orchestra. The
 hook and egg beat (0–7.5 s) are built and scored, waiting for the user's review of
-`out/g01-0-13.5-v2.mp4`; the rest (13.5–30 s) is not built yet.
+`out/g01-0-13.5-v3.mp4`; the rest (13.5–30 s) is not built yet.
 
 ## Form
 
@@ -73,7 +73,7 @@ strip of `SPOT.sky` pond appears at the top in the last beat. Boil at 8 per seco
 | Time | Picture | Sound |
 |---|---|---|
 | 0–0.25 | four eggs; Pip's (left) already cracking and shivering, then squeezing down | card cracks from the first frame; four pizzicato notes climbing over the squeeze |
-| 0.25–0.95 | Pip's top launches high, spinning twice; he comes out in a clean somersault, unfolding, sticks the landing at 300 (ta-da, wings up, a shine burst), then shakes himself dry in a spray of drops | a card pop and a whoosh; a quick harp run over the flip; a pizzicato D major chord and a bright peep on the landing; a marimba trill and a brush for the shake, water drops |
+| 0.25–1.1 | Pip's top launches high ahead of him, spinning twice, and falls back beside the egg; he rockets straight up after it, stretched thin with eyes shut, hangs at the top in a hero pose (wings up, chest out, a shine burst), drops straight down feet first, lands hard in two puffs of dust, then shakes himself dry in a spray of drops | a card pop and a whoosh; a harp run up; a pizzicato D major chord and a bright peep on the hero pose; a run down; a felt thud and a low note on the landing; a marimba trill and a brush for the shake, water drops; a tink as his top lands |
 | 1.0–1.4 | Dot's lid flips open on its hinge; a small Dot peeks out, looks at Pip, turns to look the other way, blinks twice | soft cracks, a creak and a light tock as the lid lands; two curious pizzicato notes; a glockenspiel plink on each blink |
 | 1.4–2.0 | she hops out light, lands soft, shimmies dry with sparkles and a smile | a gentle harp run, a soft landing, high glockenspiel sparkles, a content peep |
 | 1.45–2.5 | Bean's egg wobbles, falls over with a thunk; Bean slides out still asleep (z's), lands, then dries off in one huge yawn and stretch | marimba tocks on the wobble, a low thunk and pizzicato note, a slide, a plop, the yawn |
@@ -90,7 +90,8 @@ strip of `SPOT.sky` pond appears at the top in the last beat. Boil at 8 per seco
 
 Decisions: the user found the first sibling hatches "bland compared to gucky". Now each hatches
 in character and comes out wet like Gucky, drying off its own way: Pip the show-off (a launched
-top, a somersault, a stuck landing, a shake), Dot the watcher (she peeks out and looks around
+top, a rocket straight up, a hero pose, a hard landing, a shake; a somersault was tried first,
+and the user preferred something that doesn't echo Gucky's tumble), Dot the watcher (she peeks out and looks around
 before she comes out), Bean the sleeper (born asleep, dries in a yawn). Gucky keeps what is only
 his: the tumble, the cap that stays on, staying wet. All four unfold from eggs smaller than they
 are. Bean's egg now lies on its side behind Bean, hidden by Gucky in the hard frame.
@@ -101,8 +102,8 @@ Pip knocks with his bill from x 468, bending his head more than his body: leanin
 his feet off the ground and pushed his bill into the shell. He lies on his back about x 372 and
 stands up where the hatch starts him (330), in the hatch's opening pose.
 
-Measured: the whole score is −16.7 LUFS, true peak −1.0 dBTP at the approved pop (10.72 s); the
-0–13.5 s render muxes to −16.6 LUFS, −1.1 dBFS. The hook sits about −14 LUFS momentary, under the
+Measured: the whole score is −16.6 LUFS, true peak −1.0 dBTP at the approved pop (10.72 s); the
+0–13.5 s render muxes to −16.4 LUFS with an AAC peak of −0.8 dBFS (fix at the final master). The hook sits about −14 LUFS momentary, under the
 pop's −12. Looked at: the hook every other frame (0–3.2), 0–7.5 every 0.25 s, the knock and shove
 frame by frame, every frame of 6.7–7.7 (the join), and the 11.5 s hard frame against the approved
 one (unchanged).
