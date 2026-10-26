@@ -69,6 +69,8 @@ const walkPhase = (dist, s, stride = .08) => dist / (4 * stride * UNIT * s);
  *   headTilt radians                                       tap  0..1 lifts the near foot (side view): impatience
  *   knee     units a swinging foot lifts (.07): high for a proud march or a hero step
  *   kick     [forward, up] units: hold the near foot there (side view), a hero step or a foot in a shell
+ *   narrow   0..1 squeezes him sideways: the in-between frames of a turn
+ *   curl     0..1 how far a lifted foot curls its toes down (side view), as a duckling's do in the swing
  *   t, key   boil and imperfection
  * Anything left out falls back to the duckling's resting look (DUCKLINGS[who].rest).
  */
@@ -81,7 +83,8 @@ function duckling(g, pose) {
   const bob = step === undefined ? 0 : -.025 * Math.abs(Math.sin(step * TAU));
   const rot = (view === 'side' ? (p.lean || 0) * f : 0) + (p.waddle || 0);
   // Unit space -> frame: squash about the ground, bob, lean/waddle about the feet, then place.
-  const W2 = (pts) => xf(pts.map(([x, y]) => [x * stretch, (y + bob) * squash]), p.x, p.y, rot, f * S, S);
+  const nx = stretch * (1 - (p.narrow || 0));
+  const W2 = (pts) => xf(pts.map(([x, y]) => [x * nx, (y + bob) * squash]), p.x, p.y, rot, f * S, S);
   // Wet down is darker and spiky; it dries by degrees (colour and spikes), the outline's rhythm at the halfway mark.
   const down = wet <= 0 ? GUCKY.down : wet >= 1 ? GUCKY.wet : mixHex(GUCKY.down, GUCKY.wet, wet);
   const look = p.look || [0, 0], blink = clamp(p.blink || 0, 0, 1), bw = who.bodyW;
@@ -100,10 +103,12 @@ function duckling(g, pose) {
     const pad = front
       ? [[ax - .07, ay], [ax + .07, ay], [ax + .05, ay - .03], [ax, ay - .015], [ax - .05, ay - .03]]
       : [[ax - .035, ay - .02], [ax + .15, ay - .01], [ax + .16, ay + .008], [ax - .02, ay + .01]];
-    const P = W2(pad);
+    // A lifted foot curls its toes down, as a duckling's does in the swing.
+    const curl = front ? 0 : .65 * (p.curl || 0) * clamp(lift / .05, 0, 1), C = (q) => W2(rotAbout(q, ax, ay - .012, curl));
+    const P = C(pad);
     tint(g, P, GUCKY.bill, { key: `${key}:foot${k}`, t, marker: false, miss: 2 * kw, grow: -1 });
     outline(g, P, { key: `${key}:foot${k}`, t, w: wD, join: 2 });
-    if (!front) for (const tx of [.06, .11]) ink(g, W2([[ax + tx, ay - .012], [ax + tx + .02, ay + .004]]), { key: `${key}:toe${k}${tx}`, t, w: wD * .55, taper: [2, 3] });
+    if (!front) for (const tx of [.06, .11]) ink(g, C([[ax + tx, ay - .012], [ax + tx + .02, ay + .004]]), { key: `${key}:toe${k}${tx}`, t, w: wD * .55, taper: [2, 3] });
   };
 
   if (view === 'side') {

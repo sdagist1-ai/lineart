@@ -7,88 +7,67 @@ turns him round and he takes three real steps. In the meadow he catches up and f
 tries Pip's hero step again, topples, loses the line, and a huge rubber boot stamps down in front
 of him. A series pilot; read `series/gucky/SERIES.md` first.
 
-Status: script draft 3 (`SCRIPT.md`) approved by the user ("Approved") and built: 39.3 s, two
-scenes. Approved and unchanged from the earlier cuts: everything to Mom's call at 16.6 s (the
-hook, the siblings' hatches, the knock, Gucky's hatch), the dry room and the small orchestra, the
-motif. The user's notes that led here: on the first full cut (`out/g01-full.mp4`), the siblings
-should leave off screen and a second scene have them walk across with the music matching the
-walk, Gucky stumbling and losing pace, then the boot; the nest stumble should look more natural;
-no water at the top of the nest scene. On draft 2: "Gucky struggle wasn't funny".
+Status: draft 4, built from the user's notes on the draft 3 cut (`out/g01-d3.mp4`): "it's not
+really noticeable that Mom called them. It just appears they all started walking"; "why is Bean
+walking in a completely different direction than everyone else initially?"; "the walk should be
+from left to right side of screen"; "Gucky's stumble and difficulties in the beginning is still
+confusing and lacking fluidity. Is there any way to add more animal like motion flow?" The user
+sent two reference clips (ducklings climbing out of a basket and tumbling over its rim; four
+ducklings walking across grass, the camera tracking them) and pointed at procedural animation as
+games use it. Cut: `out/g01-d4.mp4`, 42.5 s. Approved and unchanged: everything to Mom's call at
+16.6 s, the room and the small orchestra, the motif.
 
-Length: set by the story, not a clock ("it appears we're rushing to catch up to gucky coming
-out of shell"). The approved hatch keeps its inner timing and starts at 11.25 s (`HATCH`).
+Length: set by the story, not a clock. The approved hatch keeps its inner timing and starts at
+11.25 s (`HATCH`).
 
 ## Form
 
-Two scenes, vertical 1080×1920 design rendered at 1440×2560, 39.3 s.
+Two scenes, vertical 1080×1920 design rendered at 1440×2560, 42.5 s. Everything leaves left to
+right: Mom calls from off the right edge.
 
-- Scene 1, the nest (0–27.6 s), one fixed take: the camera a little above the ducklings; the
-  nest a low straw ring in the lower middle (centre x 540, base y 1480, 960 wide); grass running
-  back to a soft horizon (y 430) with a line of far bushes and two clouds. No water: the pond is
-  where they are going, off to the left.
-- Scene 2, the meadow (27.6–39.3 s): the camera at the ducklings' eye level, side on, the horizon
-  at their eyes (y 1215), their feet at y 1420, tall grass and wildflowers behind, rows of tufts
-  toward the lens, a big sky for the boot. The camera tracks the march (parallax: clouds .05,
-  bushes .2, tall grass .8, the line 1, near tufts 1.1–1.4), then eases to a stop with Gucky.
-- Screen direction: Mom calls from the left and everyone leaves left; the meadow walk runs right
-  to left. The shell gag set this: Gucky's shell sits to his right, so his wrong-way march has to
-  go right and the right way is left.
+- Scene 1, the nest (0–30.8 s), one fixed take a little above the ducklings; grass back to a soft
+  horizon (y 430) with far bushes and two clouds; no water. The way out is the nest's back rim:
+  Pip and Bean get up onto it and walk along its top, behind everyone and drawn smaller (further
+  off), and off the right edge. That keeps the middle of the nest clear for Gucky's gags.
+- Scene 2, the meadow (30.8–42.5 s), at the ducklings' eye level, side on (horizon y 1215, feet y
+  1420), the camera tracking the line walking right, with parallax; it eases to a stop with Gucky.
 
-Palette: down yellow, bills and feet orange, shells pale blue-green with speckles, nest sand;
-pink and violet flowers in the meadow; the boot green, the trouser leg blue. Boil 8 a second.
+## Motion, from the references and from game-style procedural animation
+
+- From the walking clip: ducklings walk with the body tipped forward and the head out front, in
+  quick short steps, toes curling down as each foot swings forward (rig `curl`, opt-in so the
+  model sheet is unchanged); a line of them is loose, bunching and drifting, each in its own step.
+  The siblings lean about 0.14 rad into the walk, bob over each stance foot and drift ±12–18 px
+  in the line (`gait`, `LOOSE`).
+- From the basket clip: a duckling leaving goes up onto the rim, hesitates, peers down with its
+  wings out, rocks, then tips over head first. Gucky's exit is exactly that (`teeter`, `tumble`).
+- Follow-through (`follow`): the head, cap and wings trail the body, read from the pose a moment
+  earlier, so it stays pure in t. Falls speed up like a falling stick, land, bounce and settle
+  (`topple`); getting up has a push back and an overshoot. Turns pass through squeezed in-betweens
+  (`turning`, rig `narrow`) instead of snapping between views.
 
 ## Beats as built
 
 | Time | Picture | Sound |
 |---|---|---|
-| 0–16.6 s | approved: the hook, the siblings' hatches, the stare, the knock, the hatch (tables below) | approved |
-| 16.6 | Mom calls from off screen, left; every head turns | two far quacks, panned left |
-| 16.75–18.0 | Pip marches off left, chest out, knees high, over the rim; Bean stands, turns his back and waddles off up the field half asleep (gone by about 21 s) | a proud pizzicato note on each of Pip's footfalls, up the scale; his two peeps; a sleepy marimba tick-tock for Bean, fading; a yawn |
-| 17.7–18.65 | Gucky copies Pip: puffs his chest, kicks a foot up high and holds it; it wobbles; the cap's weight tips him back onto his tail: plop | a two-note fanfare; one bowed note held, its vibrato growing, then sliding down; a felt plop and a low note |
-| 18.75–19.4 | Dot giggles; a beat; he blinks; he gets up | Dot's three giggle peeps; a glockenspiel plink; two notes up |
-| 19.45–20.3 | He copies Bean's waddle, facing us: four sways, each bigger and slower; the last swings him round to face right, the wrong way | a marimba tick-tock swinging wider and slower; a swish |
-| 20.4–20.9 | Pleased, eyes shut, chin up, he marches the wrong way; Dot hops up onto the rim out of his way; his foot goes into his own shell | proud plucks on his steps; Dot's "eep" and a harp flick; a hollow clonk, a low note, his "oh" |
-| 21.0–21.65 | He clomps two steps wearing it, stops, looks down at it | two hollow clonks |
-| 21.9–22.55 | He shakes his foot; the shell flies off over Dot, who ducks, and lands at the nest's edge; he hops back three times | a card rattle; a whoosh; Dot's squeak; a ting and two settling ticks; three notes down |
-| 22.55–23.7 | Dot laughs, hops down, boops his bill; he spins round to face left; she cheers him on | four laughing peeps; a harp; a high pluck and a soft cork "boop"; a harp swish; two peeps |
-| 23.75–25.8 | He sets his brow; three careful steps; he looks down at his feet, amazed; looks up, beaming, twinkles round him | a low pluck; the motif's first three notes, one per step; a soft glockenspiel "oh"; a four-note sparkle and his happy peep |
-| 25.5–27.6 | Dot runs off left, he runs after her, over the rim; the empty nest, the shells | a harp run up; peeps going left; Mom again, far off; quiet |
-| 27.6 | Cut to the meadow: Pip, Bean and Dot marching left in step, the grass sliding past | the march at 132 BPM: a pizzicato bass on every beat (D, G, A, D), soft footfalls on every eighth, a glockenspiel tune |
-| 27.9–29.2 | Gucky scrambles in from the right, slows onto his place at the end, skips into step | quick plucks out of time, his peeps, a glockenspiel skip |
-| 29.42–31.7 | The four march together; he smiles, cap bobbing | his motif complete ('answer'), on the beat, warm strings under it |
-| 31.7–32.7 | Proud, he high-steps like Pip, holds a foot up, wobbles, tips onto his tail: plop. The camera eases to a stop | the fanfare again, the held note and its slide, the plop, all out of the march's time |
-| 33.15–34.87 | He gets up and hurries, out of step; the line walks on and out of frame left | his quick plucks out of time; the march panning left and fading |
-| 34.52–34.87 | A huge green boot drops out of the sky and stamps down on the downbeat the march never reaches, its heel just ahead of his bill, a step behind the walking line; dust; the frame shakes; "!" | a falling whoosh; the march cuts dead; the stamp (`stomp`), a wood body, a low note, dust |
-| 35–36.2 | He skids to a stop; Dot walks on past the toe and out of frame | two far peeps, fading |
-| 36.2–38.9 | His eyes go up; then his head, all the way up the boot to the trouser leg going out of the top of the frame | silence; a soft string fifth swelling; his motif asks ('ask'), unanswered |
-| 38.9–39.3 | Hold on him | |
+| 0–16.6 s | approved: hook, siblings' hatches, stare, knock, hatch | approved |
+| 16.6, 17.0 | Mom calls twice from off the right edge: arcs come in from the edge; everyone jumps (startle strokes) and turns to it, Gucky last, copying them | two clear quacks panned right; a plucked stab and four yelps; a held beat |
+| 17.35–19.9 | Pip answers, hops up onto the back rim and struts along it, chest out, knees high, and off the right edge; Bean hops up after him and waddles along it half asleep; Gucky watches Pip pass behind him; Dot hops back to watch Gucky | Pip's peeps; plucks up for each hop; a proud note on each of Pip's footfalls; a sleepy marimba tick-tock for Bean |
+| 19.2–20.75 | Gucky copies Pip's march on the spot: chest out, three high steps; the third foot stays up, he wobbles, and the cap's weight tips him onto his tail (a fall that speeds up, bounces and settles) | a two-note fanfare; rising plucks; a bowed note wobbling, then sliding down; a felt plop |
+| 20.85–21.7 | Dot giggles; he blinks; he pushes himself up with his wings | giggle peeps; a plink; two notes up |
+| 21.95–23.5 | He copies Bean's waddle: rolls onto each foot, each roll bigger, the last swings him round (in-betweens) to face left; dizzy | a marimba tick-tock swinging wider; a swish |
+| 23.55–24.55 | Proud, eyes shut, he marches the wrong way and his foot goes into Pip's eggshell; Dot follows him | proud plucks; a clonk and his "oh" |
+| 24.85–25.8 | Two clomps in the shell, a look down, a shake: it flies off the left edge | clonks; Dot laughing; a rattle, a whoosh, a clatter off screen |
+| 26.05–26.85 | Dot boops his bottom: he jumps and turns round, nose to nose with her; she cheers him on | a high pluck and a soft cork; his "eek"; a harp swish; two peeps |
+| 26.9–28.55 | She runs off right; he sets his brow; three careful steps; he looks at his feet; he beams | the motif's first three notes; a glockenspiel "oh"; a sparkle and his happy peep |
+| 28.65–30.4 | He runs to the rim and brakes on it; teeters, peering down, rocking; tumbles over it head first, off the right edge | a harp run; a skid; a high note wavering; a run of plucks down; a thump and a happy peep off screen; Mom far off |
+| 30.8–42.5 | The meadow, now walking right: as before, mirrored (Gucky scrambles in from the left and skips into step; the high step and the topple; the camera stops; he hurries; the boot, toe to the right, lands on the downbeat; eyes up, head up; the ask) | as before |
 
-Decisions while building draft 3:
-
-- Gucky's copies use two new rig options (`series/gucky/kit.js`): `knee` (how high a swinging
-  foot lifts: Pip's march, Gucky's high step) and `kick` (the near foot held at [forward, up]: the
-  hero step, the foot in the shell). The model sheet still renders to its approved hash.
-- The sit is a lean back of about 0.55 rad with a squash, about the feet: his tail meets the
-  straw and his feet come up.
-- Bean leaves in back view: a waddle reads as side to side from behind, and Gucky copies it
-  facing us. His way out goes straight up the gap between Gucky and Dot, then left along the
-  field, far enough off to pass over Gucky's head.
-- Dot stays on the right. Crossing her to the left put her bill in Gucky's face or across his
-  gags; instead she hops up onto the rim as he marches at her, ducks his shell, and comes down
-  to boop him round from the front. She cheers from behind him and they run off together.
-- The shell on his foot is drawn over him: a big bowl around one foot, coming up to his belly.
-- The meadow line is in step: one footfall every eighth note, each duckling's stride set from
-  its size so all four walk at the same speed. Gucky's phase eases onto the line's as he skips in.
-  The line is already marching at the cut (walking it in from the edge would take 4 s).
-- The boot lands just behind the walking line (its sole 46 px upstage of their feet), so Dot
-  walks on in front of its toe; its heel stops 22 px short of Gucky's bill.
-- Screen direction is flipped from the script's right to left; every beat is as written.
-
-Measured: the whole score is −18.2 LUFS, 2.2 LU under target, true peak −1.0 dBTP at the
-approved pop (14.37 s); left as approved, to settle at the final master. Chromium renders the
-score repeatably to within 3 LSB. Looked at: scene 1 every 0.2–0.4 s and the meadow every 0.5 s
-on sheets, the gags and the meadow's key moments at 1:1, and the handoff at Mom's call frame by
-frame. Not heard here.
+Measured: −18.6 LUFS, 2.6 LU under target, true peak −1.0 dBTP at the approved pop (14.37 s);
+the shell's first clonk was a new peak and was turned down. `verify --engine chromium` passes;
+the MP4 has no held stretch. Looked at: the call, the exits and every gag every 0.2–0.3 s on
+sheets and at 1:1, the teeter and tumble, and the meadow every 0.5 s. Not watched at speed or
+heard here.
 
 ## Assumptions made without asking
 
@@ -212,5 +191,5 @@ read as a spin in motion), and whether the slide whistle is too cartoony for war
 
 ## Remaining work
 
-The user's review of the draft 3 cut (`out/g01-d3.mp4`). Then the final sound pass (loudness, the
-AAC peak), Firefox verify and the final render on the Mac, and the post caption ("Part 2 →").
+The user's review of `out/g01-d4.mp4` (renders now happen on the user's Mac). Then the final
+sound pass (loudness, the AAC peak), Firefox verify, and the post caption ("Part 2 →").

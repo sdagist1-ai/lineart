@@ -9,17 +9,18 @@ go off screen; a second scene has them walking across while the music matches th
 stumbles and loses pace; then the boot slams down. The stumble in the nest should look more
 natural, and the nest scene loses the water at the top: the pond is where they are walking to.
 
-As built, changed from the text below (every beat is kept):
+As built (draft 4, `FILM.md`), changed from the text below; every beat is kept:
 
-- Screen direction is flipped: Mom calls from the left, they all leave left, and the meadow walk
-  runs right to left. Gucky's shell sits to his right, so his wrong-way march goes right.
-- Bean wanders off up the field, seen from behind (a waddle reads side to side that way); Gucky
-  copies it facing us.
-- Dot stays on the right throughout: she hops up onto the rim out of his march, ducks his shell,
-  and boops him round from the front; she cheers from behind him and they run off together.
-- The meadow opens on the line already marching (walking it in from the edge took 4 s); the boot
-  lands just behind the walking line, its heel at Gucky's bill, on the downbeat the march never
-  reaches. About 39 s in all.
+- Screen direction as written: everything leaves left to right; Mom calls from the right.
+- Mom's call is made unmissable: two near quacks, arcs coming in from the edge, everyone jumps and
+  turns to it, Gucky last; a held beat; Pip answers before anyone moves.
+- Pip and Bean leave along the top of the nest's back rim, behind everyone, the same way.
+- Gucky copies by following: Pip's march on the spot, Bean's waddle as Bean goes. His wrong-way
+  march takes him into Pip's eggshell (it fits his foot like a boot; his own came up to his
+  belly). Dot followed him and boops his bottom to turn him round, nose to nose.
+- He leaves the nest the way the reference duckling left its basket: up on the rim, peering down,
+  rocking, and over head first.
+- The meadow opens on the line already walking; the boot lands just behind it. About 42 s.
 
 Wordless. Vertical 9:16. Two scenes, about 36.5 s. Times are approximate until built.
 
